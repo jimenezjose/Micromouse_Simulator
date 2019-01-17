@@ -1,10 +1,25 @@
+/**
+ *
+ * Jose Jimenez
+ * Brandon Cramer
+ * Chris Robles
+ * Srinivas Venkatraman
+ *
+ *                 University of California, San Diego
+ *                      IEEE Micromouse Team 2019
+ *
+ * File Name:   MazeGUI.java
+ * Description: Emulate a real-time micromouse environment for quicker debugging
+ *              and efficient testing. 
+ */
+
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
 
-public class Maze extends JFrame implements ActionListener {
+public class MazeGUI extends JFrame implements ActionListener {
 
   private static final double MAZE_PROPORTION = 0.55; /* canvas will always be rectangular */
   private static final Color LIGHT_BLACK = new Color( 32, 32, 32 ); 
@@ -18,7 +33,7 @@ public class Maze extends JFrame implements ActionListener {
   private JButton backButton;
   private JButton continueButton;
 
-  public Maze( int sideLength ) {
+  public MazeGUI( int sideLength ) {
     super( "Maze Graphics" );
     maze_height = sideLength;
     begin();
@@ -118,7 +133,7 @@ public class Maze extends JFrame implements ActionListener {
   }
 
   public static void main( String[] args ) {
-    new Maze( 3 );
+    new MazeGUI( 3 );
 
     while(true) {}
   }
