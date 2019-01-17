@@ -13,7 +13,7 @@ ls
 ```
 javac MazeGUI.java
 ```
-5. Run the Java executable:
+5. Run the Java executable: 
 ```
 java MazeGUI
 ```
