@@ -1,6 +1,6 @@
 # Micromouse
 
-## How to Run a Java Program:
+## How to Run Java Maze GUI:
     
 1.  Download the project.
 2.  Move the downloaded Folder (Micromouse-master) to your Desktop.
