@@ -19,24 +19,21 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
+import java.util.*;
 
 public class MazeGUI extends JFrame implements ActionListener {
 
-  private static final double MAZE_PROPORTION = 0.55; /* canvas will always be rectangular */
-  private static final Color LIGHT_BLACK = new Color( 32, 32, 32 ); 
-
-  private static boolean[][] maze;
-  private static int maze_height;
-
+  public static final double MAZE_PROPORTION = 0.55; 
+  public static final Color LIGHT_BLACK = new Color( 32, 32, 32 ); 
+  public Maze maze;
   private Point center;
-
   private JPanel northPanel, southPanel;
   private JButton backButton;
   private JButton continueButton;
 
-  public MazeGUI( int sideLength ) {
+  public MazeGUI( int dimension ) {
     super( "Maze Graphics" );
-    maze_height = sideLength;
+    maze = new Maze( dimension );
     begin();
   }
 
@@ -88,7 +85,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 
     for( int row = 0; row < maze.length; row++ ) {
       for( int column = 0; column < maze[0].length; column++ ) {
-        int value = ( maze[row][column] ) ? 1 : 0;
+        char value = ( maze[row][column] ) ? '|' : ' ';
         System.out.print( value + " " );
       }
       System.out.println();
@@ -137,6 +134,59 @@ public class MazeGUI extends JFrame implements ActionListener {
     new MazeGUI( 3 );
 
     while(true) {}
+  }
+
+}
+
+class Maze {
+  private int dimension;
+  private Node[][] maze;
+
+  public Maze( int dim ) {
+    dimension = dim;
+  }
+
+  public int getDimension() {
+    return dimension;
+  }
+
+}
+
+class Node {
+  public int x = 0;
+  public int y = 0;
+  public Node up = null;
+  public Node down = null;
+  public Node left = null;
+  public Node right = null;
+
+  public Node( int x, int y ) {
+    this.x = x;
+    this.y = y;
+  }
+
+  public void addEdge( Node vertex ) {
+    /* neighbor must be with in 1 unit */
+    if( x == vertex.x ) {
+      /* computer y-axis is inverted */
+      if( y + 1 == vertex.y ) down = vertex;
+      else if( y - 1 == vertex.y ) up = vertex;
+    }
+    else if( y == vertex.y ) {
+      /* normal x-axis convention */
+      if( x + 1 == vertex.x ) right = vertex;
+      else if( x - 1 == vertex.x ) left = vertex;
+    }
+    
+  }
+
+  @Override
+  public boolean equals( Object o ) {
+    if( o == this ) return true;
+    if( !(o instanceof Node) ) return false;
+    Node node = (Node) o;
+    if( x ==  node.x && y == node.y ) return true;
+    else return false;
   }
 
 }
