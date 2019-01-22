@@ -26,17 +26,22 @@ import java.util.*;
  */
 public class MazeGUI extends JFrame implements ActionListener {
 
-  public static final double MAZE_PROPORTION = 0.55; 
+  public static final double MAZE_PROPORTION = 0.49; 
   public static final Color LIGHT_BLACK = new Color( 32, 32, 32 ); 
   public Maze maze;
+  public boolean[][] unknown_maze;
   private Point center;
   private JPanel northPanel, southPanel;
   private JButton backButton;
   private JButton continueButton;
 
+  /**
+   * Creates a single Maze 
+   */
   public MazeGUI( int dimension ) {
     super( "Maze Graphics" );
     maze = new Maze( dimension );
+    unknown_maze = new boolean[ 2 * dimension - 1 ][ 2 * dimension - 1 ];
     begin();
   }
 
@@ -45,7 +50,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * canvas
    */
   private void begin() {
-    setSize( 400, 400 );
+    setSize( 800, 800 );
     setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
     setBackground( Color.BLACK );
     getContentPane().setBackground( Color.BLACK );
@@ -93,14 +98,21 @@ public class MazeGUI extends JFrame implements ActionListener {
     drawMaze( g );
   }
 
+  /**
+   * Draws the maze interface of the program.
+   */
   private void drawMaze( Graphics g ) {
     center = new Point( getWidth() / 2, getHeight() / 2 );
-    int canvas_height = getHeight() - 2 * northPanel.getHeight();
+    int canvas_height = getHeight() - 2 * backButton.getHeight();
     int canvas_width  = getWidth();
+
+    System.err.println( "Width: " + canvas_width + ", Height: " + canvas_height );
 
     int maze_diameter = (int)(double)( MAZE_PROPORTION * Math.min(canvas_height, canvas_width) ); 
     int maze_radius   = (int)(double)( 0.5 * maze_diameter );
     int maze_offset   = (int)(double)( 0.25 * (canvas_width - 2 * maze_diameter) );
+
+    System.err.println( "Maze Side: " + maze_diameter );
 
     g.setColor( Color.GRAY );
     g.fillRect( maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
@@ -156,6 +168,13 @@ class Maze {
     maze = new Node[ 2 * dimension - 1 ][ 2 * dimension - 1 ];
   }
 
+  /**
+   * Generates maze from exisiting map.
+   */
+  public Maze( boolean[][] maze ) {
+
+  }
+
   public int getDimension() {
     return dimension;
   }
@@ -169,6 +188,7 @@ class Maze {
 class Node {
   private final String ADD_EDGE_ERROR = "Error: attempt to add edge to a pair on non-adjacent nodes. ";
   private final int offset = 2; /* offset to ignore walls */
+  public char set; /* for maze genration */
 
   public int x = 0;
   public int y = 0;
