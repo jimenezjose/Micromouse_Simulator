@@ -21,6 +21,9 @@ import java.awt.geom.*;
 import javax.swing.*;
 import java.util.*;
 
+/**
+ * MazeGUI will create maze exploring interface.
+ */
 public class MazeGUI extends JFrame implements ActionListener {
 
   public static final double MAZE_PROPORTION = 0.55; 
@@ -37,6 +40,10 @@ public class MazeGUI extends JFrame implements ActionListener {
     begin();
   }
 
+  /**
+   * As soon as the program begins to run, initialize the settings of the 
+   * canvas
+   */
   private void begin() {
     setSize( 400, 400 );
     setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
@@ -71,30 +78,15 @@ public class MazeGUI extends JFrame implements ActionListener {
     contentPane.add( southPanel, BorderLayout.SOUTH );
     contentPane.validate();
     
-    int dimension = 2 * maze_height - 1;
-    maze = new boolean[ dimension ][ dimension ];
-
-    for( int row = 0; row < maze.length; row++ ) {
-      for( int column = 0; column < maze[0].length; column++ ) {
-        /* build grid - grid lines are set to true */
-        if( row % 2 == 1 || column % 2 == 1 ) {
-	  maze[row][column] = true; 
-	}
-      }
-    }
-
-    for( int row = 0; row < maze.length; row++ ) {
-      for( int column = 0; column < maze[0].length; column++ ) {
-        char value = ( maze[row][column] ) ? '|' : ' ';
-        System.out.print( value + " " );
-      }
-      System.out.println();
-    }
-
     setVisible( true );
-
   }
 
+  /**
+   * As soon as the canvas window changes in dimension, paint will be called 
+   * implicitly.
+   *
+   * @param g the canvas object created.
+   */
   @Override
   public void paint( Graphics g ) {
     super.paint( g );
@@ -117,6 +109,14 @@ public class MazeGUI extends JFrame implements ActionListener {
 
   }
 
+  /**
+   * Method implemented from class ActionListener; Once a button is pressed this
+   * method will be called implicitly. 
+   * 
+   * @param evt generic object that records information about the change in 
+   *            state of the "listening" object. In this case the "listening
+   *            object" is a JButton.
+   */
   public void actionPerformed( ActionEvent evt ) {
    
     if( evt.getSource() == continueButton ) {
@@ -130,20 +130,30 @@ public class MazeGUI extends JFrame implements ActionListener {
 
   }
 
+  /**
+   * Where program execution begins, such that a MazeGUI object is created.
+   *
+   * @param args Command line arguments. 
+   */
   public static void main( String[] args ) {
     new MazeGUI( 3 );
-
     while(true) {}
   }
 
 }
 
+/**
+ * Maze will handle the internal maze structures, and ensure a proper graph is
+ * implemented. 
+ */
 class Maze {
   private int dimension;
   private Node[][] maze;
 
-  public Maze( int dim ) {
-    dimension = dim;
+  public Maze( int dimension ) {
+    /* dimension padding added to emulate maze walls */
+    this.dimension = dimension;
+    maze = new Node[ 2 * dimension - 1 ][ 2 * dimension - 1 ];
   }
 
   public int getDimension() {
@@ -152,7 +162,14 @@ class Maze {
 
 }
 
+/**
+ * Node contains information about its location in Maze, and its reachabble
+ * neighbors.
+ */
 class Node {
+  private final String ADD_EDGE_ERROR = "Error: attempt to add edge to a pair on non-adjacent nodes. ";
+  private final int offset = 2; /* offset to ignore walls */
+
   public int x = 0;
   public int y = 0;
   public Node up = null;
@@ -165,21 +182,33 @@ class Node {
     this.y = y;
   }
 
-  public void addEdge( Node vertex ) {
-    /* neighbor must be with in 1 unit */
+  /**
+   * Attaches vertex as neighbobr of currentNode.
+   * 
+   * @param vertex An adjacent cell in the maze from current node.
+   */
+  public void addNeighbor( Node vertex ) {
     if( x == vertex.x ) {
       /* computer y-axis is inverted */
-      if( y + 1 == vertex.y ) down = vertex;
-      else if( y - 1 == vertex.y ) up = vertex;
+      if( y + offset == vertex.y ) down = vertex;
+      else if( y - offset == vertex.y ) up = vertex;
     }
     else if( y == vertex.y ) {
       /* normal x-axis convention */
-      if( x + 1 == vertex.x ) right = vertex;
-      else if( x - 1 == vertex.x ) left = vertex;
+      if( x + offset == vertex.x ) right = vertex;
+      else if( x - offset == vertex.x ) left = vertex;
     }
-    
+    else {
+      /* vertex is not adjacent */
+      System.err.println( ADD_EDGE_ERROR + this + " <-> " + vertex );
+    }
   }
 
+  /**
+   * Checks if two nodes are equivalent.
+   *
+   * @param o Generic object.
+   */
   @Override
   public boolean equals( Object o ) {
     if( o == this ) return true;
@@ -187,6 +216,14 @@ class Node {
     Node node = (Node) o;
     if( x ==  node.x && y == node.y ) return true;
     else return false;
+  }
+
+  /**
+   * Allows for implicit string conversion of a node object.
+   */
+  @Override
+  public String toString() {
+    return "(" + this.x + ", " + this.y + ")";
   }
 
 }
