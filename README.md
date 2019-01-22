@@ -11,7 +11,7 @@ ls
 ```
 4. Compile the Java GUI (Graphical User Interface):
 ```
-javac MazeGUI.java
+make
 ```
 5. Run the Java executable: 
 ```
