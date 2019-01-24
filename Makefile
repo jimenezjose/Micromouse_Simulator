@@ -1,3 +1,5 @@
+BUILD_DIR=build
+
 JAVA_SOURCES= \
 src/MazeGUI.java \
 src/Mouse.java
@@ -9,6 +11,6 @@ build/Maze.class \
 build/Node.class 
 
 all:
-	javac $(JAVA_SOURCES)
+	javac $(JAVA_SOURCES) -d $(BUILD_DIR)
 clean:
-	rm $(JAVA_CLASSES)
+	rm -rf $(BUILD_DIR)
