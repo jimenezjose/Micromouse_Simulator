@@ -15,7 +15,7 @@ make
 ```
 5. Run the Java executable: 
 ```
-java MazeGUI
+java build/MazeGUI
 ```
 
 ## Getting started with the [STM32](https://github.com/jimenezjose/STM32)
