@@ -20,6 +20,7 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
 import java.util.LinkedList;
+import java.util.HashMap;
 import java.lang.Math;
 
 /**
@@ -187,7 +188,12 @@ class Maze {
   public void createRandomMaze() {
     /* set up maze cells with disjoint cell classifiers */
 
-    
+    /*
+    randomly chose wall (a, b)
+
+    if a not in set b
+      union a and b into the same set
+    */
 
   }
 
