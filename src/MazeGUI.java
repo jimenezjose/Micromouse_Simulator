@@ -19,7 +19,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
-import java.util.*;
+import java.util.LinkedList;
+import java.lang.Math;
 
 /**
  * MazeGUI will create maze exploring interface.
@@ -28,20 +29,21 @@ public class MazeGUI extends JFrame implements ActionListener {
 
   public static final double MAZE_PROPORTION = 0.49; 
   public static final Color LIGHT_BLACK = new Color( 32, 32, 32 ); 
-  public Maze maze;
-  public boolean[][] unknown_maze;
+  public Maze ref_maze;
+  public Maze unknown_maze;
   private Point center;
   private JPanel northPanel, southPanel;
   private JButton backButton;
   private JButton continueButton;
 
   /**
-   * Creates a single Maze 
+   * Creates sets up MazeGUI 
    */
   public MazeGUI( int dimension ) {
     super( "Maze Graphics" );
-    maze = new Maze( dimension );
-    unknown_maze = new boolean[ 2 * dimension - 1 ][ 2 * dimension - 1 ];
+    ref_maze = new Maze( dimension );
+    unknown_maze = new Maze( dimension );
+    ref_maze.createRandomMaze();
     begin();
   }
 
@@ -159,6 +161,8 @@ public class MazeGUI extends JFrame implements ActionListener {
  * implemented. 
  */
 class Maze {
+  private static final int EVEN = 2;
+  private static final String DIM_TOO_LARGE = "Cannot create maze. Dimension: %d, too large\n";
   private int dimension;
   private Node[][] maze;
 
@@ -166,14 +170,27 @@ class Maze {
     /* dimension padding added to emulate maze walls */
     this.dimension = dimension;
     maze = new Node[ 2 * dimension - 1 ][ 2 * dimension - 1 ];
+
+    for( int row = 0; row < maze.length; row++ ) { 
+      for( int column = 0; column < maze[0].length; column++ ) {
+        /* init maze with null indicating a maze wall */
+        if( row % EVEN == 0 && column % EVEN == 0 ) {
+          maze[ row ][ column ] = new Node( row, column );
+	}
+	else {
+          maze[ row ][ column ] = null;
+	}
+      }
+    }
   }
 
-  /**
-   * Generates maze from exisiting map.
-   */
-  public Maze( boolean[][] maze ) {
+  public void createRandomMaze() {
+    /* set up maze cells with disjoint cell classifiers */
+
+    
 
   }
+
 
   public int getDimension() {
     return dimension;
@@ -188,7 +205,11 @@ class Maze {
 class Node {
   private final String ADD_EDGE_ERROR = "Error: attempt to add edge to a pair on non-adjacent nodes. ";
   private final int offset = 2; /* offset to ignore walls */
-  public char set; /* for maze genration */
+
+  /* begin - maze generation data */
+  private Node parent = null;
+  private LinkedList<Node> children_list = new LinkedList<Node>();
+  /* end - maze generation data */
 
   public int x = 0;
   public int y = 0;
@@ -224,6 +245,56 @@ class Node {
     }
   }
 
+  /* Maze Generation Routines */
+
+  /* 
+   * Goal: during the maze generation algorithm the parent node 
+   *       will always be the representative of a disjoint set.
+   *       Otherwise, if parent is null, vertex is the representative.
+   *
+   * Reason: Constant time disjoint set evaluation. In other words,
+   *         Knowing the set of vertex should be fast.
+   *         --> inSameSet will be be called more than union
+   *       
+   */
+
+
+
+  public void union( Node vertex ) {
+    if( parent != null ) {
+      /* recurse up the disjoint set tree - only a depth of 1 max */
+      parent.union( vertex );
+      return;
+    }
+
+    /* union two disjoint sets. - representatives located */
+    parent = (vertex.parent == null) ? vertex : vertex.parent;
+
+    while( children_list.size() != 0 ) {
+      /* migrates all children to new parent */
+      Node child = children_list.pop();
+      parent.addChild( child );
+    }
+  }
+
+  public void addChild( Node vertex ) {
+    children_list.push( vertex );
+  }
+
+  /* this must be fast. inSame set will be called more than union. */
+  /* therefore union will be an expensive operation for constant time set check */
+
+  public boolean inSameSet( Node vertex ) {
+    /* roots of both vertice sets */
+    Node a_root = this;
+    Node b_root = vertex;
+
+    if( parent != null) a_root = parent;
+    if( vertex.parent != null ) b_root = vertex.parent;
+
+    return (a_root == b_root);
+  }
+
   /**
    * Checks if two nodes are equivalent.
    *
@@ -245,5 +316,4 @@ class Node {
   public String toString() {
     return "(" + this.x + ", " + this.y + ")";
   }
-
 }

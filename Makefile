@@ -1,8 +1,14 @@
 JAVA_SOURCES= \
-MazeGUI.java \
-Mouse.java
+src/MazeGUI.java \
+src/Mouse.java
+
+JAVA_CLASSES= \
+build/MazeGUI.class \
+build/Mouse.class \
+build/Maze.class \
+build/Node.class 
 
 all:
 	javac $(JAVA_SOURCES)
 clean:
-	rm *.class
+	rm $(JAVA_CLASSES)
