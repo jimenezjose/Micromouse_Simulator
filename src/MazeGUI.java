@@ -55,7 +55,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     setSize( 800, 800 );
     setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
     setBackground( Color.BLACK );
-    getContentPane().setBackground( Color.BLACK );
+    //getContentPane().setBackground( Color.BLACK );
     setResizable( true );
 
     northPanel = new JPanel();
@@ -114,9 +114,11 @@ public class MazeGUI extends JFrame implements ActionListener {
     g.setColor( Color.GRAY );
     g.fillRect( maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
     g.fillRect( center.x + maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
+    g.setColor( Color.BLACK );
 
     /* Maze Generation graphics */
-    ref_maze.createRandomMaze();
+
+    
 
 
   }

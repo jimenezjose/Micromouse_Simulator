@@ -104,7 +104,7 @@ class Maze {
     MazeNode[] neighbors_of_A = { vertex_A.up, vertex_A.down, vertex_A.left, vertex_A.right };
 
     for( int index = 0; index < neighbors_of_A.length; index++ ) {
-      if( neighbor_of_A[ index ] == vertex_B ) {
+      if( neighbors_of_A[ index ] == vertex_B ) {
         /* There is a path directly connect A and B, therefore no wall */
         return false;
       }
