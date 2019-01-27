@@ -1,0 +1,4 @@
+*.class 
+/test
+*.swp
+/build
