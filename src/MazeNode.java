@@ -28,8 +28,8 @@ class MazeNode {
   public LinkedList<MazeNode> subset_list = new LinkedList<MazeNode>();
   /* end - maze generation data */
 
-  public int x = 0;
-  public int y = 0;
+  public final int x;
+  public final int y;
   public MazeNode up = null;
   public MazeNode down = null;
   public MazeNode left = null;

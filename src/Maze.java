@@ -67,7 +67,11 @@ class Maze {
       }
     }
 
+    System.err.println( "Number of walls counted: " + walls.size() );
+    int count = 0;
+
     while( walls.size() != 0 ) {
+      /* choose a random wall from the maze */
       int randomIndex = rand.nextInt( walls.size() );
       Pair<MazeNode, MazeNode> node_pair = walls.get( randomIndex );
       MazeNode vertex_A = node_pair.first;
@@ -77,9 +81,37 @@ class Maze {
         /* combine disjoint sets and create new edge */
         union( vertex_A, vertex_B );
 	addEdge( vertex_A, vertex_B );
+	count++;
+      }
+      
+      /* remove wall from wall list */
+      walls.remove( randomIndex );
+    }
+
+    System.err.println( "number of walls taken down: " + count );
+  
+  }
+
+  /**
+   * Evaluates if a wall exists between two nodes in the maze.
+   * @param vertex_A a node in the maze.
+   * @param vertex_B a node in the maze.
+   * @return true if there is no adjacent path from A to B.
+   */
+  public boolean wallBetween( MazeNode vertex_A, MazeNode vertex_B ) {
+    if( vertex_A == null || vertex_B == null ) return false;
+
+    MazeNode[] neighbors_of_A = { vertex_A.up, vertex_A.down, vertex_A.left, vertex_A.right };
+
+    for( int index = 0; index < neighbors_of_A.length; index++ ) {
+      if( neighbor_of_A[ index ] == vertex_B ) {
+        /* There is a path directly connect A and B, therefore no wall */
+        return false;
       }
     }
-  
+
+    return true;
+
   }
 
   /* Maze Generation Routines */
@@ -101,7 +133,7 @@ class Maze {
    * @param vertex_B Node in maze.
    * @return Nothing.
    */
-  public void union( MazeNode vertex_A, MazeNode vertex_B ) {
+  private void union( MazeNode vertex_A, MazeNode vertex_B ) {
 
     if( inSameSet(vertex_A, vertex_B) ) {
       /* no union needed */
@@ -114,6 +146,7 @@ class Maze {
 
     /* a will be the subset of b */
     a_set.parent = b_set;
+    b_set.addSubsetElement( a_set );
 
     while( a_set.subset_list.size() != 0 ) {
       /* migrates all vertices in set a to set b */
@@ -127,12 +160,12 @@ class Maze {
    * @param vertex Node in maze.
    * @return The set to which vertex belongs to.
    */
-  public MazeNode find( MazeNode vertex ) {
+  private MazeNode find( MazeNode vertex ) {
     return ( vertex.parent == null ) ? vertex : vertex.parent;
   }
 
-  /* this must be fast. inSame set will be called more than union. */
-  /* therefore union will be an expensive operation for constant time set check */
+  /* this must be fast. inSameSet will be called more than union. Therefore     */
+  /* union will be a relatively expensive operation for constant time set check */
 
   /**
    * Constant time check for set equivalence.
@@ -140,7 +173,7 @@ class Maze {
    * @param vertex_B Node in maze.
    * @return Nothing.
    */
-  public boolean inSameSet( MazeNode vertex_A, MazeNode vertex_B ) {
+  private boolean inSameSet( MazeNode vertex_A, MazeNode vertex_B ) {
     return (find( vertex_A ) == find( vertex_B ));
   }
  
@@ -150,9 +183,36 @@ class Maze {
    * @param vertex_B A node in the maze.
    * @return Nothing.
    */
-  public static void addEdge( MazeNode vertex_A, MazeNode vertex_B ) {
+  public void addEdge( MazeNode vertex_A, MazeNode vertex_B ) {
+    if( vertex_A == null || vertex_B == null ) return;
+    /* undirected edge added */
     vertex_A.addNeighbor( vertex_B );
     vertex_B.addNeighbor( vertex_A );
+  }
+
+  /* END OF MAZE GENERATION ROUTINES */
+
+  /**
+   * Checks if an index is out of the range of the maze.
+   * @param index x or y coordinate in the square 2d maze.
+   * @return true if and only if index does not exists in maze.
+   */
+  public boolean outOfBounds( int index ) {
+    return ( index < 0 || index >= getDimension() );
+  }
+
+  /**
+   * Accessor method for the maze internal structure.
+   * @param x row cell in 2d array maze.
+   * @param y column cell in 2d array maze.
+   */
+  public MazeNode at( int x, int y ) {
+    if( outOfBounds(x) || outOfBounds(y)  ) {
+      System.err.println( "Maze:at() out of bounds (" + x + ", " + y + ")" );
+      return null;
+    }
+    /* Abstract the maze data structure */
+    return maze[ x ][ y ];
   }
 
   /**

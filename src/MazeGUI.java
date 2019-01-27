@@ -107,19 +107,17 @@ public class MazeGUI extends JFrame implements ActionListener {
     center = new Point( getWidth() / 2, getHeight() / 2 );
     int canvas_height = getHeight() - 2 * backButton.getHeight();
     int canvas_width  = getWidth();
-
-    System.err.println( "Width: " + canvas_width + ", Height: " + canvas_height );
-
     int maze_diameter = (int)(double)( MAZE_PROPORTION * Math.min(canvas_height, canvas_width) ); 
     int maze_radius   = (int)(double)( 0.5 * maze_diameter );
     int maze_offset   = (int)(double)( 0.25 * (canvas_width - 2 * maze_diameter) );
 
-    System.err.println( "Maze Side: " + maze_diameter );
-
     g.setColor( Color.GRAY );
     g.fillRect( maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
     g.fillRect( center.x + maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
-    //createRandomMaze();
+
+    /* Maze Generation graphics */
+    ref_maze.createRandomMaze();
+
 
   }
 
