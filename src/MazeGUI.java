@@ -30,10 +30,16 @@ public class MazeGUI extends JFrame implements ActionListener {
   public static final Color LIGHT_BLACK = new Color( 32, 32, 32 ); 
   public Maze ref_maze;
   public Maze unknown_maze;
-  private Point center;
+  private Point center = new Point();
   private JPanel northPanel, southPanel;
   private JButton backButton;
   private JButton continueButton;
+
+  private Point leftMazePoint  = new Point();
+  private Point rightMazePoint = new Point();
+  private Point currentPoint = new Point();
+  private Point rightPoint   = new Point();
+  private Point downPoint    = new Point();
 
   /**
    * Creates sets up MazeGUI 
@@ -104,19 +110,53 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @param g the canvas object created
    */
   private void drawMaze( Graphics g ) {
-    center = new Point( getWidth() / 2, getHeight() / 2 );
+    Graphics2D g2d = (Graphics2D) g;
+    center.setLocation( getWidth() / 2, getHeight() / 2 );
     int canvas_height = getHeight() - 2 * backButton.getHeight();
     int canvas_width  = getWidth();
-    int maze_diameter = (int)(double)( MAZE_PROPORTION * Math.min(canvas_height, canvas_width) ); 
+    int wall_width   = 2;
+    int num_of_walls = ref_maze.getDimension() - 1;
+    int maze_diameter = (int)(double)( MAZE_PROPORTION * Math.min(canvas_height, canvas_width) + num_of_walls * wall_width ); 
     int maze_radius   = (int)(double)( 0.5 * maze_diameter );
     int maze_offset   = (int)(double)( 0.25 * (canvas_width - 2 * maze_diameter) );
+    int wall_height   = (int)(double) ( (1.0 / ref_maze.getDimension()) * maze_diameter );
+    int cell_unit     = (int)(double)( maze_diameter / (1.0 * ref_maze.getDimension()) );
 
     g.setColor( Color.GRAY );
     g.fillRect( maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
     g.fillRect( center.x + maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
     g.setColor( Color.BLACK );
+    g.drawRect( maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
+    g.drawRect( center.x + maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
+
+    leftMazePoint.setLocation( maze_offset, center.y - maze_radius );
+    rightMazePoint.setLocation( center.x + maze_offset, center.y - maze_radius );
 
     /* Maze Generation graphics */
+    Rectangle vertical_wall   = new Rectangle( 0, 0, wall_width, wall_height );
+    Rectangle horizontal_wall = new Rectangle( 0, 0, wall_height, wall_width );
+
+    for( int row = 0; row < ref_maze.getDimension(); row++ ) {
+      for( int column = 0; column < ref_maze.getDimension(); column++  ) {
+        /* draw walls */
+        currentPoint.setLocation( row, column );
+	rightPoint.setLocation( row, column + 1 );
+	downPoint.setLocation( row + 1, column );
+
+        if( column < ref_maze.getDimension() - 1 && ref_maze.wallBetween( currentPoint, rightPoint ) ) {
+          /* vertical wall is present to the right of current cell */
+	  vertical_wall.setLocation( leftMazePoint.x + (column + 1) * cell_unit, leftMazePoint.y + row * cell_unit );
+	  g2d.fill( vertical_wall );
+	}
+
+	if( row < ref_maze.getDimension() - 1 && ref_maze.wallBetween( currentPoint, downPoint ) ) {
+          /* horizontal wall is also present below current cell */
+	  horizontal_wall.setLocation( leftMazePoint.x + column * cell_unit, leftMazePoint.y + (row + 1) * cell_unit );
+	  g2d.fill( horizontal_wall );
+	}
+
+      }
+    }
 
     
 
@@ -148,7 +188,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @param args Command line arguments. 
    */
   public static void main( String[] args ) {
-    new MazeGUI( 3 );
+    new MazeGUI( 16 );
     while(true) {}
   }
 

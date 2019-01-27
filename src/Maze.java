@@ -16,6 +16,7 @@
 
 import java.util.LinkedList;
 import java.util.Random;
+import java.awt.Point;
 
 /**
  * Maze will handle the internal maze structures, and ensure a proper graph is
@@ -90,6 +91,13 @@ class Maze {
 
     System.err.println( "number of walls taken down: " + count );
   
+  }
+
+  /**
+   * 
+   */
+  public boolean wallBetween( Point alpha, Point beta ) {
+    return wallBetween( at(alpha.x, alpha.y), at(beta.x, beta.y) );
   }
 
   /**
