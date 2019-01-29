@@ -110,17 +110,17 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @param g the canvas object created
    */
   private void drawMaze( Graphics g ) {
-    Graphics2D g2d = (Graphics2D) g;
+    //Graphics2D g2d = (Graphics2D) g;
     center.setLocation( getWidth() / 2, getHeight() / 2 );
     int canvas_height = getHeight() - 2 * backButton.getHeight();
     int canvas_width  = getWidth();
     int wall_width   = 2;
     int num_of_walls = ref_maze.getDimension() - 1;
-    int maze_diameter = (int)(double)( MAZE_PROPORTION * Math.min(canvas_height, canvas_width) + num_of_walls * wall_width ); 
+    int maze_diameter = (int)(double)( MAZE_PROPORTION * Math.min(canvas_height, canvas_width) /*+ num_of_walls * wall_width*/ ); 
     int maze_radius   = (int)(double)( 0.5 * maze_diameter );
     int maze_offset   = (int)(double)( 0.25 * (canvas_width - 2 * maze_diameter) );
-    int wall_height   = (int)(double) ( (1.0 / ref_maze.getDimension()) * maze_diameter );
-    int cell_unit     = (int)(double)( maze_diameter / (1.0 * ref_maze.getDimension()) );
+    double cell_unit   = (1.0 / ref_maze.getDimension()) * maze_diameter ;
+    int wall_height  = (int) cell_unit;
 
     g.setColor( Color.GRAY );
     g.fillRect( maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
@@ -136,30 +136,37 @@ public class MazeGUI extends JFrame implements ActionListener {
     Rectangle vertical_wall   = new Rectangle( 0, 0, wall_width, wall_height );
     Rectangle horizontal_wall = new Rectangle( 0, 0, wall_height, wall_width );
 
-    for( int row = 0; row < ref_maze.getDimension(); row++ ) {
-      for( int column = 0; column < ref_maze.getDimension(); column++  ) {
+    drawGridLines( ref_maze, leftMazePoint, vertical_wall, horizontal_wall, cell_unit );
+    drawGridLines( unknown_maze, rightMazePoint, vertical_wall, horizontal_wall, cell_unit );
+
+  }
+
+  /**
+   * TODO
+   */
+  private void drawGridLines( Maze maze, Point mazePoint, Rectangle vertical_wall, Rectangle horizontal_wall, double cell_unit ) {
+    Graphics2D g2d = (Graphics2D) getGraphics();
+
+    for( int row = 0; row < maze.getDimension(); row++ ) {
+      for( int column = 0; column < maze.getDimension(); column++  ) {
         /* draw walls */
         currentPoint.setLocation( row, column );
-	rightPoint.setLocation( row, column + 1 );
-	downPoint.setLocation( row + 1, column );
+        rightPoint.setLocation( row, column + 1 );
+        downPoint.setLocation( row + 1, column );
 
-        if( column < ref_maze.getDimension() - 1 && ref_maze.wallBetween( currentPoint, rightPoint ) ) {
+        if( column < maze.getDimension() - 1 && maze.wallBetween(currentPoint, rightPoint) ) {
           /* vertical wall is present to the right of current cell */
-	  vertical_wall.setLocation( leftMazePoint.x + (column + 1) * cell_unit, leftMazePoint.y + row * cell_unit );
-	  g2d.fill( vertical_wall );
-	}
+          vertical_wall.setLocation( mazePoint.x + (int)((column + 1) * cell_unit), mazePoint.y + (int)(row * cell_unit) );
+          g2d.fill( vertical_wall );
+        }
 
-	if( row < ref_maze.getDimension() - 1 && ref_maze.wallBetween( currentPoint, downPoint ) ) {
+        if( row < maze.getDimension() - 1 && maze.wallBetween(currentPoint, downPoint)  ) {
           /* horizontal wall is also present below current cell */
-	  horizontal_wall.setLocation( leftMazePoint.x + column * cell_unit, leftMazePoint.y + (row + 1) * cell_unit );
-	  g2d.fill( horizontal_wall );
-	}
-
+          horizontal_wall.setLocation( mazePoint.x + (int)(column * cell_unit), mazePoint.y + (int)((row + 1) * cell_unit) );
+          g2d.fill( horizontal_wall );
+        }
       }
     }
-
-    
-
 
   }
 
@@ -188,7 +195,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @param args Command line arguments. 
    */
   public static void main( String[] args ) {
-    new MazeGUI( 16 );
+    new MazeGUI( 40 );
     while(true) {}
   }
 
