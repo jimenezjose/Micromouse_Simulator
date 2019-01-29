@@ -51,9 +51,16 @@ class Maze {
    * @return Nothing.
    */
   public void createRandomMaze() {                                                                    
-
+    
+    final int MIN_DIM = 3;
     LinkedList<Pair<MazeNode, MazeNode>> walls = new LinkedList<Pair<MazeNode, MazeNode>>(); 
     Random rand = new Random();
+
+    if( getDimension() < MIN_DIM ) {
+      /* invalid dimension for random maze generation */
+      System.err.println( "Invalid Dimension for Maze Generation. Valid dimension > 3." );
+      return; 
+    }
 
     for( int row = 0; row < maze.length; row++ ) {
       for( int column = 0; column < maze[0].length; column++ ) {
@@ -68,12 +75,84 @@ class Maze {
       }
     }
 
-    System.err.println( "Number of walls counted: " + walls.size() );
+    /* square center solution */
+    LinkedList<Pair<MazeNode, MazeNode>> solutionEntry = new LinkedList<Pair<MazeNode, MazeNode>>();
+    LinkedList<MazeNode> targetNodes = new LinkedList<MazeNode>(); 
+    int lowerCenter = (getDimension() - 1) / 2;
+    int upperCenter = getDimension() / 2;
     int count = 0;
 
+    for( int row = lowerCenter; row <= upperCenter; row++ ) {
+      for( int column = lowerCenter; column <= upperCenter; column++ ) {
+        if( getDimension() % EVEN != 0 ) {
+          /* singular solution cell */
+          solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row ][ column - 1 ] ) );
+          solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row ][ column + 1 ] ) );
+          solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row - 1 ][ column ] ) );
+          solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row + 1][ column ] ) );
+	  break;
+	}
+
+        targetNodes.addLast( maze[ row ][ column ] );
+	int dr = ( row == lowerCenter ) ? -1 : +1;
+	int dc = ( column == lowerCenter ) ? -1 : + 1;
+	
+        /* quad-cell solution */
+	solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row + dr ][ column ] ) );
+	solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row ][ column + dc ] ) );
+      }
+    }
+
+    /* create entry point for target */
+    int randomIndex = rand.nextInt( solutionEntry.size() );
+    Pair<MazeNode, MazeNode> entry_pair = solutionEntry.get( randomIndex );
+    union( entry_pair.first, entry_pair.second );
+    addEdge( entry_pair.first, entry_pair.second );
+    count++;
+
+    /* remove solution entry candidates from walls list */
+    while( solutionEntry.size() != 0 ) {
+      walls.remove( solutionEntry.pop() );
+    }
+
+    /* combine target nodes into one meta node */
+    if( targetNodes.size() != 0 ) {
+      /* target is top-left node in quad-cell solution */
+      MazeNode target = targetNodes.removeFirst();
+      MazeNode neighbor = maze[ target.x + 1 ][ target.y ];
+      union( target, neighbor );
+      addEdge( target, neighbor );
+      walls.remove( new Pair<>( target, neighbor) );
+      /* bottom-left */
+      target = targetNodes.removeFirst();
+      neighbor = maze[ target.x ][ target.y - 1 ];
+      union( target, neighbor );
+      addEdge( target, neighbor );
+      walls.remove( new Pair<>( target, neighbor) );
+      /* top-right */
+      target = targetNodes.removeFirst();
+      neighbor = maze[ target.x ][ target.y + 1 ];
+      union( target, neighbor );
+      addEdge( target, neighbor );
+      walls.remove( new Pair<>( target, neighbor) );
+      /* bottom-right */
+      target = targetNodes.removeFirst();
+      neighbor = maze[ target.x - 1 ][ target.y ];
+      union( target, neighbor );
+      addEdge( target, neighbor );
+      walls.remove( new Pair<>( target, neighbor) );
+
+      count += 4;
+    }
+
+    if( targetNodes.size() != 0 ) {
+      System.err.println( "Error with the number of target nodes. After removing four, " + targetNodes.size() + " exist." );
+    }
+
+    /* random maze generation */
     while( walls.size() != 0 ) {
       /* choose a random wall from the maze */
-      int randomIndex = rand.nextInt( walls.size() );
+      randomIndex = rand.nextInt( walls.size() );
       Pair<MazeNode, MazeNode> node_pair = walls.get( randomIndex );
       MazeNode vertex_A = node_pair.first;
       MazeNode vertex_B = node_pair.second;
