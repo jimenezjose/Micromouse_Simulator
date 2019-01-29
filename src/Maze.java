@@ -103,6 +103,8 @@ class Maze {
       }
     }
 
+    System.err.println( "Total Walls: " + walls.size() );
+
     /* create entry point for target */
     int randomIndex = rand.nextInt( solutionEntry.size() );
     Pair<MazeNode, MazeNode> entry_pair = solutionEntry.get( randomIndex );
@@ -116,38 +118,18 @@ class Maze {
     }
 
     /* combine target nodes into one meta node */
-    if( targetNodes.size() != 0 ) {
-      /* target is top-left node in quad-cell solution */
+    for( int index = 0, init_size = targetNodes.size(); targetNodes.size() != 0; index++ ) {
+      int sign = ( index < init_size / EVEN ) ? +1 : -1;
+      int dr = ( (index + 1) % init_size < init_size / EVEN ) ? 0 : sign * 1;
+      int dc = ( (index + 1) % init_size < init_size / EVEN ) ? sign * 1: 0;
       MazeNode target = targetNodes.removeFirst();
-      MazeNode neighbor = maze[ target.x + 1 ][ target.y ];
+      MazeNode neighbor = maze[ target.x + dr ][ target.y + dc ];
       union( target, neighbor );
       addEdge( target, neighbor );
       walls.remove( new Pair<>( target, neighbor) );
-      /* bottom-left */
-      target = targetNodes.removeFirst();
-      neighbor = maze[ target.x ][ target.y - 1 ];
-      union( target, neighbor );
-      addEdge( target, neighbor );
-      walls.remove( new Pair<>( target, neighbor) );
-      /* top-right */
-      target = targetNodes.removeFirst();
-      neighbor = maze[ target.x ][ target.y + 1 ];
-      union( target, neighbor );
-      addEdge( target, neighbor );
-      walls.remove( new Pair<>( target, neighbor) );
-      /* bottom-right */
-      target = targetNodes.removeFirst();
-      neighbor = maze[ target.x - 1 ][ target.y ];
-      union( target, neighbor );
-      addEdge( target, neighbor );
-      walls.remove( new Pair<>( target, neighbor) );
-
-      count += 4;
+      count++;
     }
 
-    if( targetNodes.size() != 0 ) {
-      System.err.println( "Error with the number of target nodes. After removing four, " + targetNodes.size() + " exist." );
-    }
 
     /* random maze generation */
     while( walls.size() != 0 ) {
