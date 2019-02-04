@@ -195,7 +195,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @param args Command line arguments. 
    */
   public static void main( String[] args ) {
-    new MazeGUI( 100 );
+    new MazeGUI( 16 );
     while(true) {}
   }
 
