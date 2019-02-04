@@ -16,7 +16,7 @@ public class Mouse {
   double x;
   double y;
   // units to go by
-  final private int UNIT;
+  final private double UNIT;
 
   /**
    * Creates mouse object on canvas
@@ -24,7 +24,7 @@ public class Mouse {
    * @param startingX   starting x coordinate, top left corner of cell/unit
    * @param startingY   starting y coordinate, top left corner of cell/unit
    */
-  public Mouse(int unit, double startingX, double startingY) {
+  public Mouse(double unit, double startingX, double startingY) {
     this.UNIT = unit;
     //this.maze = maze; TODO I will pass in the maze structure?
 
@@ -44,6 +44,8 @@ public class Mouse {
   //     That way if more features are added to the mouse only this function
   //     would have to be altered when translating the mouse object. 
   //public void translate( int dx, int dy );
+
+  //public exploreMaze()
   
 
   // not used
@@ -52,21 +54,22 @@ public class Mouse {
   }
 
   public void moveRight() {
-    mouse.translate( UNIT, 0 );
+    mouse.translate((int)UNIT, 0);
   }
 
   public void moveLeft() {
-    mouse.translate(-UNIT, 0);
+    mouse.translate((int)-UNIT, 0);
   }
 
   public void moveUp() {
-    mouse.translate(0, -UNIT);
+    mouse.translate(0, (int)-UNIT);
   }
 
   public void moveDown() {
-    mouse.translate( 0, UNIT );
+    mouse.translate( 0, (int)UNIT );
   }
 
+  //TODO paint is a method inherited from JFrame, so this is an ambigupus signiture.
   public void paint(Graphics g) {
     g.setColor(Color.GREEN);
     g.fillRect( (int)mouse.getX(), (int)mouse.getY(), (int)mouse.getWidth(),
