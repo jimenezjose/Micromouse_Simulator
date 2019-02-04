@@ -26,18 +26,25 @@ public class Mouse {
    */
   public Mouse(int unit, double startingX, double startingY) {
     this.UNIT = unit;
+    //this.maze = maze; TODO I will pass in the maze structure?
 
     // center of unit
-    double unitCenterX = startingX + (UNIT / 2);
-    double unitCenterY = startingY + (UNIT / 2);
+    double unitCenterX = startingX + (UNIT / 2.0);
+    double unitCenterY = startingY + (UNIT / 2.0);
 
     // from there get upper left corner of mouse and construct it
-    double width = UNIT / PROPORTION;
+    double width = UNIT / PROPORTION; //TODO (*) Proportion?
     double height = UNIT / PROPORTION;
-    x = unitCenterX - width;
+    x = unitCenterX - width; //TODO center.x - width/2.0 ?
     y = unitCenterY - height;
     mouse = new Rectangle( (int)x, (int)y, (int)width, (int)height );
   }
+
+  //TODO instead of mouse.translate maybe use this generic method?
+  //     That way if more features are added to the mouse only this function
+  //     would have to be altered when translating the mouse object. 
+  //public void translate( int dx, int dy );
+  
 
   // not used
   public int move() {
