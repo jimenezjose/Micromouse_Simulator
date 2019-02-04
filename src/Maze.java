@@ -46,6 +46,16 @@ class Maze {
 
   }
 
+
+  /**
+   * Create a MST from the maze with Dijkstra's Algorithm
+   * @param startVertex Where to begin traversing maze graph.
+   * @return Nothing.
+   */
+  public void dijkstra( MazeNode startVertex ) {
+    
+  }
+
   /**
    * Creates a random maze using Kruskals Algorithm.
    * @return Nothing.
@@ -53,6 +63,7 @@ class Maze {
   public void createRandomMaze() {                                                                    
     
     final int MIN_DIM = 3;
+    final int MAX_CYCLES = 5;
     LinkedList<Pair<MazeNode, MazeNode>> walls = new LinkedList<Pair<MazeNode, MazeNode>>(); 
     Random rand = new Random();
 
@@ -129,7 +140,9 @@ class Maze {
       walls.remove( new Pair<>( target, neighbor) );
       count++;
     }
-
+ 
+    /* list of back edges */
+    LinkedList<Pair<MazeNode, MazeNode>> cycleWalls = new LinkedList<Pair<MazeNode, MazeNode>>();
 
     /* random maze generation */
     while( walls.size() != 0 ) {
@@ -145,17 +158,38 @@ class Maze {
 	addEdge( vertex_A, vertex_B );
 	count++;
       }
+      else {
+        cycleWalls.add( node_pair );
+      }
       
       /* remove wall from wall list */
       walls.remove( randomIndex );
     }
 
-    System.err.println( "number of walls taken down: " + count );
+    /* create multiple paths to solution */
+    int numOfPaths = rand.nextInt( MAX_CYCLES );
+    for( int index = 0; index < numOfPaths; index++ ) {
+      randomIndex = rand.nextInt( cycleWalls.size() );
+      Pair<MazeNode, MazeNode> node_pair = cycleWalls.get( randomIndex );
+      MazeNode vertex_A = node_pair.first;
+      MazeNode vertex_B = node_pair.second;
+      
+      /* add cycle : alternate path */
+      addEdge( vertex_A, vertex_B );
+      count++;
+    }
+
+    cycleWalls.clear();
+
+    System.err.println( "Number of walls taken down: " + count + " Number of cycles: " + numOfPaths );
   
   }
 
   /**
-   * 
+   * Checks if a there exists an edge between two point in the maze.
+   * @param alpha point in the maze.
+   * @param beta second point in the maze.
+   * @return true if an edge in alpha points to beta.
    */
   public boolean wallBetween( Point alpha, Point beta ) {
     return wallBetween( at(alpha.x, alpha.y), at(beta.x, beta.y) );
@@ -180,7 +214,6 @@ class Maze {
     }
 
     return true;
-
   }
 
   /* Maze Generation Routines */
