@@ -34,7 +34,12 @@ class MazeNode {
   public MazeNode down = null;
   public MazeNode left = null;
   public MazeNode right = null;
+
+  /* begin - graph search data */
   public boolean visited = false;
+  public MazeNode prev = null;
+  public int distance = 0;
+  /* end - graph search data */
 
   /**
    * Creates a node object for an associated location in a 2d maze.
@@ -55,13 +60,13 @@ class MazeNode {
 
     if( x == vertex.x ) {
       /* computer y-axis is inverted */
-      if( y + 1 == vertex.y ) down = vertex;
-      else if( y - 1 == vertex.y ) up = vertex;
+      if( y + 1 == vertex.y ) right = vertex;
+      else if( y - 1 == vertex.y ) left = vertex;
     }
     else if( y == vertex.y ) {
       /* normal x-axis convention */
-      if( x + 1 == vertex.x ) right = vertex;
-      else if( x - 1 == vertex.x ) left = vertex;
+      if( x + 1 == vertex.x ) down = vertex;
+      else if( x - 1 == vertex.x ) up = vertex;
     }
     else {
       /* vertex is not adjacent */
@@ -77,6 +82,18 @@ class MazeNode {
   public void addSubsetElement( MazeNode vertex ) {
     subset_list.push( vertex );
     vertex.parent = this;
+  }
+
+  /**
+   * Clear MazeNode graph data.
+   */
+  public void clearData() {
+    up = down = left = right = null;
+    visited = false;
+    prev = null;
+    distance = 0;
+    parent = null;
+    subset_list.clear();
   }
 
   /**
@@ -100,5 +117,21 @@ class MazeNode {
   @Override
   public String toString() {
     return "(" + this.x + ", " + this.y + ")";
+  }
+
+  public void setVisited( boolean visited ) {
+    this.visited = visited;
+  }
+
+  public void setPrev( MazeNode prev ) {
+    this.prev = prev;
+  }
+
+  public void setDistance( int distance ) {
+    this.distance = distance;
+  }
+
+  public MazeNode[] getEdgeList() {
+    return new MazeNode[]{ up, down, left, right };
   }
 }

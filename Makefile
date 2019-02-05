@@ -6,7 +6,8 @@ src/MazeGUI.java \
 src/Mouse.java \
 src/Maze.java \
 src/MazeNode.java \
-src/Pair.java
+src/Pair.java \
+src/PQNode.java
 
 JAVA_TEST= \
 src/Mouse.java \
@@ -17,7 +18,7 @@ src/TestMazeGUI.java
 
 
 all:
-	javac -g $(JAVA_SOURCES) -d $(BUILD_DIR)
+	javac -Xlint:unchecked -g $(JAVA_SOURCES) -d $(BUILD_DIR)
 
 test:
 	javac -g $(JAVA_TEST)$ -d $(TEST_DIR)

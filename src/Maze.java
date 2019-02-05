@@ -17,6 +17,7 @@
 import java.util.LinkedList;
 import java.util.Random;
 import java.awt.Point;
+import java.util.PriorityQueue;
 
 /**
  * Maze will handle the internal maze structures, and ensure a proper graph is
@@ -53,6 +54,53 @@ class Maze {
    * @return Nothing.
    */
   public void dijkstra( MazeNode startVertex ) {
+    if( startVertex == null ) {
+      /* invlaid starting vertex */
+      System.err.println( "Invalid starting vertex for Dijkstra." );
+      return;
+    }
+
+    for( int row = 0; row < maze.length; row++ ) {
+      for( int column = 0; column < maze[0].length; column++ ) {
+        /* set up initial environment in graph */
+	MazeNode currentNode = maze[ row ][ column ];
+	currentNode.distance = Integer.MAX_VALUE;
+	currentNode.prev = null;
+	currentNode.visited = false;
+      }
+    }
+
+    PriorityQueue<PQNode<MazeNode>> pq = new PriorityQueue<PQNode<MazeNode>>();
+  
+    startVertex.distance = 0;
+    pq.add( new PQNode<MazeNode>(0, startVertex) );
+
+    while( pq.size() != 0 ) {
+      PQNode<MazeNode> pq_node = pq.poll();
+      MazeNode currentNode = pq_node.getData();
+      int distance = currentNode.distance; 
+
+      if( currentNode.visited == false ) {
+        currentNode.visited = true;
+        MazeNode[] edge_list = currentNode.getEdgeList();
+
+	for( MazeNode neighbor : edge_list ) {
+	  /* iterate through unvisited node's neighbors */
+	  if( neighbor == null ) continue;
+	  int weight = 1; 
+          int cost = distance + weight;
+	  if( cost < neighbor.distance ) {
+	    /* new path with lower total cost encountered */
+	    neighbor.distance = cost;
+	    neighbor.prev = currentNode;
+            pq.add( new PQNode<MazeNode>(cost, neighbor) );
+	  }
+	}
+      }
+    }
+
+    System.err.println( "Dijkstra's Algorithm, Done." );
+
     
   }
 
@@ -181,8 +229,17 @@ class Maze {
 
     cycleWalls.clear();
 
-    System.err.println( "Number of walls taken down: " + count + " Number of cycles: " + numOfPaths );
+    System.err.println( "Number of walls taken down: " + count);
+    System.err.println( "Number of cycles: " + numOfPaths );
   
+  }
+
+  public void clear() {
+    for( int row = 0; row < maze.length; row++ ) {
+      for( int column = 0; column < maze[0].length; column++ ) {
+        maze[ row ][ column ].clearData();
+      }
+    }
   }
 
   /**
@@ -204,10 +261,10 @@ class Maze {
   public boolean wallBetween( MazeNode vertex_A, MazeNode vertex_B ) {
     if( vertex_A == null || vertex_B == null ) return false;
 
-    MazeNode[] neighbors_of_A = { vertex_A.up, vertex_A.down, vertex_A.left, vertex_A.right };
+    MazeNode[] neighbors_of_A = vertex_A.getEdgeList();
 
-    for( int index = 0; index < neighbors_of_A.length; index++ ) {
-      if( neighbors_of_A[ index ] == vertex_B ) {
+    for( MazeNode neighbor : neighbors_of_A ) {
+      if( neighbor == vertex_B ) {
         /* There is a path directly connect A and B, therefore no wall */
         return false;
       }

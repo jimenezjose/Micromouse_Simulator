@@ -16,7 +16,7 @@ public class Mouse {
   double x;
   double y;
   // units to go by
-  final private int UNIT;
+  final private double UNIT;
 
   /**
    * Creates mouse object on canvas
@@ -24,20 +24,29 @@ public class Mouse {
    * @param startingX   starting x coordinate, top left corner of cell/unit
    * @param startingY   starting y coordinate, top left corner of cell/unit
    */
-  public Mouse(int unit, double startingX, double startingY) {
+  public Mouse(double unit, double startingX, double startingY) {
     this.UNIT = unit;
+    //this.maze = maze; TODO I will pass in the maze structure?
 
     // center of unit
-    double unitCenterX = startingX + (UNIT / 2);
-    double unitCenterY = startingY + (UNIT / 2);
+    double unitCenterX = startingX + (UNIT / 2.0);
+    double unitCenterY = startingY + (UNIT / 2.0);
 
     // from there get upper left corner of mouse and construct it
-    double width = UNIT / PROPORTION;
+    double width = UNIT / PROPORTION; //TODO (*) Proportion?
     double height = UNIT / PROPORTION;
-    x = unitCenterX - width;
+    x = unitCenterX - width; //TODO center.x - width/2.0 ?
     y = unitCenterY - height;
     mouse = new Rectangle( (int)x, (int)y, (int)width, (int)height );
   }
+
+  //TODO instead of mouse.translate maybe use this generic method?
+  //     That way if more features are added to the mouse only this function
+  //     would have to be altered when translating the mouse object. 
+  //public void translate( int dx, int dy );
+
+  //public exploreMaze()
+  
 
   // not used
   public int move() {
@@ -45,21 +54,22 @@ public class Mouse {
   }
 
   public void moveRight() {
-    mouse.translate( UNIT, 0 );
+    mouse.translate((int)UNIT, 0);
   }
 
   public void moveLeft() {
-    mouse.translate(-UNIT, 0);
+    mouse.translate((int)-UNIT, 0);
   }
 
   public void moveUp() {
-    mouse.translate(0, -UNIT);
+    mouse.translate(0, (int)-UNIT);
   }
 
   public void moveDown() {
-    mouse.translate( 0, UNIT );
+    mouse.translate( 0, (int)UNIT );
   }
 
+  //TODO paint is a method inherited from JFrame, so this is an ambigupus signiture.
   public void paint(Graphics g) {
     g.setColor(Color.GREEN);
     g.fillRect( (int)mouse.getX(), (int)mouse.getY(), (int)mouse.getWidth(),
