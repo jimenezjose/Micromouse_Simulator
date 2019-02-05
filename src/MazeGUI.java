@@ -20,6 +20,7 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
 import java.lang.Math;
+import java.util.Stack;
 
 /**
  * MazeGUI will create maze exploring interface.
@@ -28,12 +29,14 @@ public class MazeGUI extends JFrame implements ActionListener {
 
   public static final double MAZE_PROPORTION = 0.49; 
   public static final Color LIGHT_BLACK = new Color( 32, 32, 32 ); 
+  public static final int EVEN = 2;
   public Maze ref_maze;
   public Maze unknown_maze;
   private Point center = new Point();
   private JPanel northPanel, southPanel;
   private JButton backButton;
   private JButton continueButton;
+  private JButton mazeButton;
 
   private Point leftMazePoint  = new Point();
   private Point rightMazePoint = new Point();
@@ -68,19 +71,25 @@ public class MazeGUI extends JFrame implements ActionListener {
     southPanel = new JPanel();
 
     /* set layout for button panels */
-    northPanel.setLayout( new FlowLayout(FlowLayout.LEFT) );
+    //northPanel.setLayout( new FlowLayout(FlowLayout.LEFT) );
+    northPanel.setLayout( new BoxLayout(northPanel, BoxLayout.LINE_AXIS) );
     southPanel.setLayout( new FlowLayout(FlowLayout.RIGHT) );
+    
 
     /* sets names of new buttons */
     backButton = new JButton( "Back" );
     continueButton = new JButton( "Continue" );
+    mazeButton = new JButton( "New Maze" );
 
     /* Activates button to register state change */
     continueButton.addActionListener( this );
     backButton.addActionListener( this );
+    mazeButton.addActionListener( this );
 
     /* add button to panels */
     northPanel.add( backButton );
+    northPanel.add( Box.createHorizontalGlue() );
+    northPanel.add( mazeButton );
     southPanel.add( continueButton );
     northPanel.setBackground( Color.BLACK );
     southPanel.setBackground( Color.BLACK );
@@ -116,7 +125,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     int canvas_width  = getWidth();
     int wall_width   = 2;
     int num_of_walls = ref_maze.getDimension() - 1;
-    int maze_diameter = (int)(double)( MAZE_PROPORTION * Math.min(canvas_height, canvas_width) /*+ num_of_walls * wall_width*/ ); 
+    int maze_diameter = (int)(double)( MAZE_PROPORTION * Math.min(canvas_height, canvas_width) ); 
     int maze_radius   = (int)(double)( 0.5 * maze_diameter );
     int maze_offset   = (int)(double)( 0.25 * (canvas_width - 2 * maze_diameter) );
     double cell_unit   = (1.0 / ref_maze.getDimension()) * maze_diameter ;
@@ -139,8 +148,72 @@ public class MazeGUI extends JFrame implements ActionListener {
     drawGridLines( ref_maze, leftMazePoint, vertical_wall, horizontal_wall, cell_unit );
     drawGridLines( unknown_maze, rightMazePoint, vertical_wall, horizontal_wall, cell_unit );
 
-    Mouse mouse = new Mouse( cell_unit, leftMazePoint.x, leftMazePoint.y + maze_diameter - cell_unit );
-    mouse.paint( getGraphics() );
+    //Mouse mouse = new Mouse( cell_unit, leftMazePoint.x, leftMazePoint.y + maze_diameter - cell_unit );
+    //mouse.paint( getGraphics() );
+    MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
+    MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
+
+    /* calculating dijkstra's only needs to be computed once! TODO */
+    drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit );
+  }
+
+
+  /**
+   * TODO
+   */
+  private void drawDijkstraPath( Maze maze, Point mazePoint, MazeNode startVertex, MazeNode endVertex, double cell_unit ) {
+    final double PATH_PROPORTION = 0.3;
+    Graphics2D g2d = (Graphics2D) getGraphics();
+    g2d.setColor( Color.RED );
+
+    if( startVertex == null || endVertex == null ) {
+      /* invalid start or end point */
+      return;
+    }
+
+    Stack<MazeNode> pathStack = new Stack<MazeNode>(); 
+
+    maze.dijkstra( startVertex );
+
+    MazeNode currentNode = endVertex;
+    while( currentNode.prev != null ) {
+      /* traversing optimal path backwards */
+      pathStack.push( currentNode );
+      currentNode = currentNode.prev;
+    }
+    /* pushing starting vertex */
+    pathStack.push( currentNode );
+
+    currentNode = pathStack.pop();
+    int x = mazePoint.x + (int)(currentNode.y * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
+    int y = mazePoint.y + (int)(currentNode.x * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
+    int sideLength = (int)(PATH_PROPORTION * cell_unit);
+    if( sideLength == 0 ) sideLength = 1;
+    Rectangle cellBlock = new Rectangle( x, y, sideLength, sideLength );
+
+
+    while( !pathStack.empty() ) {
+      currentNode = pathStack.pop();
+      x = mazePoint.x + (int)(currentNode.y * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
+      y = mazePoint.y + (int)(currentNode.x * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
+
+      int dx = ( x - cellBlock.x == 0 ) ? 0 : Math.abs(x - cellBlock.x) / (x - cellBlock.x);
+      int dy = ( y - cellBlock.y == 0 ) ? 0 : Math.abs(y - cellBlock.y) / (y - cellBlock.y);
+
+      int current_x = cellBlock.x;
+      int current_y = cellBlock.y;
+
+      while( current_x != x || current_y != y ) {
+        current_x += dx;
+	current_y += dy;
+        cellBlock.setLocation( current_x, current_y );
+	g2d.fill( cellBlock );
+      }
+
+      cellBlock.setLocation( x, y );
+      g2d.fill( cellBlock );
+
+    }
 
   }
 
@@ -189,6 +262,13 @@ public class MazeGUI extends JFrame implements ActionListener {
     else if( evt.getSource() == backButton ) {
       /* back button was pressed */
       System.out.println( "back" );
+    }
+    else if( evt.getSource() == mazeButton ) {
+      System.err.println( "new maze" );
+      ref_maze.clear();
+      ref_maze.createRandomMaze();
+      repaint();
+
     }
 
   }
