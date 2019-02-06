@@ -20,7 +20,7 @@ import java.awt.event.*;
 import java.awt.geom.*;
 import javax.swing.*;
 import java.lang.Math;
-import java.util.Stack;
+import java.util.LinkedList;
 
 /**
  * MazeGUI will create maze exploring interface.
@@ -45,7 +45,7 @@ public class MazeGUI extends JFrame implements ActionListener {
   private Point downPoint    = new Point();
 
   /**
-   * Creates sets up MazeGUI 
+   * Constructor: Creates and sets up MazeGUI 
    * @param dimension number of unit cells per side of square maze.
    */
   public MazeGUI( int dimension ) {
@@ -59,6 +59,7 @@ public class MazeGUI extends JFrame implements ActionListener {
   /**
    * As soon as the program begins to run, initialize the settings of the 
    * canvas
+   * @return Nothing.
    */
   private void begin() {
     setSize( 800, 800 );
@@ -106,6 +107,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * As soon as the canvas window changes in dimension, paint will be called 
    * implicitly.
    * @param g the canvas object created.
+   * @return Nothing.
    */
   @Override
   public void paint( Graphics g ) {
@@ -116,9 +118,9 @@ public class MazeGUI extends JFrame implements ActionListener {
   /**
    * Draws the maze interface of the program.
    * @param g the canvas object created
+   * @return Nothing.
    */
   private void drawMaze( Graphics g ) {
-    //Graphics2D g2d = (Graphics2D) g;
     center.setLocation( getWidth() / 2, getHeight() / 2 );
     int canvas_height = getHeight() - 2 * backButton.getHeight();
     int canvas_width  = getWidth();
@@ -152,47 +154,75 @@ public class MazeGUI extends JFrame implements ActionListener {
     MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
     MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
 
-    /* calculating dijkstra's only needs to be computed once! TODO */
-    drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit );
+    drawDFSPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.PINK );
+    drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.GREEN );
   }
 
 
   /**
-   * TODO
+   * draw Dijkstra's path on maze.
+   * @param maze maze graph where dijkstra will run
+   * @param mazePoint top left corner of maze to draw path
+   * @param startVertex starting point for dijkstra
+   * @param endVertex terminating vertex in path
+   * @param cell_unit side dimension of one cell in maze
+   * @param color color of path to be drawn
+   * @return Nothing.
    */
-  private void drawDijkstraPath( Maze maze, Point mazePoint, MazeNode startVertex, MazeNode endVertex, double cell_unit ) {
-    final double PATH_PROPORTION = 0.3;
-    Graphics2D g2d = (Graphics2D) getGraphics();
-    g2d.setColor( Color.RED );
-
+  private void drawDijkstraPath( Maze maze, Point mazePoint, MazeNode startVertex, MazeNode endVertex, double cell_unit, Color color ) {
     if( startVertex == null || endVertex == null ) {
       /* invalid start or end point */
+      System.err.println( "MazeGUI.drawDijkstra: Invalid start or end vertex" );
+      return;
+    }
+    maze.dijkstra( startVertex, endVertex );
+    colorPath( maze.getDijkstraPath(), color, mazePoint, cell_unit );
+  }
+
+  /**
+   * draw DFS path on maze.
+   * @param maze maze graph where DFS will run
+   * @param mazePoint top left corner of maze to draw path
+   * @param startVertex starting point for DFS
+   * @param endVertex terminating vertex in path
+   * @param cell_unit side dimension of one cell in maze
+   * @param color color of path to be drawn
+   * @return Nothing.
+   */
+  private void drawDFSPath( Maze maze, Point mazePoint, MazeNode startVertex, MazeNode endVertex, double cell_unit, Color color ) {
+    if( startVertex == null || endVertex == null ) {
+      /* invalid start or end point */
+      System.err.println( "MazeGUI.drawDFS: Invalid start or end vertex" );
       return;
     }
 
-    Stack<MazeNode> pathStack = new Stack<MazeNode>(); 
+    maze.dfs( startVertex, endVertex );
+    colorPath( maze.getDFSPath(), color, mazePoint, cell_unit );
+  }
 
-    maze.dijkstra( startVertex );
+  /**
+   * Draws path from traversing path, front to end.
+   * @param path sequence of cell nodes that will be traversed and colored on maze gui.
+   * @param color color of path to be drawn.
+   * @param mazePoint top Left corner of maze that path will draw on.
+   * @param cell_unit side dimension of one cell in maze.
+   * @return Nothing.
+   */
+  private void colorPath( LinkedList<MazeNode> path, Color color, Point mazePoint, double cell_unit ) {
+    final double PATH_PROPORTION = 0.3;
+    Graphics2D g2d = (Graphics2D) getGraphics();
+    g2d.setColor( color );
 
-    MazeNode currentNode = endVertex;
-    while( currentNode.prev != null ) {
-      /* traversing optimal path backwards */
-      pathStack.push( currentNode );
-      currentNode = currentNode.prev;
-    }
-    /* pushing starting vertex */
-    pathStack.push( currentNode );
-
-    currentNode = pathStack.pop();
+    MazeNode currentNode = path.removeFirst();
     int x = mazePoint.x + (int)(currentNode.y * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
     int y = mazePoint.y + (int)(currentNode.x * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
     int sideLength = (int)(PATH_PROPORTION * cell_unit);
     if( sideLength == 0 ) sideLength = 1;
     Rectangle cellBlock = new Rectangle( x, y, sideLength, sideLength );
 
-
-    while( !pathStack.empty() ) {
-      currentNode = pathStack.pop();
+    while( path.size() != 0 ) {
+      /* traverse through path */
+      currentNode = path.removeFirst();
       x = mazePoint.x + (int)(currentNode.y * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
       y = mazePoint.y + (int)(currentNode.x * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
 
@@ -205,19 +235,24 @@ public class MazeGUI extends JFrame implements ActionListener {
       while( current_x != x || current_y != y ) {
         /* draw trail */
         current_x += dx;
-	current_y += dy;
+        current_y += dy;
         cellBlock.setLocation( current_x, current_y );
-	g2d.fill( cellBlock );
+        g2d.fill( cellBlock );
       }
 
       cellBlock.setLocation( x, y );
       g2d.fill( cellBlock );
     }
-
   }
 
   /**
-   * TODO
+   * Draws grid lines on maze.
+   * @param maze maze graph 
+   * @param mazePoint top left corner of maze in GUI.
+   * @param vertical_wall rectangular representation of a vertical wall in maze.
+   * @param horizontal_wall rectangular representation of horizontal wall in maze.
+   * @param cell_unit side dimension of one cell in maze.
+   * @return Nothing.
    */
   private void drawGridLines( Maze maze, Point mazePoint, Rectangle vertical_wall, Rectangle horizontal_wall, double cell_unit ) {
     Graphics2D g2d = (Graphics2D) getGraphics();
@@ -251,6 +286,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @param evt generic object that records information about the change in 
    *            state of the "listening" object. In this case the "listening
    *            object" is a JButton.
+   * @return Nothing.
    */
   public void actionPerformed( ActionEvent evt ) {
    
@@ -263,6 +299,7 @@ public class MazeGUI extends JFrame implements ActionListener {
       System.out.println( "back" );
     }
     else if( evt.getSource() == mazeButton ) {
+      /* new maze button was pressed */
       System.err.println( "new maze" );
       ref_maze.clear();
       ref_maze.createRandomMaze();
@@ -275,9 +312,10 @@ public class MazeGUI extends JFrame implements ActionListener {
   /**
    * Where program execution begins, such that a MazeGUI object is created.
    * @param args Command line arguments. 
+   * @return Nothing.
    */
   public static void main( String[] args ) {
-    new MazeGUI( 16 );
+    new MazeGUI( 100 );
     while(true) {}
   }
 

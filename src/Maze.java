@@ -18,6 +18,8 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.awt.Point;
 import java.util.PriorityQueue;
+import java.util.Stack;
+//import java.lang.Boolean;
 
 /**
  * Maze will handle the internal maze structures, and ensure a proper graph is
@@ -28,6 +30,8 @@ class Maze {
   private static final String DIM_TOO_LARGE = "Cannot create maze. Dimension: %d, too large\n";
   private int dimension;
   private MazeNode[][] maze;
+  private LinkedList<MazeNode> dijkstraPath = new LinkedList<MazeNode>();
+  private LinkedList<MazeNode> dfsPath = new LinkedList<MazeNode>();
 
 
   /**
@@ -47,16 +51,15 @@ class Maze {
 
   }
 
-
   /**
    * Create a MST from the maze with Dijkstra's Algorithm
    * @param startVertex Where to begin traversing maze graph.
    * @return Nothing.
    */
-  public void dijkstra( MazeNode startVertex ) {
-    if( startVertex == null ) {
+  public void dijkstra( MazeNode startVertex, MazeNode endVertex ) {
+    if( startVertex == null || endVertex == null ) {
       /* invlaid starting vertex */
-      System.err.println( "Invalid starting vertex for Dijkstra." );
+      System.err.println( "Invalid starting or ending vertex for Dijkstra." );
       return;
     }
 
@@ -81,6 +84,7 @@ class Maze {
       int distance = currentNode.distance; 
 
       if( currentNode.visited == false ) {
+        /* only visit traverse currentNode's edges exactly once */
         currentNode.visited = true;
         MazeNode[] edge_list = currentNode.getEdgeList();
 
@@ -99,8 +103,81 @@ class Maze {
       }
     }
 
+    /* erase previous dijkstra path */
+    dijkstraPath.clear();
+    Stack<MazeNode> pathStack = new Stack<MazeNode>();
+    MazeNode currentNode = endVertex;
+
+    while( currentNode.prev != null ) {
+      /* traversing optimal path backwards */
+      pathStack.push( currentNode );
+      currentNode = currentNode.prev;
+    }
+    /* pushing starting vertex */
+    pathStack.push( currentNode );
+
+    while( !pathStack.empty() ) {
+      /* dijkstra path : startVertex to endVertex */
+      currentNode = pathStack.pop();
+      dijkstraPath.addLast( currentNode );
+    }
+
     System.err.println( "Dijkstra's Algorithm, Done." );
-    
+  }
+
+  /**
+   * DFS algorithm to find a solution to the maze.
+   * @param currentVertex traversing node in maze.
+   * @param endVertex target node to end DFS.
+   * @return Nothing.
+   */
+  public void dfs( MazeNode startVertex, MazeNode endVertex ) {
+    if( startVertex == null || endVertex == null ) {
+      /* invalid input */
+      System.err.println( "Maze.dfs: invalid vertices" );
+    }
+
+    for( int row = 0; row < maze.length; row++ ) {
+      for( int column = 0; column < maze[0].length; column++ ) {
+        /* set up initial conditions for dfs */
+        maze[ row ][ column ].visited = false;
+      }
+    }
+
+    dfsPath.clear();
+    dfsHelper( startVertex, endVertex );
+    System.err.println( "DFS Algorithm, Done." );
+  }
+
+  /**
+   * Recursive definition of DFS.
+   * @param currentVertex traversing node in maze.
+   * @param endVertex target node to end DFS.
+   * @return Nothing.
+   */
+  private void dfsHelper( MazeNode currentVertex, MazeNode endVertex ) {
+    currentVertex.visited = true;
+
+    if( currentVertex == endVertex ) {
+      /* base case */
+      dfsPath.addFirst( currentVertex );
+      return;
+    }
+
+    MazeNode[] neighbor_list = currentVertex.getEdgeList();
+
+    for( MazeNode neighbor : neighbor_list ) {
+      if( endVertex.visited ) break;
+      if( neighbor != null && neighbor.visited == false ) {
+        /* visit every node exactly once */
+	dfsHelper( neighbor, endVertex );
+      }
+    }
+
+    if( endVertex.visited ) {
+      /* popping from RTS stack -- save sequence of nodes */
+      dfsPath.addFirst( currentVertex );
+    }
   }
 
   /**
@@ -108,9 +185,8 @@ class Maze {
    * @return Nothing.
    */
   public void createRandomMaze() {                                                                    
-    
     final int MIN_DIM = 3;
-    final int MAX_CYCLES = 5;
+    final int MAX_CYCLES = getDimension();
     LinkedList<Pair<MazeNode, MazeNode>> walls = new LinkedList<Pair<MazeNode, MazeNode>>(); 
     Random rand = new Random();
 
@@ -206,6 +282,7 @@ class Maze {
 	count++;
       }
       else {
+        /* walls that border cells in the same set */
         cycleWalls.add( node_pair );
       }
       
@@ -227,15 +304,18 @@ class Maze {
     }
 
     cycleWalls.clear();
-
     System.err.println( "Number of walls taken down: " + count);
     System.err.println( "Number of cycles: " + numOfPaths );
-  
   }
 
+  /**
+   * Clears all data of each node in maze excepty for its coordinates.
+   * @return Nothing.
+   */
   public void clear() {
     for( int row = 0; row < maze.length; row++ ) {
       for( int column = 0; column < maze[0].length; column++ ) {
+        /* clear data for all nodes in maze */
         maze[ row ][ column ].clearData();
       }
     }
@@ -274,17 +354,6 @@ class Maze {
 
   /* Maze Generation Routines */
 
-  /*
-   * Goal: during the maze generation algorithm the parent node
-   *       will always be the representative of a disjoint set.
-   *       Otherwise, if parent is null, vertex is the representative.
-   *
-   * Reason: Constant time disjoint set evaluation. In other words,
-   *         Knowing the set of vertex should be fast.
-   *         --> inSameSet will be be called more than union
-   *
-   */
-
   /**
    * Combines two vertices in disjoint set into one set.
    * @param vertex_A Node in maze.
@@ -292,7 +361,6 @@ class Maze {
    * @return Nothing.
    */
   private void union( MazeNode vertex_A, MazeNode vertex_B ) {
-
     if( inSameSet(vertex_A, vertex_B) ) {
       /* no union needed */
       return;
@@ -321,9 +389,6 @@ class Maze {
   private MazeNode find( MazeNode vertex ) {
     return ( vertex.parent == null ) ? vertex : vertex.parent;
   }
-
-  /* this must be fast. inSameSet will be called more than union. Therefore     */
-  /* union will be a relatively expensive operation for constant time set check */
 
   /**
    * Constant time check for set equivalence.
@@ -379,6 +444,22 @@ class Maze {
    */
   public int getDimension() {                                                                         
     return dimension;
+  }
+
+  /**
+   * Gets a deep copy of dijkstraPath
+   * @return deep copy of dijkstraPath
+   */
+  public LinkedList<MazeNode> getDijkstraPath() {
+    return new LinkedList<MazeNode>( dijkstraPath );
+  }
+
+  /**
+   * Gets a deep copy of dfsPath
+   * @return deep copt of dfsPath
+   */
+  public LinkedList<MazeNode> getDFSPath() {
+    return new LinkedList<MazeNode>( dfsPath );
   }
 
 }
