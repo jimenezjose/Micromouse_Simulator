@@ -12,18 +12,7 @@ class PQNode<T> implements Comparable<PQNode<T>> {
   @Override
   public int compareTo( PQNode<T> node ) {
     /* Min priority queue node */
-    if( weight < node.weight ) {
-      /* a smaller weight has a greater priority */
-      return 1;
-    }
-    else if( weight > node.weight ) {
-      /* a larger weight has a less priority */
-      return -1;
-    }
-    else {
-      /* equals returns 0 */
-      return 0;
-    }
+    return weight - node.weight;
   }
 
   @Override

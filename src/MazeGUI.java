@@ -71,7 +71,6 @@ public class MazeGUI extends JFrame implements ActionListener {
     southPanel = new JPanel();
 
     /* set layout for button panels */
-    //northPanel.setLayout( new FlowLayout(FlowLayout.LEFT) );
     northPanel.setLayout( new BoxLayout(northPanel, BoxLayout.LINE_AXIS) );
     southPanel.setLayout( new FlowLayout(FlowLayout.RIGHT) );
     
@@ -204,6 +203,7 @@ public class MazeGUI extends JFrame implements ActionListener {
       int current_y = cellBlock.y;
 
       while( current_x != x || current_y != y ) {
+        /* draw trail */
         current_x += dx;
 	current_y += dy;
         cellBlock.setLocation( current_x, current_y );
@@ -212,7 +212,6 @@ public class MazeGUI extends JFrame implements ActionListener {
 
       cellBlock.setLocation( x, y );
       g2d.fill( cellBlock );
-
     }
 
   }

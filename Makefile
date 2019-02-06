@@ -14,14 +14,15 @@ src/Mouse.java \
 src/Maze.java \
 src/MazeNode.java \
 src/Pair.java \
+src/PQNode.java \
 src/TestMazeGUI.java 
 
 
 all:
 	javac -Xlint:unchecked -g $(JAVA_SOURCES) -d $(BUILD_DIR)
 
-test:
-	javac -g $(JAVA_TEST)$ -d $(TEST_DIR)
+test: clean
+	javac -Xlint:unchecked -g $(JAVA_TEST)$ -d $(TEST_DIR)
 
 clean:
 	rm -rf $(BUILD_DIR)
