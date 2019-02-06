@@ -100,7 +100,6 @@ class Maze {
     }
 
     System.err.println( "Dijkstra's Algorithm, Done." );
-
     
   }
 
