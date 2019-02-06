@@ -6,8 +6,8 @@ src/MazeGUI.java \
 src/Mouse.java \
 src/Maze.java \
 src/MazeNode.java \
-src/Pair.java \
-src/PQNode.java
+src/utility/Pair.java \
+src/utility/PQNode.java
 
 JAVA_TEST= \
 src/Mouse.java \
@@ -15,7 +15,7 @@ src/Maze.java \
 src/MazeNode.java \
 src/Pair.java \
 src/PQNode.java \
-src/TestMazeGUI.java 
+src/tester/TestMazeGUI.java 
 
 
 all:
