@@ -30,6 +30,10 @@ class MazeNode {
 
   public final int x;
   public final int y;
+  /* begin - attributes for path optimization */
+  public final double diagonal_x;
+  public final double diagonal_y;
+  /* end - attributes for path optimization */
   public MazeNode up = null;
   public MazeNode down = null;
   public MazeNode left = null;
@@ -46,9 +50,11 @@ class MazeNode {
    * @param x row location of node.
    * @param y column location of node.
    */
-  public MazeNode( int x, int y ) {
-    this.x = x;
-    this.y = y;
+  public MazeNode( double x, double y ) {
+    this.x = (int)x;
+    this.y = (int)y;
+    this.diagonal_x = x;
+    this.diagonal_y = y;
   }
 
   /**
@@ -133,5 +139,13 @@ class MazeNode {
 
   public MazeNode[] getEdgeList() {
     return new MazeNode[]{ up, down, left, right };
+  }
+
+  public double getDiagonalX() {
+    return diagonal_x;
+  }
+
+  public double getDiagonalY() {
+    return diagonal_y;
   }
 }
