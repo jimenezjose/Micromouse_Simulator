@@ -157,7 +157,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 
     //drawDFSPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.PINK );
     drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.GREEN );
-    colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.RED, leftMazePoint, cell_unit );
+    //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.RED, leftMazePoint, cell_unit );
   }
 
 
@@ -305,7 +305,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     }
     else if( evt.getSource() == mazeButton ) {
       /* new maze button was pressed */
-      System.err.println( "new maze" );
+      System.err.println( "\nnew maze" );
       ref_maze.clear();
       ref_maze.createRandomMaze();
       repaint();
@@ -320,7 +320,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    new MazeGUI( 16 );
+    new MazeGUI( 20 );
     while(true) {}
   }
 
