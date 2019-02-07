@@ -154,8 +154,9 @@ public class MazeGUI extends JFrame implements ActionListener {
     MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
     MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
 
-    drawDFSPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.PINK );
+    //drawDFSPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.PINK );
     drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.GREEN );
+    colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.RED, leftMazePoint, cell_unit );
   }
 
 
@@ -209,13 +210,13 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   private void colorPath( LinkedList<MazeNode> path, Color color, Point mazePoint, double cell_unit ) {
-    final double PATH_PROPORTION = 0.3;
+    final double PATH_PROPORTION = 0.1;
     Graphics2D g2d = (Graphics2D) getGraphics();
     g2d.setColor( color );
 
     MazeNode currentNode = path.removeFirst();
-    int x = mazePoint.x + (int)(currentNode.y * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
-    int y = mazePoint.y + (int)(currentNode.x * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
+    int x = mazePoint.x + (int)(currentNode.getDiagonalY() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
+    int y = mazePoint.y + (int)(currentNode.getDiagonalX() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
     int sideLength = (int)(PATH_PROPORTION * cell_unit);
     if( sideLength == 0 ) sideLength = 1;
     Rectangle cellBlock = new Rectangle( x, y, sideLength, sideLength );
@@ -223,8 +224,8 @@ public class MazeGUI extends JFrame implements ActionListener {
     while( path.size() != 0 ) {
       /* traverse through path */
       currentNode = path.removeFirst();
-      x = mazePoint.x + (int)(currentNode.y * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
-      y = mazePoint.y + (int)(currentNode.x * cell_unit) + (int)(0.5 * (1 - PATH_PROPORTION) * cell_unit);
+      x = mazePoint.x + (int)(currentNode.getDiagonalY() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
+      y = mazePoint.y + (int)(currentNode.getDiagonalX() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
 
       int dx = ( x - cellBlock.x == 0 ) ? 0 : Math.abs(x - cellBlock.x) / (x - cellBlock.x);
       int dy = ( y - cellBlock.y == 0 ) ? 0 : Math.abs(y - cellBlock.y) / (y - cellBlock.y);
@@ -238,6 +239,9 @@ public class MazeGUI extends JFrame implements ActionListener {
         current_y += dy;
         cellBlock.setLocation( current_x, current_y );
         g2d.fill( cellBlock );
+	/* update dx dy to account casting double to int arithmetic */
+        dx = ( x - cellBlock.x == 0 ) ? 0 : Math.abs(x - cellBlock.x) / (x - cellBlock.x);
+        dy = ( y - cellBlock.y == 0 ) ? 0 : Math.abs(y - cellBlock.y) / (y - cellBlock.y);
       }
 
       cellBlock.setLocation( x, y );
@@ -315,7 +319,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    new MazeGUI( 100 );
+    new MazeGUI( 16 );
     while(true) {}
   }
 

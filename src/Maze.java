@@ -19,7 +19,6 @@ import java.util.Random;
 import java.awt.Point;
 import java.util.PriorityQueue;
 import java.util.Stack;
-//import java.lang.Boolean;
 
 /**
  * Maze will handle the internal maze structures, and ensure a proper graph is
@@ -178,6 +177,31 @@ class Maze {
       /* popping from RTS stack -- save sequence of nodes */
       dfsPath.addFirst( currentVertex );
     }
+  }
+
+  /**
+   * Path optimization with regards to the mouse's ability to move in 
+   * diagonal directions.
+   * @param path linked list path to be optimized.
+   * @return Nothing.
+   */
+  public LinkedList<MazeNode> optimize( LinkedList<MazeNode> path ) {
+    LinkedList<MazeNode> bestPath = new LinkedList<MazeNode>();
+    MazeNode startVertex = path.peekFirst();
+    MazeNode endVertex = path.peekLast();
+
+    bestPath.addLast( startVertex );
+
+    while( path.size() > 1 ) {
+      MazeNode currentNode = path.removeFirst();
+      MazeNode nextNode = path.peekFirst();
+      double x_bar = 0.5 * ( currentNode.x + nextNode.x );
+      double y_bar = 0.5 * ( currentNode.y + nextNode.y );
+      bestPath.addLast( new MazeNode(x_bar, y_bar) );
+    }
+
+    bestPath.addLast( endVertex );
+    return bestPath;
   }
 
   /**
