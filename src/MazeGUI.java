@@ -149,8 +149,9 @@ public class MazeGUI extends JFrame implements ActionListener {
     drawGridLines( ref_maze, leftMazePoint, vertical_wall, horizontal_wall, cell_unit );
     drawGridLines( unknown_maze, rightMazePoint, vertical_wall, horizontal_wall, cell_unit );
 
-    //Mouse mouse = new Mouse( cell_unit, leftMazePoint.x, leftMazePoint.y + maze_diameter - cell_unit );
-    //mouse.paint( getGraphics() );
+    Mouse mouse = new Mouse( ref_maze, unknown_maze, cell_unit, rightMazePoint
+      .x, rightMazePoint.y + maze_diameter - cell_unit );
+    mouse.draw( getGraphics() );
     MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
     MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
 

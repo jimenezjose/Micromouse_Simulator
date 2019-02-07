@@ -8,7 +8,7 @@ public class Mouse {
 
   Graphics g;
 
-  final private double PROPORTION = 0.5;
+  final private double PROPORTION = 0.3;
   // rectangle object representing the mouse
   private Rectangle mouse;
 
@@ -20,11 +20,16 @@ public class Mouse {
 
   /**
    * Creates mouse object on canvas
-   * @param unit        uniform distance to move the mouse by
-   * @param startingX   starting x coordinate, top left corner of cell/unit
-   * @param startingY   starting y coordinate, top left corner of cell/unit
+   * @param unit          uniform distance to move the mouse by
+   * @param startingX     starting x coordinate, top left corner of cell/unit
+   * @param startingY     starting y coordinate, top left corner of cell/unit
+   * @param referenceMaze completed maze with sshortest path
+   * @param maze          empty maze
    */
-  public Mouse(double unit, double startingX, double startingY) {
+
+  public Mouse(Maze referenceMaze, Maze maze, double unit, double startingX,
+    double
+    startingY) {
     this.UNIT = unit;
     //this.maze = maze; TODO I will pass in the maze structure?
 
@@ -33,10 +38,10 @@ public class Mouse {
     double unitCenterY = startingY + (UNIT / 2.0);
 
     // from there get upper left corner of mouse and construct it
-    double width = UNIT / PROPORTION; //TODO (*) Proportion?
-    double height = UNIT / PROPORTION;
-    x = unitCenterX - width; //TODO center.x - width/2.0 ?
-    y = unitCenterY - height;
+    double width = UNIT * PROPORTION; //TODO (*) Proportion?
+    double height = UNIT * PROPORTION;
+    x = unitCenterX - width / 2.0; //TODO center.x - width/2.0 ?
+    y = unitCenterY - height / 2.0;
     mouse = new Rectangle( (int)x, (int)y, (int)width, (int)height );
   }
 
@@ -70,8 +75,8 @@ public class Mouse {
   }
 
   //TODO paint is a method inherited from JFrame, so this is an ambigupus signiture.
-  public void paint(Graphics g) {
-    g.setColor(Color.GREEN);
+  public void draw(Graphics g) {
+    g.setColor(Color.YELLOW);
     g.fillRect( (int)mouse.getX(), (int)mouse.getY(), (int)mouse.getWidth(),
       (int)mouse.getHeight() );
   }
