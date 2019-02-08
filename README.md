@@ -1,6 +1,9 @@
 # Micromouse
 
-Pointers with git:
+## Current Progress:
+![Alt Text](https://github.com/jimenezjose/Micromouse/blob/master/images/MazeGUI.gif)
+
+## Pointers with Git:
 
 1) When making changes, create and switch to new branch with name relating to the change (git checkout -b <branch_name> )
 2) Finish your changes, and add and commit the file.
