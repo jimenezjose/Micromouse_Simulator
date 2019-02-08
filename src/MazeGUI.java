@@ -149,15 +149,15 @@ public class MazeGUI extends JFrame implements ActionListener {
     drawGridLines( ref_maze, leftMazePoint, vertical_wall, horizontal_wall, cell_unit );
     drawGridLines( unknown_maze, rightMazePoint, vertical_wall, horizontal_wall, cell_unit );
 
-    Mouse mouse = new Mouse( ref_maze, unknown_maze, cell_unit, rightMazePoint
-      .x, rightMazePoint.y + maze_diameter - cell_unit );
-    mouse.draw( getGraphics() );
+    //Mouse mouse = new Mouse( ref_maze, unknown_maze, cell_unit, rightMazePoint.x, rightMazePoint.y + maze_diameter - cell_unit );
+    //mouse.draw( getGraphics() );
     MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
     MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
 
     //drawDFSPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.PINK );
-    drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.GREEN );
-    //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.RED, leftMazePoint, cell_unit );
+    drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.RED );
+    //ref_maze.dijkstra( startVertex, endVertex );
+    //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.GREEN, leftMazePoint, cell_unit );
   }
 
 
@@ -320,7 +320,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    new MazeGUI( 20 );
+    new MazeGUI( 16 );
     while(true) {}
   }
 
