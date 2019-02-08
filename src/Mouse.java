@@ -6,58 +6,35 @@ import javax.swing.*;
 
 public class Mouse {
 
-  Graphics g;
-
-  final private double PROPORTION = 0.3;
-  // rectangle object representing the mouse
-  private Rectangle mouse;
-
-  // top left corner of the rectangle coordinates
-  double x;
-  double y;
-  // units to go by
-  final private double UNIT;
+  private final double PROPORTION = 0.3;
+  private final double UNIT;
+  private final JFrame canvas;
+  private MouseShape mouse;
 
   /**
    * Creates mouse object on canvas
-   * @param unit          uniform distance to move the mouse by
-   * @param startingX     starting x coordinate, top left corner of cell/unit
-   * @param startingY     starting y coordinate, top left corner of cell/unit
-   * @param referenceMaze completed maze with sshortest path
-   * @param maze          empty maze
+   * @param unit          uniform distance to move the mouse by.
+   * @param startingX     starting x coordinate, top left corner of cell/unit.
+   * @param startingY     starting y coordinate, top left corner of cell/unit.
+   * @param referenceMaze completed maze with sshortest path.
+   * @param maze          empty maze.
+   * @param canvas        MazeGUI object to have access to repaint.
    */
-
-  public Mouse(Maze referenceMaze, Maze maze, double unit, double startingX,
-    double
-    startingY) {
-    this.UNIT = unit;
-    //this.maze = maze; TODO I will pass in the maze structure?
-
-    // center of unit
+  public Mouse(double unit, double startingX, double startingY, Maze ref_maze, Maze maze, JFrame canvas ) {
     double unitCenterX = startingX + (UNIT / 2.0);
     double unitCenterY = startingY + (UNIT / 2.0);
+    double width = UNIT * PROPORTION; 
+    double height = UNIT * PROPORTION; 
+    double x = unitCenterX - width / 2.0; 
+    double y = unitCenterY - height / 2.0;
 
-    // from there get upper left corner of mouse and construct it
-    double width = UNIT * PROPORTION; //TODO (*) Proportion?
-    double height = UNIT * PROPORTION;
-    x = unitCenterX - width / 2.0; //TODO center.x - width/2.0 ?
-    y = unitCenterY - height / 2.0;
-    mouse = new Rectangle( (int)x, (int)y, (int)width, (int)height );
+    this.UNIT = unit;
+    this.canvas = canvas;
+    this.mouse = new MouseShape( (int)x, (int)y, width );
   }
-
-  //TODO instead of mouse.translate maybe use this generic method?
-  //     That way if more features are added to the mouse only this function
-  //     would have to be altered when translating the mouse object. 
-  //public void translate( int dx, int dy );
 
   //public exploreMaze()
   
-
-  // not used
-  public int move() {
-    return 0;
-  }
-
   public void moveRight() {
     mouse.translate((int)UNIT, 0);
   }
@@ -74,11 +51,33 @@ public class Mouse {
     mouse.translate( 0, (int)UNIT );
   }
 
-  //TODO paint is a method inherited from JFrame, so this is an ambigupus signiture.
-  public void draw(Graphics g) {
-    g.setColor(Color.YELLOW);
-    g.fillRect( (int)mouse.getX(), (int)mouse.getY(), (int)mouse.getWidth(),
-      (int)mouse.getHeight() );
+  public void draw( Graphics g, Color color ) {
+    mouse.draw( g, color );
+  }
+
+  /* Generic mouse shape */
+  private class MouseShape {
+    private int x;
+    private int y;
+    private int length;
+    private Rectangle body;
+
+    public MouseShape( int x, int y, int length ) {
+      this.x = x;
+      this.y = y;
+      body = new Rectangle( x, y, length, length );
+    }
+
+    public void translate( int dx, int dy ) {
+      body.translate( dx, dy );
+      x +=  dx;
+      y += dy;
+    }
+
+    public void draw( Graphics g, Color color ) {
+      g.setColor( color );
+      g.fillRect( x, y, length, length );
+    }
   }
 }
 
