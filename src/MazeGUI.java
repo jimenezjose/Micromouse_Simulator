@@ -30,8 +30,9 @@ public class MazeGUI extends JFrame implements ActionListener {
   public static final double MAZE_PROPORTION = 0.49; 
   public static final Color LIGHT_BLACK = new Color( 32, 32, 32 ); 
   public static final int EVEN = 2;
-  public Maze ref_maze;
-  public Maze unknown_maze;
+  private Maze ref_maze;
+  private Maze unknown_maze;
+  private Mouse mouse; 
   private Point center = new Point();
   private JPanel northPanel, southPanel;
   private JButton backButton;
@@ -53,6 +54,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     ref_maze = new Maze( dimension );
     unknown_maze = new Maze( dimension );
     ref_maze.createRandomMaze();
+    mouse = new Mouse( dimension - 1, 0, ref_maze, unknown_maze, this );
     begin();
   }
 
@@ -150,7 +152,9 @@ public class MazeGUI extends JFrame implements ActionListener {
     drawGridLines( unknown_maze, rightMazePoint, vertical_wall, horizontal_wall, cell_unit );
 
     //Mouse mouse = new Mouse( ref_maze, unknown_maze, cell_unit, rightMazePoint.x, rightMazePoint.y + maze_diameter - cell_unit );
-    //mouse.draw( getGraphics() );
+    mouse.setEnvironment( rightMazePoint, maze_diameter );
+    mouse.draw( Color.GREEN );
+
     MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
     MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
 
