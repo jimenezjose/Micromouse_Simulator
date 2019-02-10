@@ -55,6 +55,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     unknown_maze = new Maze( dimension );
     ref_maze.createRandomMaze();
     mouse = new Mouse( dimension - 1, 0, ref_maze, unknown_maze, this );
+    mouse.exploreMaze();
     begin();
   }
 

@@ -20,19 +20,19 @@ import java.awt.Point;
 import java.util.PriorityQueue;
 import java.util.Stack;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Maze will handle the internal maze structures, and ensure a proper graph is
  * implemented. 
  */
-class Maze implements Iteratable {
+class Maze implements Iterable<MazeNode> {
   private static final int EVEN = 2;
   private static final String DIM_TOO_LARGE = "Cannot create maze. Dimension: %d, too large\n";
   private int dimension;
   private MazeNode[][] maze;
   private LinkedList<MazeNode> dijkstraPath = new LinkedList<MazeNode>();
   private LinkedList<MazeNode> dfsPath = new LinkedList<MazeNode>();
-
 
   /**
    * Creates a Maze object as a 2d array of MazeNodes.
@@ -487,4 +487,54 @@ class Maze implements Iteratable {
     return new LinkedList<MazeNode>( dfsPath );
   }
 
+  public Iterator<MazeNode> iterator() {
+    return new MazeIterator();
+  }
+
+
+  private class MazeIterator implements Iterator<MazeNode> {
+
+    private int current_row;
+    private int current_column;
+
+    public MazeIterator() {
+      this.current_row = 0;
+      this.current_column = 0;
+    }
+
+    @Override
+    public boolean hasNext() {
+      if( current_column == maze[0].length - 1 ) {
+        /* wrapping around 2d row */
+        if( current_row == maze.length - 1 ) {
+          return false;
+        }
+      }
+      return (current_row < maze.length && current_column < maze[0].length);
+    }
+
+    @Override
+    public MazeNode next() {
+        if( !hasNext() ) {
+          throw new NoSuchElementException();
+        }
+      
+        MazeNode nextNode = maze[ current_row ][ current_column ];
+
+        if( current_column + 1 == maze[0].length ) {
+          current_column = 0;
+          current_row++;
+        }
+        else {
+          current_column++;
+        }
+
+        return nextNode; 
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+  }
 }
