@@ -19,12 +19,13 @@ import java.util.Random;
 import java.awt.Point;
 import java.util.PriorityQueue;
 import java.util.Stack;
+import java.util.Iterator;
 
 /**
  * Maze will handle the internal maze structures, and ensure a proper graph is
  * implemented. 
  */
-class Maze {
+class Maze implements Iteratable {
   private static final int EVEN = 2;
   private static final String DIM_TOO_LARGE = "Cannot create maze. Dimension: %d, too large\n";
   private int dimension;

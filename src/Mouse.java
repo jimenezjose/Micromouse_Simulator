@@ -37,6 +37,20 @@ public class Mouse {
   }
 
   //public exploreMaze()
+  public void exploreMaze() {
+    MazeNode startVertex = maze.at( row, column );
+    
+  }
+
+  /**
+   * Translates the mouse by the given differential.
+   * @param dx horizontal differential.
+   * @param dy vertical differential.
+   * @return Nothing.
+   */
+  public void move( int dx, int dy ) {
+    mouse.translate( dx, dy );
+  }
  
   /**
    * Moves the mouse one unit to the right.
