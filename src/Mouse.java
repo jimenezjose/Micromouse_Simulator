@@ -39,7 +39,7 @@ public class Mouse {
   //public exploreMaze()
   public void exploreMaze() {
     MazeNode startVertex = maze.at( row, column );
-    
+
   }
 
   /**
