@@ -39,6 +39,13 @@ public class MazeGUI extends JFrame implements ActionListener {
   private JButton continueButton;
   private JButton mazeButton;
 
+  private static final Color WALL_COLOR = Color.BLACK;
+  private static final Color MAZE_BORDER_COLOR = Color.BLACK;
+  private static final Color NO_WALL_COLOR = new Color(135, 135, 135);
+  private static final Color MOUSE_COLOR = Color.YELLOW;
+  private static final Color DJIKSTRA_PATH_COLOR = Color.RED;
+  private static final Color MAZE_BACKGROUND_COLOR = Color.GRAY;
+
   private Point leftMazePoint  = new Point();
   private Point rightMazePoint = new Point();
   private Point currentPoint = new Point();
@@ -135,10 +142,10 @@ public class MazeGUI extends JFrame implements ActionListener {
     double cell_unit   = (1.0 / ref_maze.getDimension()) * maze_diameter ;
     int wall_height  = (int) cell_unit;
 
-    g.setColor( Color.GRAY );
+    g.setColor( MAZE_BACKGROUND_COLOR );
     g.fillRect( maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
     g.fillRect( center.x + maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
-    g.setColor( Color.BLACK );
+    g.setColor( MAZE_BORDER_COLOR );
     g.drawRect( maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
     g.drawRect( center.x + maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
 
@@ -154,13 +161,14 @@ public class MazeGUI extends JFrame implements ActionListener {
 
     //Mouse mouse = new Mouse( ref_maze, unknown_maze, cell_unit, rightMazePoint.x, rightMazePoint.y + maze_diameter - cell_unit );
     mouse.setEnvironment( rightMazePoint, maze_diameter );
-    mouse.draw( Color.GREEN );
+    mouse.draw( MOUSE_COLOR );
 
     MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
     MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
 
     //drawDFSPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.PINK );
-    drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.RED );
+    drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex,
+      cell_unit, DJIKSTRA_PATH_COLOR );
     //ref_maze.dijkstra( startVertex, endVertex );
     //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.GREEN, leftMazePoint, cell_unit );
   }
@@ -274,16 +282,30 @@ public class MazeGUI extends JFrame implements ActionListener {
         rightPoint.setLocation( row, column + 1 );
         downPoint.setLocation( row + 1, column );
 
+        /* vertical wall is present to the right of current cell */
+        vertical_wall.setLocation( mazePoint.x + (int)((column + 1) * cell_unit), mazePoint.y + (int)(row * cell_unit) );
+
+        /* horizontal wall is also present below current cell */
+        horizontal_wall.setLocation( mazePoint.x + (int)(column * cell_unit), mazePoint.y + (int)((row + 1) * cell_unit) );
+
         if( column < maze.getDimension() - 1 && maze.wallBetween(currentPoint, rightPoint) ) {
-          /* vertical wall is present to the right of current cell */
-          vertical_wall.setLocation( mazePoint.x + (int)((column + 1) * cell_unit), mazePoint.y + (int)(row * cell_unit) );
+          g2d.setColor(WALL_COLOR);
           g2d.fill( vertical_wall );
         }
 
+        else  {
+          g2d.setColor( NO_WALL_COLOR );
+          g2d.fill(vertical_wall);
+        }
+
         if( row < maze.getDimension() - 1 && maze.wallBetween(currentPoint, downPoint)  ) {
-          /* horizontal wall is also present below current cell */
-          horizontal_wall.setLocation( mazePoint.x + (int)(column * cell_unit), mazePoint.y + (int)((row + 1) * cell_unit) );
+          g2d.setColor( WALL_COLOR );
           g2d.fill( horizontal_wall );
+        }
+
+        else {
+          g2d.setColor( NO_WALL_COLOR );
+          g2d.fill(horizontal_wall);
         }
       }
     }
