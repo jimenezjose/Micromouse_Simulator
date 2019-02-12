@@ -7,7 +7,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 
 public class Mouse {
-/**/
+
   private final double PROPORTION = 0.3;
   private double UNIT;
   private final JFrame canvas;
