@@ -67,25 +67,25 @@ class Maze implements Iterable<MazeNode> {
       for( int column = 0; column < maze[0].length; column++ ) {
         /* set up initial environment in graph */
 	MazeNode currentNode = maze[ row ][ column ];
-	currentNode.distance = Integer.MAX_VALUE;
-	currentNode.prev = null;
-	currentNode.visited = false;
+	currentNode.setDistance( Integer.MAX_VALUE );
+	currentNode.setPrev( null );
+	currentNode.setVisited( false );
       }
     }
 
     PriorityQueue<PQNode<MazeNode>> pq = new PriorityQueue<PQNode<MazeNode>>();
   
-    startVertex.distance = 0;
+    startVertex.setDistance( 0 );
     pq.add( new PQNode<MazeNode>(0, startVertex) );
 
     while( pq.size() != 0 ) {
       PQNode<MazeNode> pq_node = pq.poll();
       MazeNode currentNode = pq_node.getData();
-      int distance = currentNode.distance; 
+      int distance = currentNode.getDistance(); 
 
-      if( currentNode.visited == false ) {
+      if( currentNode.getVisited() == false ) {
         /* only visit traverse currentNode's edges exactly once */
-        currentNode.visited = true;
+        currentNode.setVisited( true );
         MazeNode[] edge_list = currentNode.getEdgeList();
 
 	for( MazeNode neighbor : edge_list ) {
@@ -93,10 +93,10 @@ class Maze implements Iterable<MazeNode> {
 	  if( neighbor == null ) continue;
 	  int weight = 1; 
           int cost = distance + weight;
-	  if( cost < neighbor.distance ) {
+	  if( cost < neighbor.getDistance() ) {
 	    /* new path with lower total cost encountered */
-	    neighbor.distance = cost;
-	    neighbor.prev = currentNode;
+	    neighbor.setDistance( cost );
+	    neighbor.setPrev( currentNode );
             pq.add( new PQNode<MazeNode>(cost, neighbor) );
 	  }
 	}
@@ -108,10 +108,10 @@ class Maze implements Iterable<MazeNode> {
     Stack<MazeNode> pathStack = new Stack<MazeNode>();
     MazeNode currentNode = endVertex;
 
-    while( currentNode.prev != null ) {
+    while( currentNode.getPrev() != null ) {
       /* traversing optimal path backwards */
       pathStack.push( currentNode );
-      currentNode = currentNode.prev;
+      currentNode = currentNode.getPrev();
     }
     /* pushing starting vertex */
     pathStack.push( currentNode );
@@ -140,7 +140,7 @@ class Maze implements Iterable<MazeNode> {
     for( int row = 0; row < maze.length; row++ ) {
       for( int column = 0; column < maze[0].length; column++ ) {
         /* set up initial conditions for dfs */
-        maze[ row ][ column ].visited = false;
+        maze[ row ][ column ].setVisited( false );
       }
     }
 
@@ -156,7 +156,7 @@ class Maze implements Iterable<MazeNode> {
    * @return Nothing.
    */
   private void dfsHelper( MazeNode currentVertex, MazeNode endVertex ) {
-    currentVertex.visited = true;
+    currentVertex.setVisited( true );
 
     if( currentVertex == endVertex ) {
       /* base case */
@@ -167,14 +167,14 @@ class Maze implements Iterable<MazeNode> {
     MazeNode[] neighbor_list = currentVertex.getEdgeList();
 
     for( MazeNode neighbor : neighbor_list ) {
-      if( endVertex.visited ) break;
-      if( neighbor != null && neighbor.visited == false ) {
+      if( endVertex.getVisited() ) break;
+      if( neighbor != null && neighbor.getVisited() == false ) {
         /* visit every node exactly once */
 	dfsHelper( neighbor, endVertex );
       }
     }
 
-    if( endVertex.visited ) {
+    if( endVertex.getVisited() ) {
       /* popping from RTS stack -- save sequence of nodes */
       dfsPath.addFirst( currentVertex );
     }
@@ -217,7 +217,7 @@ class Maze implements Iterable<MazeNode> {
 
     if( getDimension() < MIN_DIM ) {
       /* invalid dimension for random maze generation */
-      System.err.println( "Invalid Dimension for Maze Generation. Valid dimension > 3." );
+      System.err.println( "Invalid Dimension for Maze Generation. Valid dimension >= 3." );
       return; 
     }
 
@@ -373,7 +373,6 @@ class Maze implements Iterable<MazeNode> {
         return false;
       }
     }
-
     return true;
   }
 
@@ -492,27 +491,41 @@ class Maze implements Iterable<MazeNode> {
   }
 
 
+  /**
+   * TODO
+   */
   private class MazeIterator implements Iterator<MazeNode> {
 
     private int current_row;
     private int current_column;
 
+    /**
+     * TODO
+     */
     public MazeIterator() {
       this.current_row = 0;
       this.current_column = 0;
     }
 
+    /**
+     * TODO
+     */
     @Override
     public boolean hasNext() {
       if( current_column == maze[0].length - 1 ) {
         /* wrapping around 2d row */
         if( current_row == maze.length - 1 ) {
+	  /* last row index has been reached. cannot increment */
           return false;
         }
       }
+
       return (current_row < maze.length && current_column < maze[0].length);
     }
 
+    /**
+     * TODO
+     */
     @Override
     public MazeNode next() {
         if( !hasNext() ) {
@@ -522,16 +535,21 @@ class Maze implements Iterable<MazeNode> {
         MazeNode nextNode = maze[ current_row ][ current_column ];
 
         if( current_column + 1 == maze[0].length ) {
+	  /* wrapping around 2d array */
           current_column = 0;
           current_row++;
         }
         else {
+	  /* typical 1d array increment */
           current_column++;
         }
 
         return nextNode; 
       }
 
+    /**
+     * TODO
+     */
       @Override
       public void remove() {
         throw new UnsupportedOperationException();

@@ -41,7 +41,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 
   private static final Color WALL_COLOR = Color.BLACK;
   private static final Color MAZE_BORDER_COLOR = Color.BLACK;
-  private static final Color NO_WALL_COLOR = new Color(135, 135, 135);
+  private static final Color NO_WALL_COLOR = new Color( 135, 135, 135 );
   private static final Color MOUSE_COLOR = Color.YELLOW;
   private static final Color DJIKSTRA_PATH_COLOR = Color.RED;
   private static final Color MAZE_BACKGROUND_COLOR = Color.GRAY;
@@ -167,8 +167,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
 
     //drawDFSPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.PINK );
-    drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex,
-      cell_unit, DJIKSTRA_PATH_COLOR );
+    drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DJIKSTRA_PATH_COLOR );
     //ref_maze.dijkstra( startVertex, endVertex );
     //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.GREEN, leftMazePoint, cell_unit );
   }
@@ -210,7 +209,6 @@ public class MazeGUI extends JFrame implements ActionListener {
       System.err.println( "MazeGUI.drawDFS: Invalid start or end vertex" );
       return;
     }
-
     maze.dfs( startVertex, endVertex );
     colorPath( maze.getDFSPath(), color, mazePoint, cell_unit );
   }
@@ -336,9 +334,7 @@ public class MazeGUI extends JFrame implements ActionListener {
       ref_maze.clear();
       ref_maze.createRandomMaze();
       repaint();
-
     }
-
   }
 
   /**
@@ -347,7 +343,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    new MazeGUI( 16 );
+    new MazeGUI( 6 );
     while(true) {}
   }
 
