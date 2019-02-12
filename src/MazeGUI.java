@@ -159,16 +159,13 @@ public class MazeGUI extends JFrame implements ActionListener {
     drawGridLines( ref_maze, leftMazePoint, vertical_wall, horizontal_wall, cell_unit );
     drawGridLines( unknown_maze, rightMazePoint, vertical_wall, horizontal_wall, cell_unit );
 
-    //Mouse mouse = new Mouse( ref_maze, unknown_maze, cell_unit, rightMazePoint.x, rightMazePoint.y + maze_diameter - cell_unit );
     mouse.setEnvironment( rightMazePoint, maze_diameter );
     mouse.draw( MOUSE_COLOR );
 
     MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
     MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
 
-    //drawDFSPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, Color.PINK );
     drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DJIKSTRA_PATH_COLOR );
-    //ref_maze.dijkstra( startVertex, endVertex );
     //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.GREEN, leftMazePoint, cell_unit );
   }
 
@@ -287,23 +284,21 @@ public class MazeGUI extends JFrame implements ActionListener {
         horizontal_wall.setLocation( mazePoint.x + (int)(column * cell_unit), mazePoint.y + (int)((row + 1) * cell_unit) );
 
         if( column < maze.getDimension() - 1 && maze.wallBetween(currentPoint, rightPoint) ) {
-          g2d.setColor(WALL_COLOR);
+          g2d.setColor( WALL_COLOR );
           g2d.fill( vertical_wall );
         }
-
         else  {
           g2d.setColor( NO_WALL_COLOR );
-          g2d.fill(vertical_wall);
+          g2d.fill( vertical_wall );
         }
 
         if( row < maze.getDimension() - 1 && maze.wallBetween(currentPoint, downPoint)  ) {
           g2d.setColor( WALL_COLOR );
           g2d.fill( horizontal_wall );
         }
-
         else {
           g2d.setColor( NO_WALL_COLOR );
-          g2d.fill(horizontal_wall);
+          g2d.fill( horizontal_wall );
         }
       }
     }
@@ -343,7 +338,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    new MazeGUI( 6 );
+    new MazeGUI( 100 );
     while(true) {}
   }
 
