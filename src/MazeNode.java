@@ -125,26 +125,62 @@ class MazeNode {
     return "(" + this.x + ", " + this.y + ")";
   }
 
+  /**
+   * TODO
+   */
   public void setVisited( boolean visited ) {
     this.visited = visited;
   }
 
+  /**
+   * TODO
+   */
   public void setPrev( MazeNode prev ) {
     this.prev = prev;
   }
 
+  /**
+   * TODO
+   */
   public void setDistance( int distance ) {
     this.distance = distance;
+  }
+
+  /**
+   * TODO
+   */
+  public boolean getVisited() {
+    return visited;
+  }
+
+  /**
+   * TODO
+   */
+  public MazeNode getPrev() {
+    return prev;
+  }
+
+  /**
+   * TODO
+   */
+  public int getDistance() {
+    return distance;
   }
 
   public MazeNode[] getEdgeList() {
     return new MazeNode[]{ up, down, left, right };
   }
 
+  /**
+   * TODO
+   */
   public double getDiagonalX() {
     return diagonal_x;
   }
 
+  /**
+   * TODO
+   */
   public double getDiagonalY() {
     return diagonal_y;
   }

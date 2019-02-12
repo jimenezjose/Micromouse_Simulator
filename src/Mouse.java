@@ -40,6 +40,11 @@ public class Mouse {
   public void exploreMaze() {
     MazeNode startVertex = maze.at( row, column );
 
+    for( MazeNode node : maze ) {
+      node.setVisited( false );
+      node.setDistance( Integer.MAX_VALUE );
+    }
+
   }
 
   /**
