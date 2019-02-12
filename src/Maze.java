@@ -28,7 +28,6 @@ import java.util.NoSuchElementException;
  */
 class Maze implements Iterable<MazeNode> {
   private static final int EVEN = 2;
-  private static final String DIM_TOO_LARGE = "Cannot create maze. Dimension: %d, too large\n";
   private int dimension;
   private MazeNode[][] maze;
   private LinkedList<MazeNode> dijkstraPath = new LinkedList<MazeNode>();
@@ -194,6 +193,7 @@ class Maze implements Iterable<MazeNode> {
     bestPath.addLast( startVertex );
 
     while( path.size() > 1 ) {
+      /* smoothen sharp turns by averaging direction */
       MazeNode currentNode = path.removeFirst();
       MazeNode nextNode = path.peekFirst();
       double x_bar = 0.5 * ( currentNode.x + nextNode.x );
@@ -411,7 +411,27 @@ class Maze implements Iterable<MazeNode> {
    * @return The set to which vertex belongs to.
    */
   private MazeNode find( MazeNode vertex ) {
-    return ( vertex.parent == null ) ? vertex : vertex.parent;
+    //return ( vertex.parent == null ) ? vertex : vertex.parent;
+    Stack<MazeNode> stack = new Stack<MazeNode>();
+    stack.push( vertex );
+
+    while( vertex.parent != null ) {
+      /* find set representative */
+      vertex = vertex.parent;
+      stack.push( vertex );
+    }
+
+    /* set representative found */
+    MazeNode root = stack.pop();
+
+    while( !stack.empty() ) {
+      /* path compression */
+      vertex = stack.pop();
+      vertex.parent = root;
+      // potential change of rank for root
+      // set rank of vertex to 0.
+    }
+    return root;
   }
 
   /**
@@ -486,6 +506,9 @@ class Maze implements Iterable<MazeNode> {
     return new LinkedList<MazeNode>( dfsPath );
   }
 
+  /**
+   * TODO
+   */
   public Iterator<MazeNode> iterator() {
     return new MazeIterator();
   }
@@ -519,7 +542,6 @@ class Maze implements Iterable<MazeNode> {
           return false;
         }
       }
-
       return (current_row < maze.length && current_column < maze[0].length);
     }
 
@@ -543,7 +565,6 @@ class Maze implements Iterable<MazeNode> {
 	  /* typical 1d array increment */
           current_column++;
         }
-
         return nextNode; 
       }
 
