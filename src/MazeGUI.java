@@ -338,7 +338,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    new MazeGUI( 100 );
+    new MazeGUI( 16 );
     while(true) {}
   }
 
