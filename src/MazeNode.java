@@ -25,7 +25,7 @@ class MazeNode {
 
   /* begin - maze generation data */
   public MazeNode parent = null;
-  public LinkedList<MazeNode> subset_list = new LinkedList<MazeNode>();
+  public int rank = 0;
   /* end - maze generation data */
 
   public final int x;
@@ -81,25 +81,15 @@ class MazeNode {
   }
 
   /**
-   * Keep track of subset nodes for union operations.
-   * @param vertex Node that is in the disjoint set of this.
-   * @return Nothing.
-   */
-  public void addSubsetElement( MazeNode vertex ) {
-    subset_list.push( vertex );
-    vertex.parent = this;
-  }
-
-  /**
    * Clear MazeNode graph data.
    */
   public void clearData() {
     up = down = left = right = null;
-    visited = false;
     prev = null;
-    distance = 0;
     parent = null;
-    subset_list.clear();
+    visited = false;
+    distance = 0;
+    rank = 0;
   }
 
   /**
@@ -126,60 +116,77 @@ class MazeNode {
   }
 
   /**
-   * TODO
+   * Setter method for visited attribute.
+   * @param visited new value for object attribute visited.
+   * @return Nothing.
    */
   public void setVisited( boolean visited ) {
     this.visited = visited;
   }
 
   /**
-   * TODO
+   * Setter method for prev attribute.
+   * @param visited new value for object attribute prev.
+   * @return Nothing.
    */
   public void setPrev( MazeNode prev ) {
     this.prev = prev;
   }
 
   /**
-   * TODO
+   * Setter method for distance attribute.
+   * @param visited new value for object attribute distance.
+   * @return Nothing.
    */
   public void setDistance( int distance ) {
     this.distance = distance;
   }
 
   /**
-   * TODO
+   * Getter method for visited attribute.
+   * @return boolean value of visited.
    */
   public boolean getVisited() {
     return visited;
   }
 
   /**
-   * TODO
+   * Getter method for prev attribute.
+   * @return reference to MazeNode prev.
    */
   public MazeNode getPrev() {
     return prev;
   }
 
   /**
-   * TODO
+   * Getter method for distance attribute.
+   * @return integer value of distace attribute.
    */
   public int getDistance() {
     return distance;
   }
 
+  /**
+   * Gets the neighbors of this as a linked list.
+   * @return iteratable list of neighbors.
+   */
   public MazeNode[] getEdgeList() {
     return new MazeNode[]{ up, down, left, right };
   }
 
   /**
-   * TODO
+   * Getter for attribute diagonal_x which is for path 
+   * optimization and allows "half steps" in the x-axis.
+   * @return double value of the attribute diagonal_x.
    */
   public double getDiagonalX() {
     return diagonal_x;
   }
 
   /**
-   * TODO
+   * Getter for attribute diagonal_y which is for path 
+   * optimization and allows "half steps" in the y-axis.
+   * @return double value of the attribute diagonal_x.
    */
   public double getDiagonalY() {
     return diagonal_y;

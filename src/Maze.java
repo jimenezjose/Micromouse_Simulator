@@ -15,6 +15,7 @@
  */
 
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Random;
 import java.awt.Point;
 import java.util.PriorityQueue;
@@ -28,7 +29,7 @@ import java.util.NoSuchElementException;
  */
 class Maze implements Iterable<MazeNode> {
   private static final int EVEN = 2;
-  private int dimension;
+  private final int dimension;
   private MazeNode[][] maze;
   private LinkedList<MazeNode> dijkstraPath = new LinkedList<MazeNode>();
   private LinkedList<MazeNode> dfsPath = new LinkedList<MazeNode>();
@@ -134,6 +135,7 @@ class Maze implements Iterable<MazeNode> {
     if( startVertex == null || endVertex == null ) {
       /* invalid input */
       System.err.println( "Maze.dfs: invalid vertices" );
+      return;
     }
 
     for( int row = 0; row < maze.length; row++ ) {
@@ -212,7 +214,7 @@ class Maze implements Iterable<MazeNode> {
   public void createRandomMaze() {                                                                    
     final int MIN_DIM = 3;
     final int MAX_CYCLES = getDimension();
-    LinkedList<Pair<MazeNode, MazeNode>> walls = new LinkedList<Pair<MazeNode, MazeNode>>(); 
+    ArrayList<Pair<MazeNode, MazeNode>> walls = new ArrayList<Pair<MazeNode, MazeNode>>( getDimension() * getDimension() );
     Random rand = new Random();
 
     if( getDimension() < MIN_DIM ) {
@@ -263,6 +265,7 @@ class Maze implements Iterable<MazeNode> {
     }
 
     System.err.println( "Total Walls: " + walls.size() );
+    long prevMillis = System.currentTimeMillis();
 
     /* create entry point for target */
     int randomIndex = rand.nextInt( solutionEntry.size() );
@@ -276,7 +279,7 @@ class Maze implements Iterable<MazeNode> {
       walls.remove( solutionEntry.pop() );
     }
 
-    /* combine target nodes into one meta node */
+    /* combine target nodes into one meta node (solution cell(s) )*/
     for( int index = 0, init_size = targetNodes.size(); targetNodes.size() != 0; index++ ) {
       int sign = ( index < init_size / EVEN ) ? +1 : -1;
       int dr = ( (index + 1) % init_size < init_size / EVEN ) ? 0 : sign * 1;
@@ -290,7 +293,7 @@ class Maze implements Iterable<MazeNode> {
     }
  
     /* list of back edges */
-    LinkedList<Pair<MazeNode, MazeNode>> cycleWalls = new LinkedList<Pair<MazeNode, MazeNode>>();
+    ArrayList<Pair<MazeNode, MazeNode>> cycleWalls = new ArrayList<Pair<MazeNode, MazeNode>>( getDimension() * getDimension() );
 
     /* random maze generation */
     while( walls.size() != 0 ) {
@@ -326,11 +329,16 @@ class Maze implements Iterable<MazeNode> {
       /* add cycle : alternate path */
       addEdge( vertex_A, vertex_B );
       count++;
+
+      /* remove back edge picked */
+      cycleWalls.remove( randomIndex );
     }
 
     cycleWalls.clear();
     System.err.println( "Number of walls taken down: " + count);
     System.err.println( "Number of cycles: " + numOfPaths );
+
+    System.err.println( "Time taken for Maze Generation: " + (System.currentTimeMillis() - prevMillis) / 1000.0 + " sec" );
   }
 
   /**
@@ -344,6 +352,8 @@ class Maze implements Iterable<MazeNode> {
         maze[ row ][ column ].clearData();
       }
     }
+    dfsPath.clear();
+    dijkstraPath.clear();
   }
 
   /**
@@ -379,39 +389,42 @@ class Maze implements Iterable<MazeNode> {
   /* Maze Generation Routines */
 
   /**
-   * Combines two vertices in disjoint set into one set.
+   * Combines two vertices in disjoint set into one set via union by rank.
    * @param vertex_A Node in maze.
    * @param vertex_B Node in maze.
    * @return Nothing.
    */
   private void union( MazeNode vertex_A, MazeNode vertex_B ) {
-    if( inSameSet(vertex_A, vertex_B) ) {
-      /* no union needed */
-      return;
-    }
-
     /* disjont set representatives */
     MazeNode a_set = find( vertex_A );
     MazeNode b_set = find( vertex_B );
 
-    /* a will be the subset of b */
-    a_set.parent = b_set;
-    b_set.addSubsetElement( a_set );
+    if( a_set == b_set ) {
+      /* no union needed - same set */
+      return;
+    }
 
-    while( a_set.subset_list.size() != 0 ) {
-      /* migrates all vertices in set a to set b */
-      MazeNode element = a_set.subset_list.pop();
-      b_set.addSubsetElement( element );
+    if( a_set.rank > b_set.rank ) {
+      /* a rank is greater than rank of b */
+      b_set.parent = a_set;
+    }
+    else {
+      /* a_set is a smaller tree than b_set */
+      a_set.parent = b_set;
+
+      if( a_set.rank == b_set.rank ) {
+        /* union of trees of equal height */
+	b_set.rank = a_set.rank + 1;
+      }
     }
   }
 
   /**
-   * Finds the set vertex belongs to.
+   * Finds the set vertex belongs to while doing a path compression.
    * @param vertex Node in maze.
    * @return The set to which vertex belongs to.
    */
   private MazeNode find( MazeNode vertex ) {
-    //return ( vertex.parent == null ) ? vertex : vertex.parent;
     Stack<MazeNode> stack = new Stack<MazeNode>();
     stack.push( vertex );
 
@@ -428,8 +441,7 @@ class Maze implements Iterable<MazeNode> {
       /* path compression */
       vertex = stack.pop();
       vertex.parent = root;
-      // potential change of rank for root
-      // set rank of vertex to 0.
+      vertex.rank = 0;
     }
     return root;
   }
