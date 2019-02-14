@@ -14,6 +14,10 @@
  *              and efficient testing. 
  */
 
+/*
+ * TODO have logic in draw methods that just look at size of paths...
+ */
+
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -58,6 +62,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    */
   public MazeGUI( int dimension ) {
     super( "Maze Graphics" );
+    if( dimension < 1 ) dimension = 1;
     ref_maze = new Maze( dimension );
     unknown_maze = new Maze( dimension );
     ref_maze.createRandomMaze();
@@ -75,7 +80,6 @@ public class MazeGUI extends JFrame implements ActionListener {
     setSize( 800, 800 );
     setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
     setBackground( Color.BLACK );
-    //getContentPane().setBackground( Color.BLACK );
     setResizable( true );
 
     northPanel = new JPanel();
@@ -181,12 +185,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   private void drawDijkstraPath( Maze maze, Point mazePoint, MazeNode startVertex, MazeNode endVertex, double cell_unit, Color color ) {
-    if( startVertex == null || endVertex == null ) {
-      /* invalid start or end point */
-      System.err.println( "MazeGUI.drawDijkstra: Invalid start or end vertex" );
-      return;
-    }
-    maze.dijkstra( startVertex, endVertex );
+    if( maze.getDijkstraPath().size() == 0 ) maze.dijkstra( startVertex, endVertex ); 
     colorPath( maze.getDijkstraPath(), color, mazePoint, cell_unit );
   }
 
@@ -201,12 +200,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   private void drawDFSPath( Maze maze, Point mazePoint, MazeNode startVertex, MazeNode endVertex, double cell_unit, Color color ) {
-    if( startVertex == null || endVertex == null ) {
-      /* invalid start or end point */
-      System.err.println( "MazeGUI.drawDFS: Invalid start or end vertex" );
-      return;
-    }
-    maze.dfs( startVertex, endVertex );
+    if( maze.getDFSPath().size() == 0 ) maze.dfs( startVertex, endVertex ); 
     colorPath( maze.getDFSPath(), color, mazePoint, cell_unit );
   }
 

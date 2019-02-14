@@ -1,3 +1,19 @@
+/**
+ *
+ * Jose Jimenez
+ * Alex Hu
+ * Brandon Cramer
+ * Chris Robles
+ * Srinivas Venkatraman
+ *
+ *                 University of California, San Diego
+ *                      IEEE Micromouse Team 2019
+ *
+ * File Name:   Maze.java
+ * Description: Maze data structure that will handle minimum spanning tree 
+ *              and random maze generation algorithms.
+ */
+
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;

@@ -1,14 +1,38 @@
-/* two pairs are equal if both pairs contain the same objects within the container */
-/* i.e (x,y) == (y,x) -> true */
-class Pair<T,K> {
-  public T first;
-  public K second;
+/**
+ *
+ * Jose Jimenez
+ * Alex Hu
+ * Brandon Cramer
+ * Chris Robles
+ * Srinivas Venkatraman
+ *
+ *                 University of California, San Diego
+ *                      IEEE Micromouse Team 2019
+ *
+ * File Name:   Pair.java
+ * Description: Utility object to represent a generic pair.
+ */
 
+class Pair<T,K> {
+  public final T first;
+  public final K second;
+
+  /**
+   * Creates an immutible pair.
+   * @param first element with an alias of first.
+   * @param second element in pair with an alias of second.
+   */
   public Pair( T first, K second ) {
     this.first = first;
     this.second = second;
   }
 
+  /**
+   * Two pairs are equal if the content in the pair are equivalent order does 
+   * not matter.
+   * @param o object of comparison.
+   * @return true if pairs have the same content.
+   */
   @Override
   public boolean equals( Object o ) {
     if( o == this ) {
@@ -28,6 +52,10 @@ class Pair<T,K> {
     return false;
   }
 
+  /**
+   * String representation of this pair object.
+   * @return string representation of this pair.
+   */
   @Override
   public String toString() {
     return "( " + first + ", " + second + " )";
