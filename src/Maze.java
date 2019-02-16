@@ -320,7 +320,7 @@ class Maze implements Iterable<MazeNode> {
 
     /* create multiple paths to solution */
     int numOfPaths = rand.nextInt( MAX_CYCLES );
-    for( int index = 0; index < numOfPaths; index++ ) {
+    for( int index = 0; cycleWalls.size() != 0 && index < numOfPaths; index++ ) {
       randomIndex = rand.nextInt( cycleWalls.size() );
       Pair<MazeNode, MazeNode> node_pair = cycleWalls.get( randomIndex );
       MazeNode vertex_A = node_pair.first;
@@ -547,9 +547,9 @@ class Maze implements Iterable<MazeNode> {
      */
     @Override
     public boolean hasNext() {
-      if( current_column == maze[0].length - 1 ) {
+      if( current_column == maze[0].length ) {
         /* wrapping around 2d row */
-        if( current_row == maze.length - 1 ) {
+        if( current_row == maze.length ) {
 	  /* last row index has been reached. cannot increment */
           return false;
         }

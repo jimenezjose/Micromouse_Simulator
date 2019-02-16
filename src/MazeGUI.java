@@ -14,10 +14,6 @@
  *              and efficient testing. 
  */
 
-/*
- * TODO have logic in draw methods that just look at size of paths...
- */
-
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -163,7 +159,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     drawGridLines( ref_maze, leftMazePoint, vertical_wall, horizontal_wall, cell_unit );
     drawGridLines( unknown_maze, rightMazePoint, vertical_wall, horizontal_wall, cell_unit );
 
-    mouse.setEnvironment( rightMazePoint, maze_diameter );
+    mouse.setGraphicsEnvironment( rightMazePoint, maze_diameter );
     mouse.draw( MOUSE_COLOR );
 
     MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
@@ -332,7 +328,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    new MazeGUI( 16 );
+    new MazeGUI( 4 );
     while(true) {}
   }
 
