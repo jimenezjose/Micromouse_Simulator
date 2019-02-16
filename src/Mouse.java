@@ -21,10 +21,12 @@ import java.awt.geom.*;
 import javax.swing.*;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Stack;
 
 public class Mouse {
 
   private final double PROPORTION = 0.3;
+  private final int EVEN = 2;
   private double UNIT;
   private final JFrame canvas;
   private Point maze_draw_point;
@@ -34,6 +36,14 @@ public class Mouse {
   private Maze maze;
   private int row;
   private int column;
+  private Point center = new Point();
+
+  private enum Orientation {
+    NORTH, 
+    SOUTH, 
+    WEST, 
+    EAST
+  }
 
   /**
    * Creates mouse object on canvas
@@ -55,12 +65,69 @@ public class Mouse {
   //public exploreMaze()
   public void exploreMaze() {
     MazeNode startVertex = maze.at( row, column );
+    Orientation orientation = Orientation.NORTH;
 
     for( MazeNode node : maze ) {
+      /* Assume maze has no walls */
+      setClosestCenter( center, node );
       node.setVisited( false );
-      node.setDistance( Integer.MAX_VALUE );
+      /* manhattan distance */
+      node.setDistance( Math.abs(center.x - node.x) + Math.abs(center.y - node.y) );
+      System.err.print( node.getDistance()  + " " );
+      if( node.y == maze.getDimension() - 1 ) System.err.println();
     }
 
+    Stack<MazeNode> stack = new Stack<MazeNode>();
+    stack.push( startVertex );
+
+    while( !stack.empty() ) {
+      MazeNode currentNode = stack.pop();
+      MazeNode[] neighbor_list = currentNode.getEdgeList();
+      discoverNeighbors( currentNode, orientation );
+      int minDistance = Integer.MAX_VALUE;
+
+      for( MazeNode neighbor :  neighbor_list ) {
+        if( neighbor == null ) continue;
+	/* check if all neighbors are in distance - 1 rank */
+	/* if not change the distance of the current node and push nieghbors to stack */
+      }
+    }
+
+  }
+
+  private void discoverNeighbors( MazeNode node, Orientation orientation ) {
+    /* look ahead and to the right and left neighbors - mouse perspective */
+    return;
+  }
+
+  /**
+   *
+   */
+  private void setClosestCenter( Point center, MazeNode node ) {
+    int centerX = maze.getDimension() / EVEN;
+    int centerY = maze.getDimension() / EVEN;
+
+    /* singular solution cell */
+
+    if( maze.getDimension() % EVEN == 1 ) {
+      /* odd dimension means singular */
+      center.setLocation( centerX, centerY );
+      return;
+    }
+
+    /* quad-cell solution */
+
+    if( node.x < maze.getDimension() / EVEN ) {
+      /* node in left half of maze quadrant */
+      centerX = maze.getDimension() / EVEN - 1;
+    }
+
+    if( node.y < maze.getDimension() / EVEN ) {
+      /* node in upper half of maze quadrant */
+      centerY = maze.getDimension() / EVEN - 1;
+    }
+
+    center.setLocation( centerX, centerY );
   }
 
   /**
@@ -120,7 +187,7 @@ public class Mouse {
    * @param maze_diameter   pixel diameter of maze on GUI.
    * @return Nothing.
    */
-   public void setEnvironment( Point maze_draw_point, int maze_diameter ) {
+   public void setGraphicsEnvironment( Point maze_draw_point, int maze_diameter ) {
      this.maze_draw_point = maze_draw_point;
      this.maze_diameter = maze_diameter;
      this.UNIT = (1.0 / ref_maze.getDimension()) * maze_diameter;
