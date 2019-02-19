@@ -44,6 +44,7 @@ public class MazeGUI extends JFrame implements ActionListener {
   private static final Color NO_WALL_COLOR = new Color( 135, 135, 135 );
   private static final Color MOUSE_COLOR = Color.YELLOW;
   private static final Color DJIKSTRA_PATH_COLOR = Color.RED;
+  private static final Color DFS_PATH_COLOR = Color.BLUE;
   private static final Color MAZE_BACKGROUND_COLOR = Color.GRAY;
 
   private Point leftMazePoint  = new Point();
@@ -52,16 +53,21 @@ public class MazeGUI extends JFrame implements ActionListener {
   private Point rightPoint   = new Point();
   private Point downPoint    = new Point();
 
+  private boolean runDijkstra = false;
+  private boolean runDFS = false;
+
   /**
    * Constructor: Creates and sets up MazeGUI 
    * @param dimension number of unit cells per side of square maze.
    */
-  public MazeGUI( int dimension ) {
+  public MazeGUI( int dimension, int max_cycles, boolean dijkstra, boolean dfs ) {
     super( "Maze Graphics" );
     if( dimension < 1 ) dimension = 1;
+    runDijkstra = dijkstra;
+    runDFS = dfs;
     ref_maze = new Maze( dimension );
     unknown_maze = new Maze( dimension );
-    ref_maze.createRandomMaze();
+    ref_maze.createRandomMaze( max_cycles );
     mouse = new Mouse( dimension - 1, 0, ref_maze, unknown_maze, this );
     mouse.exploreMaze();
     begin();
@@ -165,8 +171,15 @@ public class MazeGUI extends JFrame implements ActionListener {
     MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
     MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
 
-    drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DJIKSTRA_PATH_COLOR );
-    //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.GREEN, leftMazePoint, cell_unit );
+    if( runDFS ) {
+      drawDFSPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DFS_PATH_COLOR );
+    }
+
+    if( runDijkstra ) {
+      drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DJIKSTRA_PATH_COLOR );
+    }
+
+
   }
 
 
@@ -315,7 +328,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     }
     else if( evt.getSource() == mazeButton ) {
       /* new maze button was pressed */
-      System.err.println( "\nnew maze" );
+      System.out.println( "\nnew maze" );
       ref_maze.clear();
       ref_maze.createRandomMaze();
       repaint();
@@ -328,7 +341,96 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    new MazeGUI( 4 );
+    int dimension = 16;
+    int cycles = dimension;
+    boolean dijkstra = false;
+    boolean dfs = false;
+
+    for( int index = 0; index < args.length; index++ ) {
+      String flag = args[ index ];
+      boolean independent_flag = false;
+      boolean invalidFlag = true;
+
+      for( String valid_flag : ParsingStrings.FLAGS ) {
+        /* search if arg is a valid flag  */
+        if( flag.equals(valid_flag) ) {
+          invalidFlag = false;
+	  break;
+	}
+      }
+
+      if( invalidFlag ) {
+        /* no such flag defined */
+	System.out.println( "Unrecognized Argument: " + args[ index ] + "\n" );
+        System.out.println( ParsingStrings.USAGE );
+	System.exit( 1 );
+      }
+
+      /* independent args */
+
+      switch( flag ) {
+        case ParsingStrings.HELP_FLAG_1:
+	case ParsingStrings.HELP_FLAG_2:
+          /* program usage */
+          System.out.println( ParsingStrings.USAGE );
+	  System.exit( 1 );
+	  break;
+	case ParsingStrings.DIJKSTRA_FLAG:
+	  /* run dijkstra */
+	  independent_flag = true;
+	  dijkstra = true;
+	  break;
+	case ParsingStrings.DFS_FLAG:
+	  /* run dfs */
+	  independent_flag = true;
+	  dfs = true;
+	  break;
+      }
+
+      if( independent_flag ) continue;
+
+      /* dependent args */
+
+      if( index + 1 == args.length ) {
+        /* invalid number of args */
+	System.out.println( "Flag " + args[ index ] + " is expecting an argument." );
+        System.out.println( ParsingStrings.USAGE );
+	System.exit( 1 );
+      }
+
+      switch( flag ) {
+	case ParsingStrings.DIM_FLAG_1:
+	case ParsingStrings.DIM_FLAG_2:
+	  /* dimension input */
+	  try {
+            dimension = Integer.parseInt( args[ index + 1 ] );   
+	  }
+	  catch( NumberFormatException e ) {
+            System.out.println( "Integer Parsing Error: dimension: " + args[ index + 1 ] + "\n" );
+	    System.exit( 1 );
+	  }
+	  break;
+	case ParsingStrings.CYCLES_FLAG_1:
+	case ParsingStrings.CYCLES_FLAG_2:
+	  /* number to exist in graph */
+	  try {
+            cycles = Integer.parseInt( args[ index + 1 ] );   
+	  }
+	  catch( NumberFormatException e ) {
+            System.out.println( "Integer Parsing Error: cycles: " + args[ index + 1 ] + "\n" );
+            System.out.println( ParsingStrings.USAGE );
+	    System.exit( 1 );
+	  }
+	  break;
+      }
+
+      index++;
+    }
+
+    System.out.println( "Maze Dimension: " + dimension );
+
+    MazeGUI maze_frame = new MazeGUI( dimension, cycles, dijkstra, dfs );
+
     while(true) {}
   }
 

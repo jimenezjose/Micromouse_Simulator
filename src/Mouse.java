@@ -62,10 +62,10 @@ public class Mouse {
     this.mouse = new MouseShape();
   }
 
-  //public exploreMaze()
   public void exploreMaze() {
     MazeNode startVertex = maze.at( row, column );
     Orientation orientation = Orientation.NORTH;
+    maze.clearWalls();
 
     for( MazeNode node : maze ) {
       /* Assume maze has no walls */
@@ -73,10 +73,12 @@ public class Mouse {
       node.setVisited( false );
       /* manhattan distance */
       node.setDistance( Math.abs(center.x - node.x) + Math.abs(center.y - node.y) );
-      System.err.print( node.getDistance()  + " " );
+      System.err.print( node.getDistance()  + "\t" );
       if( node.y == maze.getDimension() - 1 ) System.err.println();
     }
+    System.err.println();
 
+    if( false ) {
     Stack<MazeNode> stack = new Stack<MazeNode>();
     stack.push( startVertex );
 
@@ -88,9 +90,33 @@ public class Mouse {
 
       for( MazeNode neighbor :  neighbor_list ) {
         if( neighbor == null ) continue;
-	/* check if all neighbors are in distance - 1 rank */
-	/* if not change the distance of the current node and push nieghbors to stack */
+	if( neighbor.getDistance() < minDistance ) {
+          /* update new min neighbor distance */
+	  minDistance = neighbor.getDistance();
+	}
       }
+
+      if( minDistance != currentNode.getDistance() - 1 ) {
+        /* recalibrate neighbor distances */
+	currentNode.setDistance( minDistance + 1 );
+	for( MazeNode neighbor : neighbor_list ) {
+	  /* push all existing neighbors except solution cells */
+          if( neighbor == null || neighbor.getDistance() == 0 ) continue; 
+	  stack.push( neighbor );
+	}
+      }
+      else {
+        /* proceed with the next smallest cell distance */
+	for( MazeNode neighbor : neighbor_list ) {
+          if( neighbor == null ) continue; 
+	  if( neighbor.getDistance() == currentNode.getDistance() - 1 ) {
+	    /* push next smallest neighbor distance */
+            stack.push( neighbor );
+	  }
+	}
+      }
+    }
+
     }
 
   }
@@ -101,7 +127,7 @@ public class Mouse {
   }
 
   /**
-   *
+   * TODO
    */
   private void setClosestCenter( Point center, MazeNode node ) {
     int centerX = maze.getDimension() / EVEN;
