@@ -30,6 +30,7 @@ import java.util.NoSuchElementException;
 class Maze implements Iterable<MazeNode> {
   private static final int EVEN = 2;
   private final int dimension;
+  private int max_cycles;
   private MazeNode[][] maze;
   private LinkedList<MazeNode> dijkstraPath = new LinkedList<MazeNode>();
   private LinkedList<MazeNode> dfsPath = new LinkedList<MazeNode>();
@@ -41,6 +42,7 @@ class Maze implements Iterable<MazeNode> {
   public Maze( int dimension ) {
     /* dimension padding added to emulate maze walls */
     this.dimension = dimension;
+    this.max_cycles = 0;
     maze = new MazeNode[ dimension ][ dimension ];
 
     for( int row = 0; row < maze.length; row++ ) {
@@ -63,14 +65,11 @@ class Maze implements Iterable<MazeNode> {
       return;
     }
 
-    for( int row = 0; row < maze.length; row++ ) {
-      for( int column = 0; column < maze[0].length; column++ ) {
-        /* set up initial environment in graph */
-	MazeNode currentNode = maze[ row ][ column ];
-	currentNode.setDistance( Integer.MAX_VALUE );
-	currentNode.setPrev( null );
-	currentNode.setVisited( false );
-      }
+    for( MazeNode node : this ) {
+      /* set up initial environment in graph */
+      node.setDistance( Integer.MAX_VALUE );
+      node.setPrev( null );
+      node.setVisited( false );
     }
 
     PriorityQueue<PQNode<MazeNode>> pq = new PriorityQueue<PQNode<MazeNode>>();
@@ -138,11 +137,9 @@ class Maze implements Iterable<MazeNode> {
       return;
     }
 
-    for( int row = 0; row < maze.length; row++ ) {
-      for( int column = 0; column < maze[0].length; column++ ) {
-        /* set up initial conditions for dfs */
-        maze[ row ][ column ].setVisited( false );
-      }
+    for( MazeNode node : this ) {
+      /* set up initial conditions for dfs */
+      node.setVisited( false );
     }
 
     dfsPath.clear();
@@ -208,12 +205,20 @@ class Maze implements Iterable<MazeNode> {
   }
 
   /**
+   * TODO
+   */
+  public void createRandomMaze( int max_cycles ) {
+    this.max_cycles = max_cycles;
+    createRandomMaze();
+  }
+
+  /**
    * Creates a random maze using Kruskals Algorithm.
    * @return Nothing.
    */
   public void createRandomMaze() {                                                                    
     final int MIN_DIM = 3;
-    final int MAX_CYCLES = getDimension();
+    final int MAX_CYCLES = max_cycles;
     ArrayList<Pair<MazeNode, MazeNode>> walls = new ArrayList<Pair<MazeNode, MazeNode>>( getDimension() * getDimension() );
     Random rand = new Random();
 
@@ -319,7 +324,7 @@ class Maze implements Iterable<MazeNode> {
     }
 
     /* create multiple paths to solution */
-    int numOfPaths = rand.nextInt( MAX_CYCLES );
+    int numOfPaths = ( MAX_CYCLES == 0 ) ? 0 : rand.nextInt( MAX_CYCLES ) + 1;
     for( int index = 0; cycleWalls.size() != 0 && index < numOfPaths; index++ ) {
       randomIndex = rand.nextInt( cycleWalls.size() );
       Pair<MazeNode, MazeNode> node_pair = cycleWalls.get( randomIndex );
@@ -346,11 +351,9 @@ class Maze implements Iterable<MazeNode> {
    * @return Nothing.
    */
   public void clear() {
-    for( int row = 0; row < maze.length; row++ ) {
-      for( int column = 0; column < maze[0].length; column++ ) {
-        /* clear data for all nodes in maze */
-        maze[ row ][ column ].clearData();
-      }
+    for( MazeNode node : this ) {
+      /* clear data for all nodes in maze */
+      node.clearData();
     }
     dfsPath.clear();
     dijkstraPath.clear();
@@ -469,6 +472,12 @@ class Maze implements Iterable<MazeNode> {
     vertex_B.addNeighbor( vertex_A );
   }
 
+  public void removeEdge( MazeNode vertex_A, MazeNode vertex_B ) {
+    if( vertex_A == null || vertex_B == null ) return;
+    vertex_A.removeNeighbor( vertex_B );
+    vertex_B.removeNeighbor( vertex_A );
+  }
+
   /* END OF MAZE GENERATION ROUTINES */
 
   /**
@@ -495,6 +504,35 @@ class Maze implements Iterable<MazeNode> {
   }
 
   /**
+   * TODO
+   */
+  public void clearWalls() {
+    for( int row = 0; row < maze.length; row++ ) {
+      for( int column = 0; column < maze[0].length; column++ ) {
+        /* create empty maze with no walls */
+        MazeNode currentNode = maze[ row ][ column ];
+	MazeNode up, down, left, right;
+        up    = ( !outOfBounds(row - 1) ) ? maze[ row - 1 ][ column ] : null;
+        down  = ( !outOfBounds(row + 1) ) ? maze[ row + 1 ][ column ] : null;
+        left  = ( !outOfBounds(column - 1) ) ? maze[ row ][ column - 1 ] : null;
+        right = ( !outOfBounds(column + 1) ) ? maze[ row ][ column + 1 ] : null;
+	/* create edges for current node */
+        MazeNode[] neighbor_list = { up, down, left, right };
+	for( MazeNode neighbor : neighbor_list ) {
+          addEdge( currentNode, neighbor );
+	}
+      }
+    }
+  }
+
+  /**
+   * Maze abstraction with walls alias...TODO
+   */
+  public void addWall( MazeNode vertex_A, MazeNode vertex_B ) {
+    removeEdge( vertex_A, vertex_B );
+  }
+
+  /**
    * Gets the side dimension of created square maze.
    * @return number of square units on one side of square.
    */
@@ -516,6 +554,10 @@ class Maze implements Iterable<MazeNode> {
    */
   public LinkedList<MazeNode> getDFSPath() {
     return new LinkedList<MazeNode>( dfsPath );
+  }
+
+  public int getMaxCycles() {
+    return max_cycles;
   }
 
   /**

@@ -63,7 +63,7 @@ class MazeNode {
    * @return Nothing.
    */
   public void addNeighbor( MazeNode vertex ) {
-
+    if( vertex == null ) return;
     if( x == vertex.x ) {
       /* computer y-axis is inverted */
       if( y + 1 == vertex.y ) right = vertex;
@@ -77,6 +77,24 @@ class MazeNode {
     else {
       /* vertex is not adjacent */
       System.err.println( ADD_EDGE_ERROR + this + " <-> " + vertex );
+    }
+  }
+
+  /**
+   * Detach neighbor from neighborlist of this node.
+   * @param vertex neighbor to be removed.
+   * @return Nothing.
+   */
+  public void removeNeighbor( MazeNode vertex ) {
+    MazeNode[] neighbor_list = getEdgeList();
+    if( vertex == null ) return;
+    for( MazeNode neighbor : neighbor_list ) {
+      /* search for neighbor */
+      if( neighbor == vertex ) { 
+        /* Erase neighbor. Done. */
+        neighbor = null; 
+	return;
+      }
     }
   }
 
