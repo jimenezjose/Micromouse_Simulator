@@ -341,8 +341,8 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    int dimension = -1;
-    int cycles = dimension;
+    int dimension = 0;
+    int cycles = 0;
     boolean dijkstra = false;
     boolean dfs = false;
 
@@ -433,8 +433,9 @@ public class MazeGUI extends JFrame implements ActionListener {
       index++;
     }
 
-    if( dimension < 0 ) {
-      System.out.println( "Dimension Argument Error: non-existent or negative\n" );
+    if( dimension <= 0 ) {
+      System.out.println( "Dimension Argument Error: non-existent or not positive\n" );
+      System.out.println( "Example: java MazeGUI -dimension 16\n" );
       System.out.println( ParsingStrings.USAGE );
       System.exit( 1 );
     }
