@@ -29,7 +29,7 @@ make
 5. Run the Java executable: 
 ```
 cd build
-java MazeGUI
+java MazeGUI -dimension 16
 ```
 
 ## Getting started with the [STM32](https://github.com/jimenezjose/STM32)
