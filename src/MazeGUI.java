@@ -290,7 +290,7 @@ public class MazeGUI extends JFrame implements ActionListener {
           g2d.setColor( WALL_COLOR );
           g2d.fill( vertical_wall );
         }
-        else  {
+        else {
           g2d.setColor( NO_WALL_COLOR );
           g2d.fill( vertical_wall );
         }
@@ -341,7 +341,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    int dimension = 16;
+    int dimension = -1;
     int cycles = dimension;
     boolean dijkstra = false;
     boolean dfs = false;
@@ -373,6 +373,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 	case ParsingStrings.HELP_FLAG_2:
           /* program usage */
           System.out.println( ParsingStrings.USAGE );
+	  System.out.println( ParsingStrings.HELP_MSG );
 	  System.exit( 1 );
 	  break;
 	case ParsingStrings.DIJKSTRA_FLAG:
@@ -412,13 +413,18 @@ public class MazeGUI extends JFrame implements ActionListener {
 	  break;
 	case ParsingStrings.CYCLES_FLAG_1:
 	case ParsingStrings.CYCLES_FLAG_2:
-	  /* number to exist in graph */
+	  /* number of cycles in graph - number of alternative solutions */
 	  try {
             cycles = Integer.parseInt( args[ index + 1 ] );   
 	  }
 	  catch( NumberFormatException e ) {
-            System.out.println( "Integer Parsing Error: cycles: " + args[ index + 1 ] + "\n" );
+            System.out.println( "Integer Parsing Error: max cycles: " + args[ index + 1 ] + "\n" );
             System.out.println( ParsingStrings.USAGE );
+	    System.exit( 1 );
+	  }
+	  if( cycles < 0 ) {
+            System.out.println( "Max Cycles Error: argument must be positive: " + cycles + "\n" );
+	    System.out.println( ParsingStrings.USAGE );
 	    System.exit( 1 );
 	  }
 	  break;
@@ -427,7 +433,11 @@ public class MazeGUI extends JFrame implements ActionListener {
       index++;
     }
 
-    System.out.println( "Maze Dimension: " + dimension );
+    if( dimension < 0 ) {
+      System.out.println( "Dimension Argument Error: non-existent or negative\n" );
+      System.out.println( ParsingStrings.USAGE );
+      System.exit( 1 );
+    }
 
     MazeGUI maze_frame = new MazeGUI( dimension, cycles, dijkstra, dfs );
 
