@@ -341,7 +341,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    * @return Nothing.
    */
   public static void main( String[] args ) {
-    int dimension = 0;
+    int dimension = 16;
     int cycles = 0;
     boolean dijkstra = false;
     boolean dfs = false;
@@ -440,7 +440,7 @@ public class MazeGUI extends JFrame implements ActionListener {
       System.exit( 1 );
     }
 
-    MazeGUI maze_frame = new MazeGUI( dimension, cycles, dijkstra, dfs );
+    MazeGUI maze_frame = new MazeGUI( dimension, cycles, true, dfs );
 
     while(true) {}
   }

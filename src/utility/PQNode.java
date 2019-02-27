@@ -16,7 +16,6 @@
  *              convert the max heap to a min binary heap.
  */
 
-//import java.util.*;
 import java.lang.Comparable;
 
 class PQNode<T> implements Comparable<PQNode<T>> {

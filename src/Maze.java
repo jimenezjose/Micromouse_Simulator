@@ -23,6 +23,10 @@ import java.util.Stack;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/* import local packages */
+//import utility.Pair;
+//import utility.PQNode;
+
 /**
  * Maze will handle the internal maze structures, and ensure a proper graph is
  * implemented. 
