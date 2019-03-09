@@ -347,7 +347,7 @@ class Maze implements Iterable<MazeNode> {
     System.err.println( "Number of walls taken down: " + count);
     System.err.println( "Number of cycles: " + numOfPaths );
 
-    System.err.println( "Time taken for Maze Generation: " + (System.currentTimeMillis() - prevMillis) / 1000.0 + " sec" );
+    //System.err.println( "Time taken for Maze Generation: " + (System.currentTimeMillis() - prevMillis) / 1000.0 + " sec" );
   }
 
   /**
