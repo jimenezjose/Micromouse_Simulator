@@ -95,8 +95,8 @@ public class MazeGUI extends JFrame implements ActionListener {
     
 
     /* sets names of new buttons */
-    backButton     = new JButton( "Back" );
-    continueButton = new JButton( "Continue" );
+    backButton     = new JButton( "DFS" );
+    continueButton = new JButton( "Dijkstra" );
     mazeButton     = new JButton( "New Maze" );
     blankButton    = new JButton( "button" );
 
