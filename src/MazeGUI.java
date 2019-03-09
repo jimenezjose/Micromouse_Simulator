@@ -38,6 +38,7 @@ public class MazeGUI extends JFrame implements ActionListener {
   private JButton backButton;
   private JButton continueButton;
   private JButton mazeButton;
+  private JButton blankButton;
 
   private static final Color WALL_COLOR = Color.BLACK;
   private static final Color MAZE_BORDER_COLOR = Color.BLACK;
@@ -46,6 +47,7 @@ public class MazeGUI extends JFrame implements ActionListener {
   private static final Color DJIKSTRA_PATH_COLOR = Color.RED;
   private static final Color DFS_PATH_COLOR = Color.BLUE;
   private static final Color MAZE_BACKGROUND_COLOR = Color.GRAY;
+  private static final Color NUMBER_COLOR = Color.DARK_GRAY;
 
   private Point leftMazePoint  = new Point();
   private Point rightMazePoint = new Point();
@@ -89,24 +91,30 @@ public class MazeGUI extends JFrame implements ActionListener {
 
     /* set layout for button panels */
     northPanel.setLayout( new BoxLayout(northPanel, BoxLayout.LINE_AXIS) );
-    southPanel.setLayout( new FlowLayout(FlowLayout.RIGHT) );
+    southPanel.setLayout( new BoxLayout(southPanel, BoxLayout.LINE_AXIS) );
     
 
     /* sets names of new buttons */
-    backButton = new JButton( "Back" );
+    backButton     = new JButton( "Back" );
     continueButton = new JButton( "Continue" );
-    mazeButton = new JButton( "New Maze" );
+    mazeButton     = new JButton( "New Maze" );
+    blankButton    = new JButton( "button" );
 
     /* Activates button to register state change */
     continueButton.addActionListener( this );
     backButton.addActionListener( this );
     mazeButton.addActionListener( this );
+    blankButton.addActionListener( this );
 
     /* add button to panels */
     northPanel.add( backButton );
     northPanel.add( Box.createHorizontalGlue() );
     northPanel.add( mazeButton );
+    southPanel.add( blankButton );
+    southPanel.add( Box.createHorizontalGlue() );
     southPanel.add( continueButton );
+
+    /* background color of button panels */
     northPanel.setBackground( Color.BLACK );
     southPanel.setBackground( Color.BLACK );
 
@@ -140,13 +148,13 @@ public class MazeGUI extends JFrame implements ActionListener {
     center.setLocation( getWidth() / 2, getHeight() / 2 );
     int canvas_height = getHeight() - 2 * backButton.getHeight();
     int canvas_width  = getWidth();
-    int wall_width   = 2;
-    int num_of_walls = ref_maze.getDimension() - 1;
+    int wall_width    = 2;
+    int num_of_walls  = ref_maze.getDimension() - 1;
     int maze_diameter = (int)(double)( MAZE_PROPORTION * Math.min(canvas_height, canvas_width) ); 
     int maze_radius   = (int)(double)( 0.5 * maze_diameter );
     int maze_offset   = (int)(double)( 0.25 * (canvas_width - 2 * maze_diameter) );
-    double cell_unit   = (1.0 / ref_maze.getDimension()) * maze_diameter ;
-    int wall_height  = (int) cell_unit;
+    double cell_unit  = (1.0 / ref_maze.getDimension()) * maze_diameter ;
+    int wall_height   = (int) cell_unit;
 
     g.setColor( MAZE_BACKGROUND_COLOR );
     g.fillRect( maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
@@ -165,6 +173,8 @@ public class MazeGUI extends JFrame implements ActionListener {
     drawGridLines( ref_maze, leftMazePoint, vertical_wall, horizontal_wall, cell_unit );
     drawGridLines( unknown_maze, rightMazePoint, vertical_wall, horizontal_wall, cell_unit );
 
+    drawFloodFillCellValues( unknown_maze, rightMazePoint, cell_unit );
+
     mouse.setGraphicsEnvironment( rightMazePoint, maze_diameter );
     mouse.draw( MOUSE_COLOR );
 
@@ -177,6 +187,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 
     if( runDijkstra ) {
       drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DJIKSTRA_PATH_COLOR );
+      //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.GREEN, leftMazePoint, cell_unit );
     }
 
 
@@ -241,7 +252,6 @@ public class MazeGUI extends JFrame implements ActionListener {
 
       int dx = ( x - cellBlock.x == 0 ) ? 0 : Math.abs(x - cellBlock.x) / (x - cellBlock.x);
       int dy = ( y - cellBlock.y == 0 ) ? 0 : Math.abs(y - cellBlock.y) / (y - cellBlock.y);
-
       int current_x = cellBlock.x;
       int current_y = cellBlock.y;
 
@@ -305,7 +315,24 @@ public class MazeGUI extends JFrame implements ActionListener {
         }
       }
     }
+  }
 
+  /**
+   * TODO
+   */
+  void drawFloodFillCellValues( Maze maze, Point mazePoint, double cell_unit ) {
+    final double FONT_PROPORTION = 0.5;
+    Graphics g = getGraphics();
+
+    Font numberFont = new Font( Font.SANS_SERIF, Font.BOLD, (int)(FONT_PROPORTION * cell_unit) );
+    g.setFont( numberFont );
+    g.setColor( NUMBER_COLOR );
+
+    for( MazeNode cell : maze ) {
+      if( cell.x == mouse.x && cell.y == mouse.y ) continue;
+      int offset = (int)(FONT_PROPORTION / 2.0 * cell_unit);
+      g.drawString( Integer.toString(cell.distance), mazePoint.x + (int)(cell.y * cell_unit) + offset, mazePoint.y + (int)((cell.x + 1) * cell_unit) - offset); 
+    }
   }
 
   /**
@@ -321,10 +348,14 @@ public class MazeGUI extends JFrame implements ActionListener {
     if( evt.getSource() == continueButton ) {
       /* continue button was pressed */
       System.out.println( "continue" );
+      runDijkstra = !runDijkstra;
+      repaint();
     }
     else if( evt.getSource() == backButton ) {
       /* back button was pressed */
       System.out.println( "back" );
+      runDFS = !runDFS;
+      repaint();
     }
     else if( evt.getSource() == mazeButton ) {
       /* new maze button was pressed */
@@ -332,6 +363,9 @@ public class MazeGUI extends JFrame implements ActionListener {
       ref_maze.clear();
       ref_maze.createRandomMaze();
       repaint();
+    }
+    else if( evt.getSource() == blankButton ) {
+      System.out.println( "button" );
     }
   }
 
@@ -434,13 +468,13 @@ public class MazeGUI extends JFrame implements ActionListener {
     }
 
     if( dimension <= 0 ) {
-      System.out.println( "Dimension Argument Error: non-existent or not positive\n" );
+      System.out.println( "Dimension Argument Error: not positive\n" );
       System.out.println( "Example: java MazeGUI -dimension 16\n" );
       System.out.println( ParsingStrings.USAGE );
       System.exit( 1 );
     }
 
-    MazeGUI maze_frame = new MazeGUI( dimension, cycles, true, dfs );
+    MazeGUI maze_frame = new MazeGUI( dimension, cycles, dijkstra, dfs );
 
     while(true) {}
   }

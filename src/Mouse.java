@@ -25,6 +25,8 @@ import java.util.Stack;
 
 public class Mouse {
 
+  public int x;
+  public int y;
   private final double PROPORTION = 0.3;
   private final int EVEN = 2;
   private double UNIT;
@@ -54,8 +56,8 @@ public class Mouse {
    * @param canvas JFrame that the mouse will exist in.
    */
   public Mouse( int row, int column, Maze ref_maze, Maze maze, JFrame canvas ) {
-    this.row = row;
-    this.column = column;
+    this.row = this.x = row;
+    this.column = this.y = column;
     this.ref_maze = ref_maze;
     this.maze = maze;
     this.canvas = canvas;
@@ -73,10 +75,7 @@ public class Mouse {
       node.setVisited( false );
       /* manhattan distance */
       node.setDistance( Math.abs(center.x - node.x) + Math.abs(center.y - node.y) );
-      System.err.print( node.getDistance()  + "\t" );
-      if( node.y == maze.getDimension() - 1 ) System.err.println();
     }
-    System.err.println();
 
     if( false ) {
     Stack<MazeNode> stack = new Stack<MazeNode>();
