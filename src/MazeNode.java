@@ -1,7 +1,6 @@
 /**
  *
  * Jose Jimenez
- * Alex Hu
  * Brandon Cramer
  * Chris Robles
  * Srinivas Venkatraman
@@ -47,14 +46,14 @@ class MazeNode {
 
   /**
    * Creates a node object for an associated location in a 2d maze.
-   * @param x row location of node.
-   * @param y column location of node.
+   * @param x column location of node.
+   * @param y row location of node.
    */
-  public MazeNode( double x, double y ) {
-    this.x = (int)x;
-    this.y = (int)y;
-    this.diagonal_x = x;
-    this.diagonal_y = y;
+  public MazeNode( double row, double column ) {
+    x = (int)column;
+    y = (int)row;
+    diagonal_x = column;
+    diagonal_y = row;
   }
 
   /**
@@ -66,13 +65,13 @@ class MazeNode {
     if( vertex == null ) return;
     if( x == vertex.x ) {
       /* computer y-axis is inverted */
-      if( y + 1 == vertex.y ) right = vertex;
-      else if( y - 1 == vertex.y ) left = vertex;
+      if( y + 1 == vertex.y ) down = vertex;
+      else if( y - 1 == vertex.y ) up = vertex;
     }
     else if( y == vertex.y ) {
       /* normal x-axis convention */
-      if( x + 1 == vertex.x ) down = vertex;
-      else if( x - 1 == vertex.x ) up = vertex;
+      if( x + 1 == vertex.x ) right = vertex;
+      else if( x - 1 == vertex.x ) left = vertex;
     }
     else {
       /* vertex is not adjacent */
@@ -130,7 +129,8 @@ class MazeNode {
    */
   @Override
   public String toString() {
-    return "(" + this.x + ", " + this.y + ")";
+    /* (row, column) */
+    return "(" + this.y + ", " + this.x + ")";
   }
 
   /**

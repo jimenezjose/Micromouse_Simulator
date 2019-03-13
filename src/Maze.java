@@ -1,7 +1,6 @@
 /**
  *
  * Jose Jimenez
- * Alex Hu
  * Brandon Cramer
  * Chris Robles
  * Srinivas Venkatraman
@@ -235,11 +234,11 @@ class Maze implements Iterable<MazeNode> {
     for( int row = 0; row < maze.length; row++ ) {
       for( int column = 0; column < maze[0].length; column++ ) {
         if( row < maze.length - 1 ) {
-          /* insert wall to the right of current cell */
+          /* insert wall below the current cell */
 	  walls.add( new Pair<>( maze[row][column], maze[row + 1][column] ) );
 	}
 	if( column < maze[0].length - 1 ) {
-          /* insert wall below current cell */
+          /* insert wall to the right current cell */
 	  walls.add( new Pair<>( maze[row][column], maze[row][column + 1] ) );
 	}
       }
@@ -294,7 +293,7 @@ class Maze implements Iterable<MazeNode> {
       int dr = ( (index + 1) % init_size < init_size / EVEN ) ? 0 : sign * 1;
       int dc = ( (index + 1) % init_size < init_size / EVEN ) ? sign * 1: 0;
       MazeNode target = targetNodes.removeFirst();
-      MazeNode neighbor = maze[ target.x + dr ][ target.y + dc ];
+      MazeNode neighbor = maze[ target.y + dr ][ target.x + dc ];
       union( target, neighbor );
       addEdge( target, neighbor );
       walls.remove( new Pair<>( target, neighbor) );

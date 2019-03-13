@@ -1,7 +1,6 @@
 /**
  *
  * Jose Jimenez
- * Alex Hu
  * Brandon Cramer
  * Chris Robles
  * Srinivas Venkatraman
@@ -11,7 +10,7 @@
  *
  * File Name:   PQNode.java
  * Description: Utility class for a priority queue node; a nodes with smaller 
- *              weights have higher priority. i.e. if the priority queue is 
+ *              weights have higher priority; ie if the priority queue is 
  *              using a max binary heap to store data, PQNode definition will 
  *              convert the max heap to a min binary heap.
  */
