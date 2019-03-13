@@ -1,7 +1,6 @@
 /**
  *
  * Jose Jimenez
- * Alex Hu
  * Brandon Cramer
  * Chris Robles
  * Srinivas Venkatraman
@@ -56,8 +55,8 @@ public class Mouse {
    * @param canvas JFrame that the mouse will exist in.
    */
   public Mouse( int row, int column, Maze ref_maze, Maze maze, JFrame canvas ) {
-    this.row = this.x = row;
-    this.column = this.y = column;
+    this.row = this.y = row;
+    this.column = this.x = column;
     this.ref_maze = ref_maze;
     this.maze = maze;
     this.canvas = canvas;
@@ -77,8 +76,19 @@ public class Mouse {
       node.setDistance( Math.abs(center.x - node.x) + Math.abs(center.y - node.y) );
     }
 
-    if( false ) {
     Stack<MazeNode> stack = new Stack<MazeNode>();
+    stack.push( startVertex );
+
+    while( !stack.empty() ) {
+      MazeNode currentNode = stack.pop();
+      int dx = x - currentNode.x; 
+      int dy = y - currentNode.y;
+
+      //discoverNeighborWalls( currentNode, orientation ); 
+    }
+
+    if( false ) {
+    //Stack<MazeNode> stack = new Stack<MazeNode>();
     stack.push( startVertex );
 
     while( !stack.empty() ) {
@@ -163,6 +173,8 @@ public class Mouse {
    */
   public void move( int dx, int dy ) {
     mouse.translate( dx, dy );
+    column = x += dx;
+    row = y += dy;
   }
  
   /**
@@ -171,6 +183,7 @@ public class Mouse {
    */
   public void moveRight() {
     mouse.translate((int)UNIT, 0);
+    column = y += (int)UNIT; 
   }
 
   /**
@@ -179,6 +192,7 @@ public class Mouse {
    */
   public void moveLeft() {
     mouse.translate((int)-UNIT, 0);
+    row = x -= (int)UNIT;
   }
 
   /**
@@ -187,6 +201,7 @@ public class Mouse {
    */
   public void moveUp() {
     mouse.translate(0, (int)-UNIT);
+    column = y -= (int)UNIT;
   }
 
   /**

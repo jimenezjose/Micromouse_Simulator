@@ -1,7 +1,6 @@
 /**
  *
  * Jose Jimenez
- * Alex Hu
  * Brandon Cramer
  * Chris Robles
  * Srinivas Venkatraman
@@ -238,8 +237,8 @@ public class MazeGUI extends JFrame implements ActionListener {
     g2d.setColor( color );
 
     MazeNode currentNode = path.removeFirst();
-    int x = mazePoint.x + (int)(currentNode.getDiagonalY() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
-    int y = mazePoint.y + (int)(currentNode.getDiagonalX() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
+    int x = mazePoint.x + (int)(currentNode.getDiagonalX() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
+    int y = mazePoint.y + (int)(currentNode.getDiagonalY() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
     int sideLength = (int)(PATH_PROPORTION * cell_unit);
     if( sideLength == 0 ) sideLength = 1;
     Rectangle cellBlock = new Rectangle( x, y, sideLength, sideLength );
@@ -247,8 +246,8 @@ public class MazeGUI extends JFrame implements ActionListener {
     while( path.size() != 0 ) {
       /* traverse through path */
       currentNode = path.removeFirst();
-      x = mazePoint.x + (int)(currentNode.getDiagonalY() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
-      y = mazePoint.y + (int)(currentNode.getDiagonalX() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
+      x = mazePoint.x + (int)(currentNode.getDiagonalX() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
+      y = mazePoint.y + (int)(currentNode.getDiagonalY() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
 
       int dx = ( x - cellBlock.x == 0 ) ? 0 : Math.abs(x - cellBlock.x) / (x - cellBlock.x);
       int dy = ( y - cellBlock.y == 0 ) ? 0 : Math.abs(y - cellBlock.y) / (y - cellBlock.y);
@@ -331,7 +330,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     for( MazeNode cell : maze ) {
       if( cell.x == mouse.x && cell.y == mouse.y ) continue;
       int offset = (int)(FONT_PROPORTION / 2.0 * cell_unit);
-      g.drawString( Integer.toString(cell.distance), mazePoint.x + (int)(cell.y * cell_unit) + offset, mazePoint.y + (int)((cell.x + 1) * cell_unit) - offset); 
+      g.drawString( Integer.toString(cell.distance), mazePoint.x + (int)(cell.x * cell_unit) + offset, mazePoint.y + (int)((cell.y + 1) * cell_unit) - offset); 
     }
   }
 
