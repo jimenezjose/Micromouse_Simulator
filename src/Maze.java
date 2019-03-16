@@ -22,10 +22,6 @@ import java.util.Stack;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/* import local packages */
-//import utility.Pair;
-//import utility.PQNode;
-
 /**
  * Maze will handle the internal maze structures, and ensure a proper graph is
  * implemented. 
@@ -208,7 +204,9 @@ class Maze implements Iterable<MazeNode> {
   }
 
   /**
-   * TODO
+   * Creates a new random maze with a new upper bound of max cycles.
+   * @param max_cycles inclusive max cycles upper bound for new maze.
+   * @return Nothing.
    */
   public void createRandomMaze( int max_cycles ) {
     this.max_cycles = max_cycles;
@@ -475,6 +473,10 @@ class Maze implements Iterable<MazeNode> {
     vertex_B.addNeighbor( vertex_A );
   }
 
+  /**
+   * Removes the edge that connexts the two adjacent vertices.
+   * @return Nothing.
+   */
   public void removeEdge( MazeNode vertex_A, MazeNode vertex_B ) {
     if( vertex_A == null || vertex_B == null ) return;
     vertex_A.removeNeighbor( vertex_B );
@@ -498,7 +500,7 @@ class Maze implements Iterable<MazeNode> {
    * @param y column cell in 2d array maze.
    */
   public MazeNode at( int x, int y ) {
-    if( outOfBounds(x) || outOfBounds(y)  ) {
+    if( outOfBounds(x) || outOfBounds(y) ) {
       System.err.println( "Maze:at() out of bounds (" + x + ", " + y + ")" );
       return null;
     }
@@ -507,7 +509,9 @@ class Maze implements Iterable<MazeNode> {
   }
 
   /**
-   * TODO
+   * Clears the maze such that no walls will exist - this method will
+   * create a fully connected maze.
+   * @return Nothing.
    */
   public void clearWalls() {
     for( int row = 0; row < maze.length; row++ ) {
@@ -529,7 +533,9 @@ class Maze implements Iterable<MazeNode> {
   }
 
   /**
-   * Maze abstraction with walls alias...TODO
+   * Remove the edge that connects vertex A and B, such that vertex A and B are
+   * are adjacent in the maze.
+   * @return Nothing.
    */
   public void addWall( MazeNode vertex_A, MazeNode vertex_B ) {
     removeEdge( vertex_A, vertex_B );
@@ -559,12 +565,18 @@ class Maze implements Iterable<MazeNode> {
     return new LinkedList<MazeNode>( dfsPath );
   }
 
+  /**
+   * Getter for the max cycle attribute, which entails the upper bound of 
+   * cycles that can exist in a randomly generated maze.
+   * @return the current max cycle attribute.
+   */
   public int getMaxCycles() {
     return max_cycles;
   }
 
   /**
-   * TODO
+   * Iterator for the the Maze data structure.
+   * @return An iterator to maze.
    */
   public Iterator<MazeNode> iterator() {
     return new MazeIterator();
@@ -572,7 +584,9 @@ class Maze implements Iterable<MazeNode> {
 
 
   /**
-   * TODO
+   * MazeIterator is an intuitive way to traverse the maze without exposing the
+   * internal implementation of the maze data structure to the user; Also allows
+   * loose coupling of classes that use the Maze data structure.
    */
   private class MazeIterator implements Iterator<MazeNode> {
 
@@ -580,7 +594,8 @@ class Maze implements Iterable<MazeNode> {
     private int current_column;
 
     /**
-     * TODO
+     * MazeIterator constructor starting element begins in the top left corner
+     * of the maze.
      */
     public MazeIterator() {
       this.current_row = 0;
@@ -588,7 +603,9 @@ class Maze implements Iterable<MazeNode> {
     }
 
     /**
-     * TODO
+     * Boolean evaluation to check if the iterator is done traversing through
+     * the maze or not.
+     * @return True if there exists more nodes to traverse to, False otherwise.
      */
     @Override
     public boolean hasNext() {
@@ -603,7 +620,10 @@ class Maze implements Iterable<MazeNode> {
     }
 
     /**
-     * TODO
+     * Moves the iterator to the next consequetive node in the maze.
+     * @return the maze node that is next in the data structure. If no 
+     *         consequetive node exist an exception will be thrown which 
+     *         indicates the termination of the data structure iteration.
      */
     @Override
     public MazeNode next() {
@@ -626,7 +646,9 @@ class Maze implements Iterable<MazeNode> {
       }
 
     /**
-     * TODO
+     * Method inherited from Iterator remove is not supported in the Maze
+     * data structure.
+     * @return an unsupported operation exception to the user.
      */
       @Override
       public void remove() {

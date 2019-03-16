@@ -1,6 +1,24 @@
+/**
+ *
+ * Jose Jimenez
+ * Brandon Cramer
+ * Chris Robles
+ * Srinivas Venkatraman
+ *
+ *                 University of California, San Diego
+ *                      IEEE Micromouse Team 2019
+ *
+ * File Name:   TestMazeGUI.java 
+ * Description: Independent program used to unit testing of methods and
+ *              intended logic. 
+ */
+
 import java.io.*;
 import java.util.PriorityQueue;
 
+/**
+ * Unit testing for the maze GUI.
+ */
 class TestMazeGUI {
 
 
