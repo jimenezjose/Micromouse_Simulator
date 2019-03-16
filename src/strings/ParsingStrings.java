@@ -1,3 +1,21 @@
+/**
+ *
+ * Jose Jimenez
+ * Brandon Cramer
+ * Chris Robles
+ * Srinivas Venkatraman
+ *
+ *                 University of California, San Diego
+ *                      IEEE Micromouse Team 2019
+ *
+ * File Name:   ParsingStrings.java
+ * Description: Contains a list of public strings for user notifications during
+ *              the parsing of the given flags. 
+ */
+
+/**
+ * Output strings for parsing flags.
+ */
 public class ParsingStrings {
 
     public static final String USAGE = "Usage: java MazeGUI [-help] [-dimension number ] [-maxcycles number] [-dijkstra] [-dfs]";

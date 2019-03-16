@@ -17,6 +17,9 @@
 
 import java.lang.Comparable;
 
+/**
+ * Generic PQNode object for a min priority queue.
+ */
 class PQNode<T> implements Comparable<PQNode<T>> {
   public final int weight;
   public final T data;
@@ -43,6 +46,10 @@ class PQNode<T> implements Comparable<PQNode<T>> {
     return weight - node.weight;
   }
 
+  /**
+   * Pair comparison feature; to evaluate pair equivalence.
+   * @return true if weight and data are equal, false otherwise.
+   */
   @Override
   public boolean equals( Object o ) {
     if( o == this ) {
@@ -62,15 +69,27 @@ class PQNode<T> implements Comparable<PQNode<T>> {
     return false;
   }
 
+  /**
+   * String representation of the PQNode object.
+   * @return String object of the data and the weight of the PQNode.
+   */
   @Override
   public String toString() {
     return "{" + data + ", " + weight + "}";
   }
 
+  /**
+   * Getter for the data attribute in this PQNode.
+   * @return the data associated with this PQNode.
+   */
   public T getData() {
     return data;
   }
 
+  /**
+   * Getter method for the weight attribute of this PQNode object.
+   * @return the integer weight associated with this PQNode.
+   */
   public int getWeight() {
     return weight;
   }

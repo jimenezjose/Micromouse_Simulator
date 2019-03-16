@@ -188,8 +188,6 @@ public class MazeGUI extends JFrame implements ActionListener {
       drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DJIKSTRA_PATH_COLOR );
       //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.GREEN, leftMazePoint, cell_unit );
     }
-
-
   }
 
 
@@ -236,6 +234,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     Graphics2D g2d = (Graphics2D) getGraphics();
     g2d.setColor( color );
 
+    /* set starting location and trail width */
     MazeNode currentNode = path.removeFirst();
     int x = mazePoint.x + (int)(currentNode.getDiagonalX() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
     int y = mazePoint.y + (int)(currentNode.getDiagonalY() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
