@@ -284,9 +284,11 @@ public class MazeGUI extends JFrame implements ActionListener {
     for( int row = 0; row < maze.getDimension(); row++ ) {
       for( int column = 0; column < maze.getDimension(); column++  ) {
         /* draw walls */
-        currentPoint.setLocation( row, column );
-        rightPoint.setLocation( row, column + 1 );
-        downPoint.setLocation( row + 1, column );
+	int x = column;
+	int y = row;
+        currentPoint.setLocation( x, y );
+        rightPoint.setLocation( x + 1, y );
+        downPoint.setLocation( x, y + 1 );
 
         /* vertical wall is present to the right of current cell */
         vertical_wall.setLocation( mazePoint.x + (int)((column + 1) * cell_unit), mazePoint.y + (int)(row * cell_unit) );
