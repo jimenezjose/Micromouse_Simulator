@@ -49,7 +49,6 @@ class Maze implements Iterable<MazeNode> {
         maze[ row ][ column ] = new MazeNode( row, column );
       }
     }
-
   }
 
   /**
@@ -479,6 +478,7 @@ class Maze implements Iterable<MazeNode> {
    */
   public void removeEdge( MazeNode vertex_A, MazeNode vertex_B ) {
     if( vertex_A == null || vertex_B == null ) return;
+    /* removing undirected edge */
     vertex_A.removeNeighbor( vertex_B );
     vertex_B.removeNeighbor( vertex_A );
   }
@@ -496,8 +496,8 @@ class Maze implements Iterable<MazeNode> {
 
   /**
    * Accessor method for the maze internal structure.
-   * @param x row cell in 2d array maze.
-   * @param y column cell in 2d array maze.
+   * @param row cell in 2d array maze.
+   * @param column cell in 2d array maze.
    */
   public MazeNode at( int x, int y ) {
     if( outOfBounds(x) || outOfBounds(y) ) {
