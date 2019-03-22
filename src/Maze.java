@@ -366,7 +366,8 @@ class Maze implements Iterable<MazeNode> {
    * @return true if an edge in alpha points to beta.
    */
   public boolean wallBetween( Point alpha, Point beta ) {
-    return wallBetween( at(alpha.x, alpha.y), at(beta.x, beta.y) );
+    /* Recall: y = row & x = column  */
+    return wallBetween( at(alpha.y, alpha.x), at(beta.y, beta.x) );
   }
 
   /**
@@ -499,13 +500,13 @@ class Maze implements Iterable<MazeNode> {
    * @param row cell in 2d array maze.
    * @param column cell in 2d array maze.
    */
-  public MazeNode at( int x, int y ) {
-    if( outOfBounds(x) || outOfBounds(y) ) {
-      System.err.println( "Maze:at() out of bounds (" + x + ", " + y + ")" );
+  public MazeNode at( int row, int column ) {
+    if( outOfBounds(row) || outOfBounds(column) ) {
+      System.err.println( "Maze:at() out of bounds (" + row + ", " + column + ")" );
       return null;
     }
     /* Abstract the maze data structure */
-    return maze[ x ][ y ];
+    return maze[ row ][ column ];
   }
 
   /**
