@@ -22,6 +22,9 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Stack;
 
+/**
+ * TODO
+ */
 public class Mouse {
 
   public int x;
@@ -38,14 +41,8 @@ public class Mouse {
   private int row;
   private int column;
   private Point center = new Point();
-
-  private enum Orientation {
-    NORTH, 
-    SOUTH, 
-    WEST, 
-    EAST
-  }
-
+  Orientation orientation;
+ 
   /**
    * Creates mouse object on canvas
    * @param row starting row position of mouse.
@@ -63,106 +60,97 @@ public class Mouse {
     this.mouse = new MouseShape();
   }
 
+  /**
+   * TODO
+   */
   public void exploreMaze() {
     MazeNode startVertex = maze.at( row, column );
-    Orientation orientation = Orientation.NORTH;
-    maze.clearWalls();
+    orientation = Orientation.NORTH;
+    clearMouseMemory(); /* erase memory about maze */
 
+    /* initial node distances to center of maze (maze with no walls) */
     for( MazeNode node : maze ) {
-      /* Assume maze has no walls */
-      setClosestCenter( center, node );
-      node.setVisited( false );
+      /* closest target node : (used in mazes with a quad-cell target) */
+      Point center = getClosestCenter( node );
       /* manhattan distance */
       node.setDistance( Math.abs(center.x - node.x) + Math.abs(center.y - node.y) );
     }
 
-    Stack<MazeNode> stack = new Stack<MazeNode>();
-    stack.push( startVertex );
-
-    while( !stack.empty() ) {
-      MazeNode currentNode = stack.pop();
-      int dx = x - currentNode.x; 
-      int dy = y - currentNode.y;
-
-      //discoverNeighborWalls( currentNode, orientation ); 
-    }
-
-    if( false ) {
-    //Stack<MazeNode> stack = new Stack<MazeNode>();
-    stack.push( startVertex );
-
-    while( !stack.empty() ) {
-      MazeNode currentNode = stack.pop();
-      MazeNode[] neighbor_list = currentNode.getEdgeList();
-      discoverNeighbors( currentNode, orientation );
-      int minDistance = Integer.MAX_VALUE;
-
-      for( MazeNode neighbor :  neighbor_list ) {
-        if( neighbor == null ) continue;
-	if( neighbor.getDistance() < minDistance ) {
-          /* update new min neighbor distance */
-	  minDistance = neighbor.getDistance();
-	}
-      }
-
-      if( minDistance != currentNode.getDistance() - 1 ) {
-        /* recalibrate neighbor distances */
-	currentNode.setDistance( minDistance + 1 );
-	for( MazeNode neighbor : neighbor_list ) {
-	  /* push all existing neighbors except solution cells */
-          if( neighbor == null || neighbor.getDistance() == 0 ) continue; 
-	  stack.push( neighbor );
-	}
-      }
-      else {
-        /* proceed with the next smallest cell distance */
-	for( MazeNode neighbor : neighbor_list ) {
-          if( neighbor == null ) continue; 
-	  if( neighbor.getDistance() == currentNode.getDistance() - 1 ) {
-	    /* push next smallest neighbor distance */
-            stack.push( neighbor );
-	  }
-	}
-      }
-    }
-
-    }
-
+    floodFill( startVertex );
   }
 
-  private void discoverNeighbors( MazeNode node, Orientation orientation ) {
-    /* look ahead and to the right and left neighbors - mouse perspective */
-    return;
+
+  /**
+   * TODO
+   */
+  private void floodFill( MazeNode startVertex ) {
+    markNeighborWalls( startVertex, orientation );
   }
 
   /**
    * TODO
    */
-  private void setClosestCenter( Point center, MazeNode node ) {
+  private void clearMouseMemory() {
+    /* break all walls in maze - (fully connected maze) */
+    maze.clearWalls();
+
+    for( MazeNode node : maze ) {
+      /* zero strain node memory */
+      node.setVisited( false );
+      node.setDistance( 0 );
+      node.setPrev( null );
+    }
+  }
+
+  /**
+   * TODO
+   */
+  private void markNeighborWalls( MazeNode vertex, Orientation orientation ) {
+    MazeNode ref_vertex = ref_maze.at( vertex.x, vertex.y );
+    MazeNode[] ref_neighbors = { ref_vertex.up, ref_vertex.right, ref_vertex.down, ref_vertex.left };
+    MazeNode[] neighbors = { vertex.up, vertex.right, vertex.down, vertex.left };
+
+    Orientation point = orientation.relativeLeft();
+    while( point != orientation.relativeRight() ) {
+      /* sweep across the left wall, up wall, and right wall */
+      if( ref_neighbors[ point.ordinal() ] == null ) {
+        /* wall found in reference maze */
+	maze.removeEdge( vertex, neighbors[ point.ordinal() ] );
+      }
+      point = point.next();
+    }
+  }
+
+  /**
+   * TODO Use of gloal center because I only need one throughout the life of the program
+   */
+  private Point getClosestCenter( MazeNode node ) {
     int centerX = maze.getDimension() / EVEN;
     int centerY = maze.getDimension() / EVEN;
 
     /* singular solution cell */
-
     if( maze.getDimension() % EVEN == 1 ) {
       /* odd dimension means singular */
       center.setLocation( centerX, centerY );
-      return;
+      return center;
     }
 
     /* quad-cell solution */
-
     if( node.x < maze.getDimension() / EVEN ) {
       /* node in left half of maze quadrant */
       centerX = maze.getDimension() / EVEN - 1;
     }
-
     if( node.y < maze.getDimension() / EVEN ) {
       /* node in upper half of maze quadrant */
       centerY = maze.getDimension() / EVEN - 1;
     }
 
     center.setLocation( centerX, centerY );
+    return center;
+  }
+
+  public void moveTo( int x, int y ) {
+    move( x - column, y - row );
   }
 
   /**
@@ -246,6 +234,54 @@ public class Mouse {
    }
 
   /**
+   * TODO
+   */
+  private enum Orientation {
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST;
+
+    /**
+     * TODO
+     */
+    public Orientation relativeRight() {
+      int length = size();
+      return values()[ (ordinal() + 1) % length ];
+    }
+
+    /**
+     * TODO
+     */
+    public Orientation relativeLeft() {
+      int length = size();
+      return values()[ (ordinal() + (length - 1)) % length ];
+    }
+
+    /**
+     * TODO
+     */
+    public Orientation relativeBack() {
+      int length = size();
+      return values()[ (ordinal() + (length / 2)) % length ];
+    }
+
+    /**
+     * TODO
+     */
+    public int size() {
+      return values().length;
+    }
+
+    /**
+     * TODO
+     */
+    public Orientation next() {
+      return relativeRight();
+    }
+  }
+
+  /**
    * Class: MouseShape: Consitiutes the generic mouse shape.
    */
   private class MouseShape {
@@ -315,7 +351,6 @@ public class Mouse {
     public void setLocation( int x, int y ) {
       location.setLocation( x, y );
     }
-
   }
 }
 

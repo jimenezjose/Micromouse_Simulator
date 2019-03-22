@@ -21,6 +21,7 @@ import java.util.LinkedList;
  */
 class MazeNode {
   private final String ADD_EDGE_ERROR = "Error: attempt to add edge to a pair on non-adjacent nodes. ";
+  private final String REMOVE_EDGE_ERROR = "Error: attempt to remove edge to a non-adjacent node. ";
 
   /* begin - maze generation data */
   public MazeNode parent = null;
@@ -85,15 +86,20 @@ class MazeNode {
    * @return Nothing.
    */
   public void removeNeighbor( MazeNode vertex ) {
-    MazeNode[] neighbor_list = getEdgeList();
-    if( vertex == null ) return;
-    for( MazeNode neighbor : neighbor_list ) {
-      /* search for neighbor */
-      if( neighbor == vertex ) { 
-        /* Erase neighbor. Done. */
-        neighbor = null; 
-	return;
-      }
+    if( vertex == null ) return; 
+    if( x == vertex.x ) {
+      /* vertical neighbor */
+      if( y + 1 == vertex.y ) down = null;
+      else if( y - 1 == vertex.y ) up = null;
+    }
+    else if( y == vertex.y ) {
+      /* horizontal neighbor */
+      if( x + 1 == vertex.x ) right = null; 
+      else if( x - 1 == vertex.x ) left = null;
+    }
+    else {
+      /* vertex is not adjacent */
+      System.err.println( REMOVE_EDGE_ERROR + this + "<->" + vertex );
     }
   }
 
