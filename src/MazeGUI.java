@@ -20,6 +20,7 @@ import java.awt.geom.*;
 import javax.swing.*;
 import java.lang.Math;
 import java.util.LinkedList;
+import javax.swing.Timer;
 
 /**
  * MazeGUI will create maze exploring interface.
@@ -27,35 +28,40 @@ import java.util.LinkedList;
 public class MazeGUI extends JFrame implements ActionListener {
 
   public static final double MAZE_PROPORTION = 0.49; 
-  public static final Color LIGHT_BLACK = new Color( 32, 32, 32 ); 
-  public static final int EVEN = 2;
+  private static final int EVEN = 2;
+  private static final int DELAY = 1000;
+  private static final Color LIGHT_BLACK   = new Color( 32, 32, 32 ); 
+  private static final Color NO_WALL_COLOR = new Color( 135, 135, 135 );
+  private static final Color WALL_COLOR            = Color.BLACK;
+  private static final Color MAZE_BORDER_COLOR     = Color.BLACK;
+  private static final Color MOUSE_COLOR           = Color.YELLOW;
+  private static final Color DJIKSTRA_PATH_COLOR   = Color.RED;
+  private static final Color DFS_PATH_COLOR        = Color.BLUE;
+  private static final Color MAZE_BACKGROUND_COLOR = Color.GRAY;
+  private static final Color NUMBER_COLOR          = Color.DARK_GRAY;
+
   private Maze ref_maze;
   private Maze unknown_maze;
   private Mouse mouse; 
-  private Point center = new Point();
-  private JPanel northPanel, southPanel;
+
+  private Timer timer;
+  private JPanel northPanel;
+  private JPanel southPanel;
   private JButton backButton;
   private JButton continueButton;
   private JButton mazeButton;
   private JButton blankButton;
 
-  private static final Color WALL_COLOR = Color.BLACK;
-  private static final Color MAZE_BORDER_COLOR = Color.BLACK;
-  private static final Color NO_WALL_COLOR = new Color( 135, 135, 135 );
-  private static final Color MOUSE_COLOR = Color.YELLOW;
-  private static final Color DJIKSTRA_PATH_COLOR = Color.RED;
-  private static final Color DFS_PATH_COLOR = Color.BLUE;
-  private static final Color MAZE_BACKGROUND_COLOR = Color.GRAY;
-  private static final Color NUMBER_COLOR = Color.DARK_GRAY;
-
   private Point leftMazePoint  = new Point();
   private Point rightMazePoint = new Point();
-  private Point currentPoint = new Point();
-  private Point rightPoint   = new Point();
-  private Point downPoint    = new Point();
+  private Point currentPoint   = new Point();
+  private Point rightPoint     = new Point();
+  private Point downPoint      = new Point();
+  private Point center         = new Point();
 
   private boolean runDijkstra = false;
   private boolean runDFS = false;
+
 
   /**
    * Constructor: Creates and sets up MazeGUI 
@@ -70,7 +76,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     unknown_maze = new Maze( dimension );
     ref_maze.createRandomMaze( max_cycles );
     mouse = new Mouse( dimension - 1, 0, ref_maze, unknown_maze, this );
-    mouse.exploreMaze();
+    //mouse.exploreMaze();
     begin();
   }
 
@@ -97,7 +103,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     backButton     = new JButton( "DFS" );
     continueButton = new JButton( "Dijkstra" );
     mazeButton     = new JButton( "New Maze" );
-    blankButton    = new JButton( "button" );
+    blankButton    = new JButton( "Start" );
 
     /* Activates button to register state change */
     continueButton.addActionListener( this );
@@ -122,8 +128,10 @@ public class MazeGUI extends JFrame implements ActionListener {
     contentPane.add( northPanel, BorderLayout.NORTH );
     contentPane.add( southPanel, BorderLayout.SOUTH );
     contentPane.validate();
-    
+
     setVisible( true );
+
+    timer = new Timer( DELAY, this );
   }
 
   /**
@@ -247,21 +255,17 @@ public class MazeGUI extends JFrame implements ActionListener {
       currentNode = path.removeFirst();
       x = mazePoint.x + (int)(currentNode.getDiagonalX() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
       y = mazePoint.y + (int)(currentNode.getDiagonalY() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
-
-      int dx = ( x - cellBlock.x == 0 ) ? 0 : Math.abs(x - cellBlock.x) / (x - cellBlock.x);
-      int dy = ( y - cellBlock.y == 0 ) ? 0 : Math.abs(y - cellBlock.y) / (y - cellBlock.y);
       int current_x = cellBlock.x;
       int current_y = cellBlock.y;
 
       while( current_x != x || current_y != y ) {
         /* draw trail */
+        int dx = ( x - cellBlock.x == 0 ) ? 0 : Math.abs(x - cellBlock.x) / (x - cellBlock.x);
+        int dy = ( y - cellBlock.y == 0 ) ? 0 : Math.abs(y - cellBlock.y) / (y - cellBlock.y);
         current_x += dx;
         current_y += dy;
         cellBlock.setLocation( current_x, current_y );
         g2d.fill( cellBlock );
-	/* update dx dy to account casting double to int arithmetic */
-        dx = ( x - cellBlock.x == 0 ) ? 0 : Math.abs(x - cellBlock.x) / (x - cellBlock.x);
-        dy = ( y - cellBlock.y == 0 ) ? 0 : Math.abs(y - cellBlock.y) / (y - cellBlock.y);
       }
 
       cellBlock.setLocation( x, y );
@@ -362,10 +366,18 @@ public class MazeGUI extends JFrame implements ActionListener {
       System.out.println( "\nnew maze" );
       ref_maze.clear();
       ref_maze.createRandomMaze();
+      mouse.restart();
       repaint();
     }
     else if( evt.getSource() == blankButton ) {
-      System.out.println( "button" );
+      System.out.println( "start" );
+      timer.start();
+    }
+    else if( evt.getSource() == timer ) {
+      /*  */
+      if( mouse.exploreNextCell() ) {
+        repaint();
+      }
     }
   }
 
