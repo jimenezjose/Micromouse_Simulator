@@ -28,8 +28,8 @@ class MazeNode {
   public int rank = 0;
   /* end - maze generation data */
 
-  public final int x;
-  public final int y;
+  public final int column, x;
+  public final int row, y;
   /* begin - attributes for path optimization */
   public final double diagonal_x;
   public final double diagonal_y;
@@ -51,8 +51,8 @@ class MazeNode {
    * @param y row location of node.
    */
   public MazeNode( double row, double column ) {
-    x = (int)column;
-    y = (int)row;
+    this.column = x = (int)column;
+    this.row = y = (int)row;
     diagonal_x = column;
     diagonal_y = row;
   }
@@ -136,7 +136,7 @@ class MazeNode {
   @Override
   public String toString() {
     /* (row, column) */
-    return "(" + this.y + ", " + this.x + ")";
+    return "(" + this.row + ", " + this.column + ")";
   }
 
   /**
@@ -194,8 +194,16 @@ class MazeNode {
    * Gets the neighbors of this as a linked list.
    * @return iteratable list of neighbors.
    */
-  public MazeNode[] getEdgeList() {
-    return new MazeNode[]{ up, down, left, right };
+  public LinkedList<MazeNode> getNeighborList() {
+    //return new MazeNode[]{ up, down, left, right };
+    LinkedList<MazeNode> neighbor_list = new LinkedList<MazeNode>();
+
+    if( up != null ) neighbor_list.push( up );
+    if( down != null ) neighbor_list.push( down );
+    if( left != null ) neighbor_list.push( left );
+    if( right != null ) neighbor_list.push( right );
+
+    return neighbor_list;
   }
 
   /**

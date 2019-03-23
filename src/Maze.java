@@ -83,11 +83,10 @@ class Maze implements Iterable<MazeNode> {
       if( currentNode.getVisited() == false ) {
         /* only visit traverse currentNode's edges exactly once */
         currentNode.setVisited( true );
-        MazeNode[] edge_list = currentNode.getEdgeList();
+        LinkedList<MazeNode> neighbor_list = currentNode.getNeighborList();
 
-	for( MazeNode neighbor : edge_list ) {
+	for( MazeNode neighbor : neighbor_list ) {
 	  /* iterate through unvisited node's neighbors */
-	  if( neighbor == null ) continue;
 	  int weight = 1; 
           int cost = distance + weight;
 	  if( cost < neighbor.getDistance() ) {
@@ -160,11 +159,11 @@ class Maze implements Iterable<MazeNode> {
       return;
     }
 
-    MazeNode[] neighbor_list = currentVertex.getEdgeList();
+    LinkedList<MazeNode> neighbor_list = currentVertex.getNeighborList();
 
     for( MazeNode neighbor : neighbor_list ) {
       if( endVertex.getVisited() ) break;
-      if( neighbor != null && neighbor.getVisited() == false ) {
+      if( neighbor.getVisited() == false ) {
         /* visit every node exactly once */
 	dfsHelper( neighbor, endVertex );
       }
@@ -379,7 +378,7 @@ class Maze implements Iterable<MazeNode> {
   public boolean wallBetween( MazeNode vertex_A, MazeNode vertex_B ) {
     if( vertex_A == null || vertex_B == null ) return false;
 
-    MazeNode[] neighbors_of_A = vertex_A.getEdgeList();
+    LinkedList<MazeNode> neighbors_of_A = vertex_A.getNeighborList();
 
     for( MazeNode neighbor : neighbors_of_A ) {
       if( neighbor == vertex_B ) {

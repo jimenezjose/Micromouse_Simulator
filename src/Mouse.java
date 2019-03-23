@@ -27,21 +27,27 @@ import java.util.Stack;
  */
 public class Mouse {
 
-  public int x;
-  public int y;
   private final double PROPORTION = 0.3;
   private final int EVEN = 2;
   private double UNIT;
+
+  public int x;
+  public int y;
+  private int column;
+  private int row;
+
   private final JFrame canvas;
   private Point maze_draw_point;
   private int maze_diameter;
   private MouseShape mouse;
   private Maze ref_maze;
   private Maze maze;
-  private int row;
-  private int column;
   private Point center = new Point();
-  Orientation orientation;
+
+  private Point start_position;
+  private Orientation orientation;
+  private Stack<MazeNode> explore_stack = new Stack<MazeNode>();
+
  
   /**
    * Creates mouse object on canvas
@@ -58,47 +64,71 @@ public class Mouse {
     this.maze = maze;
     this.canvas = canvas;
     this.mouse = new MouseShape();
+    this.start_position = new Point( x, y );
+    start();
   }
 
   /**
    * TODO
    */
-  public void exploreMaze() {
-    MazeNode startVertex = maze.at( row, column );
-    orientation = Orientation.NORTH;
-    clearMouseMemory(); /* erase memory about maze */
+  public boolean exploreNextCell() {
+    if( explore_stack.empty() ) {
+      return false;
+    }
 
-    /* initial node distances to center of maze (maze with no walls) */
+    MazeNode cell = explore_stack.pop(); 
+    moveTo( cell.x, cell.y );
+    cell.setVisited( true );
+    markNeighborWalls( cell, orientation );
+
+    /* flood fill algorithm */
+    for( MazeNode openNeighbor : cell.getNeighborList() ) {
+      if( cell.distance == 0 ) break;
+      if( openNeighbor.distance == cell.distance - 1 ) {
+        /* hueristic to move closer to the target */
+        explore_stack.push( openNeighbor );
+	return true;
+      }
+    }
+
+    // recalibrate cell distances
+    return true;
+  }
+
+  /**
+   * TODO
+   */
+  private void start() {
+    restart();
+  }
+
+  /**
+   * TODO
+   */
+  public void restart() {
+    clearMazeMemory();
+    /* initial position of mouse pushed */
+    moveTo( start_position );
+    explore_stack.clear();
+    explore_stack.push( maze.at(row, column) );
+  }
+
+  /**
+   * TODO
+   */
+  private void clearMazeMemory() {
+    /* break all walls in maze - (this fully connected graph) */
+    maze.clearWalls();
+    /* erase memory from exploring maze */
+    explore_stack.clear();
+    orientation = Orientation.NORTH;
+
+    /* mark manhattan distance of clear maze  */ 
     for( MazeNode node : maze ) {
-      /* closest target node : (used in mazes with a quad-cell target) */
       Point center = getClosestCenter( node );
       /* manhattan distance */
       node.setDistance( Math.abs(center.x - node.x) + Math.abs(center.y - node.y) );
-    }
-
-    floodFill( startVertex );
-  }
-
-
-  /**
-   * TODO
-   */
-  private void floodFill( MazeNode startVertex ) {
-    markNeighborWalls( startVertex, orientation );
-  }
-
-  /**
-   * TODO
-   */
-  private void clearMouseMemory() {
-    /* break all walls in maze - (fully connected maze) */
-    maze.clearWalls();
-
-    for( MazeNode node : maze ) {
-      /* zero strain node memory */
       node.setVisited( false );
-      node.setDistance( 0 );
-      node.setPrev( null );
     }
   }
 
@@ -106,12 +136,12 @@ public class Mouse {
    * TODO
    */
   private void markNeighborWalls( MazeNode vertex, Orientation orientation ) {
-    MazeNode ref_vertex = ref_maze.at( vertex.x, vertex.y );
+    MazeNode ref_vertex = ref_maze.at( vertex.row, vertex.column );
     MazeNode[] ref_neighbors = { ref_vertex.up, ref_vertex.right, ref_vertex.down, ref_vertex.left };
     MazeNode[] neighbors = { vertex.up, vertex.right, vertex.down, vertex.left };
 
     Orientation point = orientation.relativeLeft();
-    while( point != orientation.relativeRight() ) {
+    while( point != orientation.relativeBack() ) {
       /* sweep across the left wall, up wall, and right wall */
       if( ref_neighbors[ point.ordinal() ] == null ) {
         /* wall found in reference maze */
@@ -130,26 +160,32 @@ public class Mouse {
 
     /* singular solution cell */
     if( maze.getDimension() % EVEN == 1 ) {
-      /* odd dimension means singular */
       center.setLocation( centerX, centerY );
       return center;
     }
 
     /* quad-cell solution */
     if( node.x < maze.getDimension() / EVEN ) {
-      /* node in left half of maze quadrant */
       centerX = maze.getDimension() / EVEN - 1;
     }
     if( node.y < maze.getDimension() / EVEN ) {
-      /* node in upper half of maze quadrant */
       centerY = maze.getDimension() / EVEN - 1;
     }
-
     center.setLocation( centerX, centerY );
     return center;
   }
 
-  public void moveTo( int x, int y ) {
+  /**
+   * TODO
+   */
+  private void moveTo( Point point ) {
+    moveTo( point.x, point.y );
+  }
+
+  /**
+   * TODO
+   */
+  private void moveTo( int x, int y ) {
     move( x - column, y - row );
   }
 
@@ -160,46 +196,11 @@ public class Mouse {
    * @return Nothing.
    */
   public void move( int dx, int dy ) {
-    mouse.translate( dx, dy );
+    //TODO possible error may be that i am not multiplying by UNIT
     column = x += dx;
     row = y += dy;
   }
  
-  /**
-   * Moves the mouse one unit to the right.
-   * @return Nothing.
-   */
-  public void moveRight() {
-    mouse.translate((int)UNIT, 0);
-    column = y += (int)UNIT; 
-  }
-
-  /**
-   * Moves the mouse one unit to the left.
-   * @return Nothing.
-   */
-  public void moveLeft() {
-    mouse.translate((int)-UNIT, 0);
-    row = x -= (int)UNIT;
-  }
-
-  /**
-   * Moves the mouse one unit up.
-   * @return Nothing.
-   */
-  public void moveUp() {
-    mouse.translate(0, (int)-UNIT);
-    column = y -= (int)UNIT;
-  }
-
-  /**
-   * Moves the mouse one unit down.
-   * @return Nothing.
-   */
-  public void moveDown() {
-    mouse.translate( 0, (int)UNIT );
-  }
-
   /**
    * Moves the mouse one unit to the right.
    * @param color color of mouse to be drawn 
@@ -232,7 +233,7 @@ public class Mouse {
      mouse.setLocation( (int)x, (int)y );
      mouse.setDimension( (int)width, (int)height );
    }
-
+   
   /**
    * TODO
    */
