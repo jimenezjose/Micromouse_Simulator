@@ -21,9 +21,10 @@ import javax.swing.*;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Stack;
+import java.util.LinkedList;
 
 /**
- * TODO
+ * Micromouse class to emulate autonomous robot behavior.
  */
 public class Mouse {
 
@@ -69,7 +70,8 @@ public class Mouse {
   }
 
   /**
-   * TODO
+   * Flood Fill Algorithm iteration.
+   * @return Nothing.
    */
   public boolean exploreNextCell() {
     if( explore_stack.empty() ) {
@@ -77,33 +79,86 @@ public class Mouse {
     }
 
     MazeNode cell = explore_stack.pop(); 
-    moveTo( cell.x, cell.y );
-    cell.setVisited( true );
+
+    rotateTo( cell );
+    moveTo( cell );
     markNeighborWalls( cell, orientation );
+    cell.setVisited( true );
+
+    callibrateNeighbors( cell );
 
     /* flood fill algorithm */
     for( MazeNode openNeighbor : cell.getNeighborList() ) {
-      if( cell.distance == 0 ) break;
       if( openNeighbor.distance == cell.distance - 1 ) {
         /* hueristic to move closer to the target */
         explore_stack.push( openNeighbor );
+        return true;
+      }
+      else if( openNeighbor.distance == 0 && openNeighbor.visited == false ) {
+        /* visit all target nodes */
+	explore_stack.push( openNeighbor );
 	return true;
       }
     }
 
+    if( cell.distance == 0 ) return true;
+
     // recalibrate cell distances
+    //callibrateNeighbors( cell );
+    explore_stack.push( cell );
     return true;
   }
 
   /**
    * TODO
    */
+  private void callibrateNeighbors( MazeNode cell ) {
+    int minDistance = Integer.MAX_VALUE; 
+
+    for( MazeNode openNeighbor : cell.getNeighborList() ) {
+      /* validate cell's need for callibration */
+      if( openNeighbor.distance == cell.distance - 1 ) return; 
+      if( openNeighbor.distance < minDistance ) minDistance = openNeighbor.distance;
+    }
+
+    /* update non target cell to a higher elevation */
+    if( cell.distance != 0 ) cell.distance = minDistance + 1; 
+    LinkedList<MazeNode> global_neighbor_list = maze.getAdjacentCellsList( cell );
+
+    for( MazeNode globalNeighbor : global_neighbor_list ) {
+      /* callibrate all global neighbors except for the target cells */
+      if( globalNeighbor == null || globalNeighbor.distance == 0 ) continue;
+      callibrateNeighbors( globalNeighbor );
+    }
+  }
+
+  /**
+   * TODO
+   */
+  void rotateTo( MazeNode cell ) {
+    if( x == cell.x ) {
+      /* vertical deviation */
+      if( y + 1 == cell.y ) orientation = Orientation.SOUTH;
+      else if( y - 1 == cell.y ) orientation = Orientation.NORTH;
+    }
+    else if( y == cell.y ) {
+      /* horizontal deviation */
+      if( x + 1 == cell.x ) orientation = Orientation.EAST; 
+      else if( x - 1 == cell.x ) orientation = Orientation.WEST;
+    }
+  }
+
+  /**
+   * Delegates to the restart method to restart mouse simulation. 
+   * @return Nothing.
+   */
   private void start() {
     restart();
   }
 
   /**
-   * TODO
+   * Erases maze memory and restarts mouse simulation from mouse initial position.
+   * @return Nothing.
    */
   public void restart() {
     clearMazeMemory();
@@ -111,17 +166,18 @@ public class Mouse {
     moveTo( start_position );
     explore_stack.clear();
     explore_stack.push( maze.at(row, column) );
+    orientation = Orientation.NORTH;
   }
 
   /**
-   * TODO
+   * Erases all memory about the maze configuration.
+   * @return Nothing.
    */
   private void clearMazeMemory() {
     /* break all walls in maze - (this fully connected graph) */
     maze.clearWalls();
     /* erase memory from exploring maze */
     explore_stack.clear();
-    orientation = Orientation.NORTH;
 
     /* mark manhattan distance of clear maze  */ 
     for( MazeNode node : maze ) {
@@ -133,19 +189,23 @@ public class Mouse {
   }
 
   /**
-   * TODO
+   * Emulate sensor data of mouse to mark surrounding maze walls;
+   * Physical Constraint: There are only sesors on the front, left, and right
+   *                      faces of the mouse.
+   * @param cell Location in maze.
+   * @param orientation mouse front face direction.
    */
-  private void markNeighborWalls( MazeNode vertex, Orientation orientation ) {
-    MazeNode ref_vertex = ref_maze.at( vertex.row, vertex.column );
-    MazeNode[] ref_neighbors = { ref_vertex.up, ref_vertex.right, ref_vertex.down, ref_vertex.left };
-    MazeNode[] neighbors = { vertex.up, vertex.right, vertex.down, vertex.left };
+  private void markNeighborWalls( MazeNode cell, Orientation orientation ) {
+    MazeNode ref_cell = ref_maze.at( cell.row, cell.column );
+    MazeNode[] ref_neighbors = { ref_cell.up, ref_cell.right, ref_cell.down, ref_cell.left };
+    MazeNode[] neighbors = { cell.up, cell.right, cell.down, cell.left };
 
     Orientation point = orientation.relativeLeft();
     while( point != orientation.relativeBack() ) {
       /* sweep across the left wall, up wall, and right wall */
       if( ref_neighbors[ point.ordinal() ] == null ) {
         /* wall found in reference maze */
-	maze.removeEdge( vertex, neighbors[ point.ordinal() ] );
+	maze.removeEdge( cell, neighbors[ point.ordinal() ] );
       }
       point = point.next();
     }
@@ -173,6 +233,13 @@ public class Mouse {
     }
     center.setLocation( centerX, centerY );
     return center;
+  }
+
+ /**
+  *
+  */
+  private void moveTo( MazeNode cell ) {
+    moveTo( cell.x, cell.y );
   }
 
   /**

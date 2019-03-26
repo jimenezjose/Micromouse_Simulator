@@ -29,7 +29,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 
   public static final double MAZE_PROPORTION = 0.49; 
   private static final int EVEN = 2;
-  private static final int DELAY = 1000;
+  private static final int DELAY = 250;
   private static final Color LIGHT_BLACK   = new Color( 32, 32, 32 ); 
   private static final Color NO_WALL_COLOR = new Color( 135, 135, 135 );
   private static final Color WALL_COLOR            = Color.BLACK;
@@ -47,10 +47,12 @@ public class MazeGUI extends JFrame implements ActionListener {
   private Timer timer;
   private JPanel northPanel;
   private JPanel southPanel;
-  private JButton backButton;
-  private JButton continueButton;
+
+  private JTextField textField;
+  private JButton animateButton;
+  private JButton dijkstraButton;
   private JButton mazeButton;
-  private JButton blankButton;
+  private JButton stepButton;
 
   private Point leftMazePoint  = new Point();
   private Point rightMazePoint = new Point();
@@ -76,7 +78,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     unknown_maze = new Maze( dimension );
     ref_maze.createRandomMaze( max_cycles );
     mouse = new Mouse( dimension - 1, 0, ref_maze, unknown_maze, this );
-    //mouse.exploreMaze();
+    //mouse = new Mouse( 0, 0, ref_maze, unknown_maze, this );
     begin();
   }
 
@@ -100,24 +102,28 @@ public class MazeGUI extends JFrame implements ActionListener {
     
 
     /* sets names of new buttons */
-    backButton     = new JButton( "DFS" );
-    continueButton = new JButton( "Dijkstra" );
+    animateButton  = new JButton( "Animate" );
+    dijkstraButton = new JButton( "Dijkstra" );
     mazeButton     = new JButton( "New Maze" );
-    blankButton    = new JButton( "Start" );
+    stepButton     = new JButton( "Start" );
+
+    /* create tex field */
+    //textField = new JTextField( 10 );
 
     /* Activates button to register state change */
-    continueButton.addActionListener( this );
-    backButton.addActionListener( this );
+    dijkstraButton.addActionListener( this );
+    animateButton.addActionListener( this );
     mazeButton.addActionListener( this );
-    blankButton.addActionListener( this );
+    stepButton.addActionListener( this );
+    //textField.addActionListener( this );
 
     /* add button to panels */
-    northPanel.add( backButton );
+    northPanel.add( animateButton );
     northPanel.add( Box.createHorizontalGlue() );
     northPanel.add( mazeButton );
-    southPanel.add( blankButton );
+    southPanel.add( stepButton );
     southPanel.add( Box.createHorizontalGlue() );
-    southPanel.add( continueButton );
+    southPanel.add( dijkstraButton );
 
     /* background color of button panels */
     northPanel.setBackground( Color.BLACK );
@@ -153,7 +159,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    */
   private void drawMaze( Graphics g ) {
     center.setLocation( getWidth() / 2, getHeight() / 2 );
-    int canvas_height = getHeight() - 2 * backButton.getHeight();
+    int canvas_height = getHeight() - 2 * animateButton.getHeight();
     int canvas_width  = getWidth();
     int wall_width    = 2;
     int num_of_walls  = ref_maze.getDimension() - 1;
@@ -334,8 +340,9 @@ public class MazeGUI extends JFrame implements ActionListener {
 
     for( MazeNode cell : maze ) {
       if( cell.x == mouse.x && cell.y == mouse.y ) continue;
-      int offset = (int)(FONT_PROPORTION / 2.0 * cell_unit);
-      g.drawString( Integer.toString(cell.distance), mazePoint.x + (int)(cell.x * cell_unit) + offset, mazePoint.y + (int)((cell.y + 1) * cell_unit) - offset); 
+      double height_offset = ((1 - FONT_PROPORTION) * cell_unit) / 2.0;
+      double width_offset  = (cell_unit - g.getFontMetrics().stringWidth(Integer.toString(cell.distance))) / 2.0;
+      g.drawString( Integer.toString(cell.distance), mazePoint.x + (int)(cell.x * cell_unit + width_offset), mazePoint.y + (int)((cell.y + 1) * cell_unit - height_offset)); 
     }
   }
 
@@ -349,32 +356,46 @@ public class MazeGUI extends JFrame implements ActionListener {
    */
   public void actionPerformed( ActionEvent evt ) {
    
-    if( evt.getSource() == continueButton ) {
+    if( evt.getSource() == dijkstraButton ) {
       /* continue button was pressed */
-      System.out.println( "continue" );
       runDijkstra = !runDijkstra;
+      mouse.restart();
       repaint();
     }
-    else if( evt.getSource() == backButton ) {
+    else if( evt.getSource() == animateButton ) {
       /* back button was pressed */
-      System.out.println( "back" );
-      runDFS = !runDFS;
+      if( timer.isRunning() == false ) {
+        timer.start();
+	animateButton.setText( "Stop" );
+	stepButton.setEnabled( false );
+      }
+      else {
+        timer.stop();
+	animateButton.setText( "Animate" );
+	stepButton.setEnabled( true );
+      }
       repaint();
     }
     else if( evt.getSource() == mazeButton ) {
       /* new maze button was pressed */
       System.out.println( "\nnew maze" );
+      animateButton.setText( "Animate" );
+      if( timer.isRunning() == true ) timer.stop();
+      stepButton.setEnabled( true );
       ref_maze.clear();
       ref_maze.createRandomMaze();
       mouse.restart();
       repaint();
     }
-    else if( evt.getSource() == blankButton ) {
-      System.out.println( "start" );
-      timer.start();
+    else if( evt.getSource() == stepButton ) {
+      stepButton.setText( "next" );
+      //timer.start();
+      if( mouse.exploreNextCell() ) {
+        repaint();
+      }
     }
     else if( evt.getSource() == timer ) {
-      /*  */
+      /* animation timer */
       if( mouse.exploreNextCell() ) {
         repaint();
       }

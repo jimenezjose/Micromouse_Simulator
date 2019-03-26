@@ -518,15 +518,14 @@ class Maze implements Iterable<MazeNode> {
       for( int column = 0; column < maze[0].length; column++ ) {
         /* create empty maze with no walls */
         MazeNode currentNode = maze[ row ][ column ];
-	MazeNode up, down, left, right;
-        up    = ( !outOfBounds(row - 1) ) ? maze[ row - 1 ][ column ] : null;
-        down  = ( !outOfBounds(row + 1) ) ? maze[ row + 1 ][ column ] : null;
-        left  = ( !outOfBounds(column - 1) ) ? maze[ row ][ column - 1 ] : null;
-        right = ( !outOfBounds(column + 1) ) ? maze[ row ][ column + 1 ] : null;
-	/* create edges for current node */
-        MazeNode[] neighbor_list = { up, down, left, right };
-	for( MazeNode neighbor : neighbor_list ) {
-          addEdge( currentNode, neighbor );
+    
+        if( !outOfBounds(row + 1) ) {
+	  /* vertical deviation downwards */
+	  addEdge( currentNode, maze[ row + 1 ][ column ] );
+	}
+	if( !outOfBounds(column + 1) ) {
+	  /* horizontal deviation to the right */
+	  addEdge( currentNode, maze[ row ][ column + 1 ] );
 	}
       }
     }
@@ -539,6 +538,25 @@ class Maze implements Iterable<MazeNode> {
    */
   public void addWall( MazeNode vertex_A, MazeNode vertex_B ) {
     removeEdge( vertex_A, vertex_B );
+  }
+
+  /**
+   * TODO
+   */
+  public LinkedList<MazeNode> getAdjacentCellsList( MazeNode vertex ) {
+    int MAX_CELLS = 4;
+    LinkedList<MazeNode> list = new LinkedList<MazeNode>();
+
+    for( int index = 0; index < MAX_CELLS; index++ ) {
+      int deviation = ( index < EVEN ) ? +1 : -1; 
+      int dr = ( index % EVEN == 0 ) ? deviation : 0; 
+      int dc = ( index % EVEN == 1 ) ? deviation : 0;
+      if( !outOfBounds(vertex.row + dr) && !outOfBounds(vertex.column + dc) ) {
+        list.add( maze[ vertex.row + dr ][ vertex.column + dc ] );
+      }
+    }
+
+    return list;
   }
 
   /**
