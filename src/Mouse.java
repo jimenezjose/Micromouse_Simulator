@@ -22,6 +22,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Stack;
 import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * Micromouse class to emulate autonomous robot behavior.
@@ -30,7 +31,7 @@ public class Mouse {
 
   private final double PROPORTION = 0.3;
   private final int EVEN = 2;
-  private double UNIT;
+  private final int TOTAL_RUNS = 4;
 
   public int x;
   public int y;
@@ -38,8 +39,6 @@ public class Mouse {
   private int row;
 
   private final JFrame canvas;
-  private Point maze_draw_point;
-  private int maze_diameter;
   private MouseShape mouse;
   private Maze ref_maze;
   private Maze maze;
@@ -48,7 +47,10 @@ public class Mouse {
   private Point start_position;
   private Orientation orientation;
   private Stack<MazeNode> explore_stack = new Stack<MazeNode>();
+  private LinkedList<MazeNode> mousePath = new LinkedList<MazeNode>();
+  private boolean visited[][]; 
 
+  private int num_of_runs = 0;
  
   /**
    * Creates mouse object on canvas
@@ -66,15 +68,19 @@ public class Mouse {
     this.canvas = canvas;
     this.mouse = new MouseShape();
     this.start_position = new Point( x, y );
+    this.visited = new boolean[ maze.getDimension() ][ maze.getDimension() ];
     start();
   }
 
   /**
    * Flood Fill Algorithm iteration.
-   * @return Nothing.
+   * @return true if mouse is in progress to get to target; false if 
+   *         mouse is at target.
    */
   public boolean exploreNextCell() {
     if( explore_stack.empty() ) {
+      /* mouse is at target. */
+      if( num_of_runs != TOTAL_RUNS ) retreat();
       return false;
     }
 
@@ -82,37 +88,41 @@ public class Mouse {
 
     rotateTo( cell );
     moveTo( cell );
+    setVisited( cell, true );
     markNeighborWalls( cell, orientation );
-    cell.setVisited( true );
+    /* update maze distances from new discovered wall */
+    callibrateDistances( cell );
 
-    callibrateNeighbors( cell );
-
-    /* flood fill algorithm */
     for( MazeNode openNeighbor : cell.getNeighborList() ) {
       if( openNeighbor.distance == cell.distance - 1 ) {
         /* hueristic to move closer to the target */
         explore_stack.push( openNeighbor );
-        return true;
-      }
-      else if( openNeighbor.distance == 0 && openNeighbor.visited == false ) {
+	if( openNeighbor.distance == 0 ) explore_stack.push( openNeighbor );
+	return true;
+      } 
+      else if( openNeighbor.distance == 0 && this.visited( openNeighbor ) == false ) {
         /* visit all target nodes */
 	explore_stack.push( openNeighbor );
-	return true;
+        return true;
       }
     }
-
-    if( cell.distance == 0 ) return true;
-
-    // recalibrate cell distances
-    //callibrateNeighbors( cell );
-    explore_stack.push( cell );
     return true;
   }
 
   /**
+   * TODO delegates to callibrate
+   */
+  private void callibrateDistances( MazeNode cell ) {
+    callibrate( cell );
+    for( MazeNode globalNeighbor : maze.getAdjacentCellsList( cell ) ) {
+      if( globalNeighbor.distance == 0 ) continue;
+      callibrate( globalNeighbor );
+    }
+  }
+  /**
    * TODO
    */
-  private void callibrateNeighbors( MazeNode cell ) {
+  private void callibrate( MazeNode cell ) {
     int minDistance = Integer.MAX_VALUE; 
 
     for( MazeNode openNeighbor : cell.getNeighborList() ) {
@@ -123,28 +133,77 @@ public class Mouse {
 
     /* update non target cell to a higher elevation */
     if( cell.distance != 0 ) cell.distance = minDistance + 1; 
-    LinkedList<MazeNode> global_neighbor_list = maze.getAdjacentCellsList( cell );
 
-    for( MazeNode globalNeighbor : global_neighbor_list ) {
+    for( MazeNode globalNeighbor : maze.getAdjacentCellsList( cell ) ) {
       /* callibrate all global neighbors except for the target cells */
-      if( globalNeighbor == null || globalNeighbor.distance == 0 ) continue;
-      callibrateNeighbors( globalNeighbor );
+      if( globalNeighbor.distance == 0 ) continue;
+      callibrate( globalNeighbor );
     }
+  }
+
+  /**
+   * Continue exploring maze by retreating to the starting position.
+   * @return Nothing.
+   */
+  private void retreat() {
+    MazeNode newTargetCell = maze.at( start_position );
+    start_position.setLocation( x, y );
+    updateMazeDistances( newTargetCell );
+    explore_stack.push( maze.at(row, column) );
+    num_of_runs++;
+  }
+
+  /**
+   * Update distance values for each cell in the maze given the target.
+   * @return Nothing.
+   */
+  private void updateMazeDistances( MazeNode target ) {
+    Queue<MazeNode> q = new LinkedList<MazeNode>();
+
+    for( MazeNode cell : maze ) {
+      cell.setVisited( false );
+    }
+
+    q.add( target );
+    target.setVisited( true );
+    target.distance = 0;
+
+    while( !q.isEmpty() ) {
+      /* BFS traversal */
+      MazeNode cell = q.remove();
+
+      for( MazeNode openNeighbor : cell.getNeighborList() ) {
+        if( openNeighbor.visited ) continue;
+	q.add( openNeighbor );
+	openNeighbor.setVisited( true );
+	openNeighbor.distance = cell.distance + 1;
+      }
+    }
+
   }
 
   /**
    * TODO
    */
-  void rotateTo( MazeNode cell ) {
-    if( x == cell.x ) {
-      /* vertical deviation */
-      if( y + 1 == cell.y ) orientation = Orientation.SOUTH;
-      else if( y - 1 == cell.y ) orientation = Orientation.NORTH;
-    }
-    else if( y == cell.y ) {
-      /* horizontal deviation */
-      if( x + 1 == cell.x ) orientation = Orientation.EAST; 
-      else if( x - 1 == cell.x ) orientation = Orientation.WEST;
+  public void trackSteps() {
+    if( mousePath.size() != 0 || isDone() == false ) return;
+    updateMousePath( maze.at(start_position), maze.at(row, column) );
+  }
+
+  /**
+   * TODO
+   */
+  private void updateMousePath( MazeNode start, MazeNode end ) {
+    mousePath.push( start );
+
+    if( start.equals(end) ) return;
+
+    for( MazeNode neighbor : start.getNeighborList() ) {
+      if( this.visited( neighbor ) == false ) continue;
+      if( neighbor.distance == start.distance - 1 ) {
+        updateMousePath( neighbor, end );
+	return;
+      }
     }
   }
 
@@ -167,25 +226,6 @@ public class Mouse {
     explore_stack.clear();
     explore_stack.push( maze.at(row, column) );
     orientation = Orientation.NORTH;
-  }
-
-  /**
-   * Erases all memory about the maze configuration.
-   * @return Nothing.
-   */
-  private void clearMazeMemory() {
-    /* break all walls in maze - (this fully connected graph) */
-    maze.clearWalls();
-    /* erase memory from exploring maze */
-    explore_stack.clear();
-
-    /* mark manhattan distance of clear maze  */ 
-    for( MazeNode node : maze ) {
-      Point center = getClosestCenter( node );
-      /* manhattan distance */
-      node.setDistance( Math.abs(center.x - node.x) + Math.abs(center.y - node.y) );
-      node.setVisited( false );
-    }
   }
 
   /**
@@ -212,9 +252,31 @@ public class Mouse {
   }
 
   /**
+   * Erases all memory about the maze configuration.
+   * @return Nothing.
+   */
+  private void clearMazeMemory() {
+    /* break all walls in maze - (this fully connected graph) */
+    maze.clearWalls();
+    /* erase memory from exploring maze */
+    explore_stack.clear();
+    mousePath.clear();
+    num_of_runs = 0;
+
+    /* mark manhattan distance of clear maze  */ 
+    for( MazeNode cell : maze ) {
+      Point center = getClosestCenter( cell );
+      /* manhattan distance */
+      cell.setDistance( Math.abs(center.x - cell.x) + Math.abs(center.y - cell.y) );
+      cell.setVisited( false );
+      setVisited( cell, false );
+    }
+  }
+
+  /**
    * TODO Use of gloal center because I only need one throughout the life of the program
    */
-  private Point getClosestCenter( MazeNode node ) {
+  private Point getClosestCenter( MazeNode cell ) {
     int centerX = maze.getDimension() / EVEN;
     int centerY = maze.getDimension() / EVEN;
 
@@ -225,18 +287,36 @@ public class Mouse {
     }
 
     /* quad-cell solution */
-    if( node.x < maze.getDimension() / EVEN ) {
+    if( cell.x < maze.getDimension() / EVEN ) {
       centerX = maze.getDimension() / EVEN - 1;
     }
-    if( node.y < maze.getDimension() / EVEN ) {
+    if( cell.y < maze.getDimension() / EVEN ) {
       centerY = maze.getDimension() / EVEN - 1;
     }
     center.setLocation( centerX, centerY );
     return center;
   }
 
+  /**
+   * Rotate mouse to face towards the given cell.
+   * @param cell the cell the mouse will face towards.
+   * @return Nothing.
+   */
+  void rotateTo( MazeNode cell ) {
+    if( x == cell.x ) {
+      /* vertical deviation */
+      if( y + 1 == cell.y ) orientation = Orientation.SOUTH;
+      else if( y - 1 == cell.y ) orientation = Orientation.NORTH;
+    }
+    else if( y == cell.y ) {
+      /* horizontal deviation */
+      if( x + 1 == cell.x ) orientation = Orientation.EAST; 
+      else if( x - 1 == cell.x ) orientation = Orientation.WEST;
+    }
+  }
+
  /**
-  *
+  * TODO
   */
   private void moveTo( MazeNode cell ) {
     moveTo( cell.x, cell.y );
@@ -283,24 +363,41 @@ public class Mouse {
    * @param maze_diameter   pixel diameter of maze on GUI.
    * @return Nothing.
    */
-   public void setGraphicsEnvironment( Point maze_draw_point, int maze_diameter ) {
-     this.maze_draw_point = maze_draw_point;
-     this.maze_diameter = maze_diameter;
-     this.UNIT = (1.0 / ref_maze.getDimension()) * maze_diameter;
+  public void setGraphicsEnvironment( Point maze_draw_point, int maze_diameter ) {
+    double UNIT = (1.0 / ref_maze.getDimension()) * maze_diameter;
+    double unitCenterX = maze_draw_point.x + column * UNIT + (UNIT / 2.0);
+    double unitCenterY = maze_draw_point.y + row * UNIT + (UNIT / 2.0);
+    double width = UNIT * PROPORTION; 
+    double height = UNIT * PROPORTION; 
+    double x = unitCenterX - UNIT * PROPORTION / 2.0; 
+    double y = unitCenterY - UNIT * PROPORTION / 2.0;
 
-     double startingX = maze_draw_point.x + column * UNIT;
-     double startingY = maze_draw_point.y + row * UNIT;
-     double unitCenterX = startingX + (UNIT / 2.0);
-     double unitCenterY = startingY + (UNIT / 2.0);
-     double width = UNIT * PROPORTION; 
-     double height = UNIT * PROPORTION; 
-     double x = unitCenterX - width / 2.0; 
-     double y = unitCenterY - height / 2.0;
+    mouse.setLocation( (int)x, (int)y );
+    mouse.setDimension( (int)width, (int)height );
+  }
+  
+  private void setVisited( MazeNode cell, boolean truthValue ) {
+    visited[ cell.row ][ cell.column ] = truthValue;
+  }
 
-     mouse.setLocation( (int)x, (int)y );
-     mouse.setDimension( (int)width, (int)height );
-   }
-   
+  private boolean visited( MazeNode cell ) {
+    return visited[ cell.row ][ cell.column ];
+  }
+
+  /**
+   * TODO
+   */
+  public boolean isDone() {
+    return explore_stack.empty() && num_of_runs == TOTAL_RUNS;
+  }
+
+  /**
+   *
+   */
+  public LinkedList<MazeNode> getMousePath() {
+    return new LinkedList<MazeNode>( mousePath );
+  }
+
   /**
    * TODO
    */
