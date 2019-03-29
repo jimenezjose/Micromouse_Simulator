@@ -365,8 +365,7 @@ class Maze implements Iterable<MazeNode> {
    * @return true if an edge in alpha points to beta.
    */
   public boolean wallBetween( Point alpha, Point beta ) {
-    /* Recall: y = row & x = column  */
-    return wallBetween( at(alpha.y, alpha.x), at(beta.y, beta.x) );
+    return wallBetween( at(alpha), at(beta) );
   }
 
   /**
@@ -492,6 +491,16 @@ class Maze implements Iterable<MazeNode> {
    */
   public boolean outOfBounds( int index ) {
     return ( index < 0 || index >= getDimension() );
+  }
+
+  /**
+   * Accessor method for maze internal structure.
+   * @param alpha point with x and y coordinate of node of interest.
+   * @return MazeNode object at that coordinate given.
+   */
+  public MazeNode at( Point alpha ) {
+    /* Recall: y = row && x = column */
+    return at( alpha.y, alpha.x );
   }
 
   /**

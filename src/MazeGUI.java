@@ -21,6 +21,10 @@ import javax.swing.*;
 import java.lang.Math;
 import java.util.LinkedList;
 import javax.swing.Timer;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.IOException;
+import java.io.File;
 
 /**
  * MazeGUI will create maze exploring interface.
@@ -28,6 +32,7 @@ import javax.swing.Timer;
 public class MazeGUI extends JFrame implements ActionListener {
 
   public static final double MAZE_PROPORTION = 0.49; 
+
   private static final int EVEN = 2;
   private static final int DELAY = 250;
   private static final Color LIGHT_BLACK   = new Color( 32, 32, 32 ); 
@@ -35,13 +40,16 @@ public class MazeGUI extends JFrame implements ActionListener {
   private static final Color WALL_COLOR            = Color.BLACK;
   private static final Color MAZE_BORDER_COLOR     = Color.BLACK;
   private static final Color MOUSE_COLOR           = Color.YELLOW;
-  private static final Color DJIKSTRA_PATH_COLOR   = Color.RED;
+  private static final Color DIJKSTRA_PATH_COLOR   = Color.RED;
   private static final Color DFS_PATH_COLOR        = Color.BLUE;
   private static final Color MAZE_BACKGROUND_COLOR = Color.GRAY;
   private static final Color NUMBER_COLOR          = Color.DARK_GRAY;
+  private static final Color MOUSE_PATH_COLOR      = Color.YELLOW;
+  private static final Color EXCITEMENT_COLOR      = Color.BLUE;
+  private static BufferedImage image = null;
 
   private Maze ref_maze;
-  private Maze unknown_maze;
+  private Maze mouse_maze;
   private Mouse mouse; 
 
   private Timer timer;
@@ -52,7 +60,7 @@ public class MazeGUI extends JFrame implements ActionListener {
   private JButton animateButton;
   private JButton dijkstraButton;
   private JButton mazeButton;
-  private JButton stepButton;
+  private JButton nextButton;
 
   private Point leftMazePoint  = new Point();
   private Point rightMazePoint = new Point();
@@ -75,11 +83,19 @@ public class MazeGUI extends JFrame implements ActionListener {
     runDijkstra = dijkstra;
     runDFS = dfs;
     ref_maze = new Maze( dimension );
-    unknown_maze = new Maze( dimension );
+    mouse_maze = new Maze( dimension );
     ref_maze.createRandomMaze( max_cycles );
-    mouse = new Mouse( dimension - 1, 0, ref_maze, unknown_maze, this );
-    //mouse = new Mouse( 0, 0, ref_maze, unknown_maze, this );
+    mouse = new Mouse( dimension - 1, 0, ref_maze, mouse_maze, this );
+
+    try {
+      image = ImageIO.read( new File("../images/UCSD-logo.png") );
+    }
+    catch( IOException e ) {
+      System.err.println( "UCSD logo non-existent" );
+    }
+
     begin();
+
   }
 
   /**
@@ -105,7 +121,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     animateButton  = new JButton( "Animate" );
     dijkstraButton = new JButton( "Dijkstra" );
     mazeButton     = new JButton( "New Maze" );
-    stepButton     = new JButton( "Start" );
+    nextButton     = new JButton( "Next" );
 
     /* create tex field */
     //textField = new JTextField( 10 );
@@ -114,14 +130,14 @@ public class MazeGUI extends JFrame implements ActionListener {
     dijkstraButton.addActionListener( this );
     animateButton.addActionListener( this );
     mazeButton.addActionListener( this );
-    stepButton.addActionListener( this );
+    nextButton.addActionListener( this );
     //textField.addActionListener( this );
 
     /* add button to panels */
     northPanel.add( animateButton );
     northPanel.add( Box.createHorizontalGlue() );
     northPanel.add( mazeButton );
-    southPanel.add( stepButton );
+    southPanel.add( nextButton );
     southPanel.add( Box.createHorizontalGlue() );
     southPanel.add( dijkstraButton );
 
@@ -136,7 +152,6 @@ public class MazeGUI extends JFrame implements ActionListener {
     contentPane.validate();
 
     setVisible( true );
-
     timer = new Timer( DELAY, this );
   }
 
@@ -159,7 +174,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    */
   private void drawMaze( Graphics g ) {
     center.setLocation( getWidth() / 2, getHeight() / 2 );
-    int canvas_height = getHeight() - 2 * animateButton.getHeight();
+    int canvas_height = getHeight() - 2 * mazeButton.getHeight();
     int canvas_width  = getWidth();
     int wall_width    = 2;
     int num_of_walls  = ref_maze.getDimension() - 1;
@@ -176,6 +191,15 @@ public class MazeGUI extends JFrame implements ActionListener {
     g.drawRect( maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
     g.drawRect( center.x + maze_offset, center.y - maze_radius, maze_diameter, maze_diameter );
 
+    if( image != null ) {
+      Image scaled_screen = image.getScaledInstance( (int)(maze_diameter * 0.5), (int)(maze_diameter * 0.5), Image.SCALE_SMOOTH );
+      BufferedImage scaled_image = new BufferedImage( (int)(maze_diameter * 0.5), (int)(maze_diameter * 0.5), BufferedImage.TYPE_INT_ARGB );
+      Graphics2D g2d = scaled_image.createGraphics();
+      g2d.drawImage( scaled_screen, 0, 0, null );
+      g2d.dispose();
+      g.drawImage( scaled_image, 0, (int)(1.25 * mazeButton.getHeight()), null );
+    }
+
     leftMazePoint.setLocation( maze_offset, center.y - maze_radius );
     rightMazePoint.setLocation( center.x + maze_offset, center.y - maze_radius );
 
@@ -184,9 +208,9 @@ public class MazeGUI extends JFrame implements ActionListener {
     Rectangle horizontal_wall = new Rectangle( 0, 0, wall_height, wall_width );
 
     drawGridLines( ref_maze, leftMazePoint, vertical_wall, horizontal_wall, cell_unit );
-    drawGridLines( unknown_maze, rightMazePoint, vertical_wall, horizontal_wall, cell_unit );
+    drawGridLines( mouse_maze, rightMazePoint, vertical_wall, horizontal_wall, cell_unit );
 
-    drawFloodFillCellValues( unknown_maze, rightMazePoint, cell_unit );
+    drawFloodFillCellValues( mouse_maze, rightMazePoint, cell_unit );
 
     mouse.setGraphicsEnvironment( rightMazePoint, maze_diameter );
     mouse.draw( MOUSE_COLOR );
@@ -194,14 +218,47 @@ public class MazeGUI extends JFrame implements ActionListener {
     MazeNode startVertex = ref_maze.at( ref_maze.getDimension() - 1, 0 );
     MazeNode endVertex = ref_maze.at( ref_maze.getDimension() / EVEN, ref_maze.getDimension() / EVEN );
 
+    if( ref_maze.getDimension() % EVEN == 0 ) {
+      /* quad-cell solution set. find initial entrance node */
+      int lowerBound = ref_maze.getDimension() / EVEN - 1;
+      for( int delta = 0; delta < EVEN; delta++ ) {
+        MazeNode topNode = ref_maze.at(lowerBound, lowerBound + delta);
+        MazeNode lowerNode = ref_maze.at(lowerBound + 1, lowerBound + delta);
+        if( topNode.getNeighborList().size() > EVEN ) {
+          endVertex = topNode;
+          break;
+        }
+        if( lowerNode.getNeighborList().size() > EVEN ) {
+          endVertex = lowerNode;
+          break;
+        }
+      }
+    }
+
     if( runDFS ) {
       drawDFSPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DFS_PATH_COLOR );
     }
 
     if( runDijkstra ) {
-      drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DJIKSTRA_PATH_COLOR );
+      drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DIJKSTRA_PATH_COLOR );
       //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.GREEN, leftMazePoint, cell_unit );
     }
+    if( mouse.isDone() ) {
+      drawMousePath( mouse_maze, rightMazePoint, cell_unit, MOUSE_PATH_COLOR );
+      if( ref_maze.getDijkstraPath().size() == 0 ) ref_maze.dijkstra( startVertex, endVertex );
+      String message;
+      g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, (int)(0.1 * maze_diameter)) );
+      g.setColor( EXCITEMENT_COLOR );
+      if( ref_maze.getDijkstraPath().size() == mouse.getMousePath().size() ) {
+	message = "Most Optimal Solution Found!";
+      }
+      else {
+        message = "Non-optimal. Dijkstra: " + ref_maze.getDijkstraPath().size() + " steps. Flood Fill: " + mouse.getMousePath().size() + " steps.";
+      }
+      double width_offset  = g.getFontMetrics().stringWidth( message ) / 2.0;
+      g.drawString( message, (int)(center.x - width_offset), (int)(canvas_height - 1.25 * mazeButton.getHeight()) );
+    }
+
   }
 
 
@@ -235,6 +292,12 @@ public class MazeGUI extends JFrame implements ActionListener {
     colorPath( maze.getDFSPath(), color, mazePoint, cell_unit );
   }
 
+  private void drawMousePath( Maze maze, Point mazePoint, double cell_unit, Color color ) {
+    /* mouse object should do this on its own when ready */
+    if( mouse.getMousePath().size() == 0 ) mouse.trackSteps();
+    colorPath( mouse.getMousePath(), color, mazePoint, cell_unit );
+  }
+
   /**
    * Draws path from traversing path, front to end.
    * @param path sequence of cell nodes that will be traversed and colored on maze gui.
@@ -248,6 +311,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     Graphics2D g2d = (Graphics2D) getGraphics();
     g2d.setColor( color );
 
+    if( path.size() == 0 ) return;
     /* set starting location and trail width */
     MazeNode currentNode = path.removeFirst();
     int x = mazePoint.x + (int)(currentNode.getDiagonalX() * cell_unit + 0.5 * (1 - PATH_PROPORTION) * cell_unit);
@@ -363,16 +427,16 @@ public class MazeGUI extends JFrame implements ActionListener {
       repaint();
     }
     else if( evt.getSource() == animateButton ) {
-      /* back button was pressed */
+      /* animate button was pressed */
       if( timer.isRunning() == false ) {
         timer.start();
 	animateButton.setText( "Stop" );
-	stepButton.setEnabled( false );
+	nextButton.setEnabled( false );
       }
       else {
         timer.stop();
 	animateButton.setText( "Animate" );
-	stepButton.setEnabled( true );
+	nextButton.setEnabled( true );
       }
       repaint();
     }
@@ -381,15 +445,13 @@ public class MazeGUI extends JFrame implements ActionListener {
       System.out.println( "\nnew maze" );
       animateButton.setText( "Animate" );
       if( timer.isRunning() == true ) timer.stop();
-      stepButton.setEnabled( true );
+      nextButton.setEnabled( true );
       ref_maze.clear();
       ref_maze.createRandomMaze();
       mouse.restart();
       repaint();
     }
-    else if( evt.getSource() == stepButton ) {
-      stepButton.setText( "next" );
-      //timer.start();
+    else if( evt.getSource() == nextButton ) {
       if( mouse.exploreNextCell() ) {
         repaint();
       }
@@ -410,7 +472,7 @@ public class MazeGUI extends JFrame implements ActionListener {
   public static void main( String[] args ) {
     int dimension = 16;
     int cycles = 0;
-    boolean dijkstra = false;
+    boolean dijkstra = true;
     boolean dfs = false;
 
     for( int index = 0; index < args.length; index++ ) {
