@@ -31,7 +31,7 @@ public class Mouse {
 
   private final double PROPORTION = 0.3;
   private final int EVEN = 2;
-  private final int TOTAL_RUNS = 4;
+  private final int TOTAL_RUNS = 2;
 
   public int x;
   public int y;

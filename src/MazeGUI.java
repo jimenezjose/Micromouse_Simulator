@@ -247,7 +247,7 @@ public class MazeGUI extends JFrame implements ActionListener {
       drawMousePath( mouse_maze, rightMazePoint, cell_unit, MOUSE_PATH_COLOR );
       if( ref_maze.getDijkstraPath().size() == 0 ) ref_maze.dijkstra( startVertex, endVertex );
       String message;
-      g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, (int)(0.1 * maze_diameter)) );
+      g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, (int)(0.05 * maze_diameter)) );
       g.setColor( EXCITEMENT_COLOR );
       if( ref_maze.getDijkstraPath().size() == mouse.getMousePath().size() ) {
 	message = "Most Optimal Solution Found!";
@@ -256,7 +256,8 @@ public class MazeGUI extends JFrame implements ActionListener {
         message = "Non-optimal. Dijkstra: " + ref_maze.getDijkstraPath().size() + " steps. Flood Fill: " + mouse.getMousePath().size() + " steps.";
       }
       double width_offset  = g.getFontMetrics().stringWidth( message ) / 2.0;
-      g.drawString( message, (int)(center.x - width_offset), (int)(canvas_height - 1.25 * mazeButton.getHeight()) );
+      int charHeight = (int)(0.05 * maze_diameter);
+      g.drawString( message, (int)(center.x - width_offset), leftMazePoint.y + maze_diameter + (int)((canvas_height - maze_diameter) / 4.0) );
     }
 
   }

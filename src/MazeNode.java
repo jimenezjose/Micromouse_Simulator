@@ -195,7 +195,6 @@ class MazeNode {
    * @return iteratable list of neighbors.
    */
   public LinkedList<MazeNode> getNeighborList() {
-    //return new MazeNode[]{ up, down, left, right };
     LinkedList<MazeNode> neighbor_list = new LinkedList<MazeNode>();
 
     if( up != null ) neighbor_list.push( up );
