@@ -47,10 +47,12 @@ public class Mouse {
   private Point start_position;
   private Orientation orientation;
   private Stack<MazeNode> explore_stack = new Stack<MazeNode>();
-  private LinkedList<MazeNode> mousePath = new LinkedList<MazeNode>();
   private boolean visited[][]; 
 
   private int num_of_runs = 0;
+  private LinkedList<MazeNode> mousePath    = new LinkedList<MazeNode>();
+  private LinkedList<MazeNode> previousPath = new LinkedList<MazeNode>();
+  private boolean done = false;
  
   /**
    * Creates mouse object on canvas
@@ -80,20 +82,26 @@ public class Mouse {
   public boolean exploreNextCell() {
     if( explore_stack.empty() ) {
       /* mouse is at target. */
-      if( num_of_runs != TOTAL_RUNS ) retreat();
+      trackSteps();
+      if( mousePath.size() != previousPath.size() ) retreat();
+      else done = true;
+      previousPath.clear();
+      previousPath.addAll( mousePath );
       return false;
     }
 
     MazeNode cell = explore_stack.pop(); 
 
+    /* sensor surroundings */
     rotateTo( cell );
     moveTo( cell );
     setVisited( cell, true );
     markNeighborWalls( cell, orientation );
-    /* update maze distances from new discovered wall */
+    /* notify other cells of new walls */
     callibrateDistances( cell );
 
     for( MazeNode openNeighbor : cell.getNeighborList() ) {
+      /* choose best adjacent open cell */
       if( openNeighbor.distance == cell.distance - 1 ) {
         /* hueristic to move closer to the target */
         explore_stack.push( openNeighbor );
@@ -101,7 +109,7 @@ public class Mouse {
 	return true;
       } 
       else if( openNeighbor.distance == 0 && this.visited( openNeighbor ) == false ) {
-        /* visit all target nodes */
+        /* visit all target nodes in quad-cell solution */
 	explore_stack.push( openNeighbor );
         return true;
       }
@@ -110,7 +118,10 @@ public class Mouse {
   }
 
   /**
-   * TODO delegates to callibrate
+   * Floods the current cell and its adjacent cell distance value towards the target;
+   * This fuction delegates to callibrate.
+   * @param cell curret positional cell.
+   * @return Nothing.
    */
   private void callibrateDistances( MazeNode cell ) {
     callibrate( cell );
@@ -120,7 +131,10 @@ public class Mouse {
     }
   }
   /**
-   * TODO
+   * Floods currenct cell such that there exist an "open" neighbor with a 
+   * distance of cell.distance - 1.
+   * @param cell a cell in need of distance validation.
+   * @return Nothing.
    */
   private void callibrate( MazeNode cell ) {
     int minDistance = Integer.MAX_VALUE; 
@@ -155,12 +169,14 @@ public class Mouse {
 
   /**
    * Update distance values for each cell in the maze given the target.
+   * @param target target cell that will have a distance of 0.
    * @return Nothing.
    */
   private void updateMazeDistances( MazeNode target ) {
     Queue<MazeNode> q = new LinkedList<MazeNode>();
 
     for( MazeNode cell : maze ) {
+      /* reset visited values of all cells in the maze */
       cell.setVisited( false );
     }
 
@@ -173,33 +189,42 @@ public class Mouse {
       MazeNode cell = q.remove();
 
       for( MazeNode openNeighbor : cell.getNeighborList() ) {
+        /* update distance only to open neighbor of cell */
         if( openNeighbor.visited ) continue;
 	q.add( openNeighbor );
 	openNeighbor.setVisited( true );
 	openNeighbor.distance = cell.distance + 1;
       }
     }
-
   }
 
   /**
-   * TODO
+   * Tracks the mouse's next maze traversal from starting point to 
+   * target point.
+   * @return Nothing.
    */
   public void trackSteps() {
-    if( mousePath.size() != 0 || isDone() == false ) return;
+    mousePath.clear();
     updateMousePath( maze.at(start_position), maze.at(row, column) );
   }
 
   /**
-   * TODO
+   * Appends path traversal to mousePath linked list.
+   * @param start beginning of path.
+   * @param end terminatinnce cell of path.
+   * @return Nothing.
    */
   private void updateMousePath( MazeNode start, MazeNode end ) {
     mousePath.push( start );
 
+    /* current node is at destination */
     if( start.equals(end) ) return;
 
+    /* move to the next least expensive cell */
     for( MazeNode neighbor : start.getNeighborList() ) {
+      /* if mouse did not visit neighbor do not consider it */
       if( this.visited( neighbor ) == false ) continue;
+      /* otherwise least */
       if( neighbor.distance == start.distance - 1 ) {
         updateMousePath( neighbor, end );
 	return;
@@ -261,7 +286,9 @@ public class Mouse {
     /* erase memory from exploring maze */
     explore_stack.clear();
     mousePath.clear();
+    previousPath.clear();
     num_of_runs = 0;
+    done = false;
 
     /* mark manhattan distance of clear maze  */ 
     for( MazeNode cell : maze ) {
@@ -274,7 +301,10 @@ public class Mouse {
   }
 
   /**
-   * TODO Use of gloal center because I only need one throughout the life of the program
+   * Retrieves the closest target location relative to the passed cell location;
+   * This is needed when the target is a quad-cell solution set.
+   * @param cell relative cell location in maze.
+   * @return updated global variable "center" with the closest target location.
    */
   private Point getClosestCenter( MazeNode cell ) {
     int centerX = maze.getDimension() / EVEN;
@@ -285,7 +315,6 @@ public class Mouse {
       center.setLocation( centerX, centerY );
       return center;
     }
-
     /* quad-cell solution */
     if( cell.x < maze.getDimension() / EVEN ) {
       centerX = maze.getDimension() / EVEN - 1;
@@ -315,22 +344,29 @@ public class Mouse {
     }
   }
 
- /**
-  * TODO
-  */
+  /**
+   * Traslates mouse to the give cell.
+   * @param cell maze cell that the mouse will move to.
+   * @return Nothing.
+   */
   private void moveTo( MazeNode cell ) {
     moveTo( cell.x, cell.y );
   }
 
   /**
-   * TODO
+   * Translates mouse to the given coordinate in the maze.
+   * @param coordinate point coordinate that the mouse will move to.
+   * @return Nothing.
    */
-  private void moveTo( Point point ) {
-    moveTo( point.x, point.y );
+  private void moveTo( Point coordinate ) {
+    moveTo( coordinate.x, coordinate.y );
   }
 
   /**
-   * TODO
+   * Translates mouse to (x,y) position in maze.
+   * @param x x location that the mouse will move to.
+   * @param y y location that the mouse will move to.
+   * @return Nothing.
    */
   private void moveTo( int x, int y ) {
     move( x - column, y - row );
@@ -343,7 +379,6 @@ public class Mouse {
    * @return Nothing.
    */
   public void move( int dx, int dy ) {
-    //TODO possible error may be that i am not multiplying by UNIT
     column = x += dx;
     row = y += dy;
   }
@@ -376,30 +411,45 @@ public class Mouse {
     mouse.setDimension( (int)width, (int)height );
   }
   
+  /**
+   * Sets the mouse visited 2d array to the truth value provided; This signifies 
+   * that the mouse itself has visited the cell location.
+   * @param cell cell location to update.
+   * @param truthValue the state that the cell location should be updated to.
+   * @return Nothing.
+   */
   private void setVisited( MazeNode cell, boolean truthValue ) {
     visited[ cell.row ][ cell.column ] = truthValue;
   }
 
+  /**
+   * Checks if mouse visited the cell location.
+   * @param cell the cell of interest.
+   * @return true if the cell has been visited by the mouse, false otherwise.
+   */
   private boolean visited( MazeNode cell ) {
     return visited[ cell.row ][ cell.column ];
   }
 
   /**
-   * TODO
+   * Checks if the mouse has found the most optimal path to the target.
+   * @return true if the mouse is done running, false otherwise.
    */
   public boolean isDone() {
-    return explore_stack.empty() && num_of_runs == TOTAL_RUNS;
+    return done; 
   }
 
   /**
-   *
+   * Getter for the most optimal path the mouse found.
+   * @return a linked list that starts from the starting cell to the target 
+   *         cell.
    */
   public LinkedList<MazeNode> getMousePath() {
     return new LinkedList<MazeNode>( mousePath );
   }
 
   /**
-   * TODO
+   * Enum class the define the orientation of the mouse in the maze.
    */
   private enum Orientation {
     NORTH,
@@ -408,7 +458,8 @@ public class Mouse {
     WEST;
 
     /**
-     * TODO
+     * Relative to the current orientation, what is right.
+     * @return the relative orientation facing to the right.
      */
     public Orientation relativeRight() {
       int length = size();
@@ -416,7 +467,8 @@ public class Mouse {
     }
 
     /**
-     * TODO
+     * Relative to the current orientation, what is left.
+     * @return the relative orientation facing to the left.
      */
     public Orientation relativeLeft() {
       int length = size();
@@ -424,7 +476,8 @@ public class Mouse {
     }
 
     /**
-     * TODO
+     * Realtive to the current orientation, what is back.
+     * @return the relative orientation facing to the back.
      */
     public Orientation relativeBack() {
       int length = size();
@@ -432,14 +485,16 @@ public class Mouse {
     }
 
     /**
-     * TODO
+     * Number of orientation possibilities.
+     * @return the totale number of orientation possiblilities.
      */
     public int size() {
       return values().length;
     }
 
     /**
-     * TODO
+     * Moves orientation clockwise. 
+     * @return the relative right orientaion.
      */
     public Orientation next() {
       return relativeRight();
