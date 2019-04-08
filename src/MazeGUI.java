@@ -71,6 +71,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 
   private boolean runDijkstra = false;
   private boolean runDFS = false;
+  private boolean doneRunning = false;
 
 
   /**
@@ -245,24 +246,14 @@ public class MazeGUI extends JFrame implements ActionListener {
     }
     if( mouse.isDone() ) {
       drawMousePath( mouse_maze, rightMazePoint, cell_unit, MOUSE_PATH_COLOR );
+      //colorPath( mouse_maze.optimize(mouse.getMousePath()), Color.GREEN, rightMazePoint, cell_unit );
       if( ref_maze.getDijkstraPath().size() == 0 ) ref_maze.dijkstra( startVertex, endVertex );
-      String message;
-      g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, (int)(0.05 * maze_diameter)) );
-      g.setColor( EXCITEMENT_COLOR );
-      if( ref_maze.getDijkstraPath().size() == mouse.getMousePath().size() ) {
-	message = "Most Optimal Solution Found!";
-      }
-      else {
-        message = "Non-optimal. Dijkstra: " + ref_maze.getDijkstraPath().size() + " steps. Flood Fill: " + mouse.getMousePath().size() + " steps.";
-      }
-      double width_offset  = g.getFontMetrics().stringWidth( message ) / 2.0;
-      int charHeight = (int)(0.05 * maze_diameter);
-      g.drawString( message, (int)(center.x - width_offset), leftMazePoint.y + maze_diameter + (int)((canvas_height - maze_diameter) / 4.0) );
+      drawSolutionMessage( g, center, leftMazePoint, maze_diameter, canvas_height );
     }
 
   }
 
-
+  
   /**
    * draw Dijkstra's path on maze.
    * @param maze maze graph where dijkstra will run
@@ -293,9 +284,18 @@ public class MazeGUI extends JFrame implements ActionListener {
     colorPath( maze.getDFSPath(), color, mazePoint, cell_unit );
   }
 
+  /**
+   * draw the path that mouse will take on the next run from the starting point.
+   * @param maze the maze that mouse is in.
+   * @param mazePoint upper left point of the maze in the GUI.
+   * @param cell_unit distance from one cell to its adjacent cell.
+   * @param color the color that the mouse path will be drawn in.  
+   * @return Nothing.
+   */
   private void drawMousePath( Maze maze, Point mazePoint, double cell_unit, Color color ) {
     /* mouse object should do this on its own when ready */
-    if( mouse.getMousePath().size() == 0 ) mouse.trackSteps();
+    if( !mouse.isDone() ) return;
+    //if( mouse.getMousePath().size() == 0 ) mouse.trackSteps();
     colorPath( mouse.getMousePath(), color, mazePoint, cell_unit );
   }
 
@@ -393,7 +393,11 @@ public class MazeGUI extends JFrame implements ActionListener {
   }
 
   /**
-   * TODO
+   * Draws the flood fill values on each cell of the given maze.
+   * @param maze the maze which the node distance (flood fill value) is fetched.
+   * @param mazePoint upper left point of which the maze is located in the GUI.
+   * @param cell_unit distance from one cell to an adjacent cell in the GUI.
+   * @return Nothing.
    */
   void drawFloodFillCellValues( Maze maze, Point mazePoint, double cell_unit ) {
     final double FONT_PROPORTION = 0.5;
@@ -404,11 +408,37 @@ public class MazeGUI extends JFrame implements ActionListener {
     g.setColor( NUMBER_COLOR );
 
     for( MazeNode cell : maze ) {
+      /* draw distance (flood fill) values in all cells of the maze */
       if( cell.x == mouse.x && cell.y == mouse.y ) continue;
       double height_offset = ((1 - FONT_PROPORTION) * cell_unit) / 2.0;
       double width_offset  = (cell_unit - g.getFontMetrics().stringWidth(Integer.toString(cell.distance))) / 2.0;
       g.drawString( Integer.toString(cell.distance), mazePoint.x + (int)(cell.x * cell_unit + width_offset), mazePoint.y + (int)((cell.y + 1) * cell_unit - height_offset)); 
     }
+  }
+
+  /**
+   * Draws a string to the GUI that notifies the user if the most optimal path was found.
+   * @param g reference to the GUI graphices component.
+   * @param center center of the canvas.
+   * @param mazePoint the upper left corner of the maze any maze. (assumption both mazes are in the same section of the GUI)
+   * @param maze_diameter length of the maze side in pixels.
+   * @param canvas_height height of drawable canvas in GUI.
+   * @return Nothing.
+   */
+  private void drawSolutionMessage( Graphics g, Point center, Point mazePoint, int maze_diameter, int canvas_height ) {
+    String message;
+    g.setFont( new Font(Font.SANS_SERIF, Font.BOLD, (int)(0.05 * maze_diameter)) );
+    g.setColor( EXCITEMENT_COLOR );
+
+    if( ref_maze.getDijkstraPath().size() == mouse.getMousePath().size() ) {
+      message = "Most Optimal Solution Found!";
+    }
+    else {
+      message = "Non-optimal. Dijkstra: " + ref_maze.getDijkstraPath().size() + " steps. Flood Fill: " + mouse.getMousePath().size() + " steps.";
+    }
+    double width_offset  = g.getFontMetrics().stringWidth( message ) / 2.0;
+    int charHeight = (int)(0.05 * maze_diameter);
+    g.drawString( message, (int)(center.x - width_offset), mazePoint.y + maze_diameter + (int)((canvas_height - maze_diameter) / 4.0) );
   }
 
   /**
@@ -459,9 +489,11 @@ public class MazeGUI extends JFrame implements ActionListener {
     }
     else if( evt.getSource() == timer ) {
       /* animation timer */
-      if( mouse.exploreNextCell() ) {
+      if( doneRunning || mouse.exploreNextCell() ) {
         repaint();
       }
+      if( doneRunning != mouse.isDone() ) doneRunning = mouse.isDone();
+      else doneRunning = false;
     }
   }
 
@@ -497,7 +529,6 @@ public class MazeGUI extends JFrame implements ActionListener {
       }
 
       /* independent args */
-
       switch( flag ) {
         case ParsingStrings.HELP_FLAG_1:
 	case ParsingStrings.HELP_FLAG_2:
@@ -559,7 +590,6 @@ public class MazeGUI extends JFrame implements ActionListener {
 	  }
 	  break;
       }
-
       index++;
     }
 

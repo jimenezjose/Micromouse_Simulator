@@ -192,9 +192,9 @@ class Maze implements Iterable<MazeNode> {
       /* smoothen sharp turns by averaging direction */
       MazeNode currentNode = path.removeFirst();
       MazeNode nextNode = path.peekFirst();
-      double x_bar = 0.5 * ( currentNode.x + nextNode.x );
-      double y_bar = 0.5 * ( currentNode.y + nextNode.y );
-      bestPath.addLast( new MazeNode(x_bar, y_bar) );
+      double row_bar = 0.5 * ( currentNode.row + nextNode.row );
+      double column_bar = 0.5 * ( currentNode.column + nextNode.column );
+      bestPath.addLast( new MazeNode(row_bar, column_bar) );
     }
 
     bestPath.addLast( endVertex );
@@ -550,13 +550,16 @@ class Maze implements Iterable<MazeNode> {
   }
 
   /**
-   * TODO
+   * Returning all global neighbors to vertex cell.
+   * @param vertex relative cell that is requsting to get the adjacent neighbors.
+   * @return a linked list of all adjacent existing neighbors.
    */
   public LinkedList<MazeNode> getAdjacentCellsList( MazeNode vertex ) {
     int MAX_CELLS = 4;
     LinkedList<MazeNode> list = new LinkedList<MazeNode>();
 
     for( int index = 0; index < MAX_CELLS; index++ ) {
+      /* append all adjacent neighbors to list */
       int deviation = ( index < EVEN ) ? +1 : -1; 
       int dr = ( index % EVEN == 0 ) ? deviation : 0; 
       int dc = ( index % EVEN == 1 ) ? deviation : 0;
@@ -616,7 +619,6 @@ class Maze implements Iterable<MazeNode> {
    * loose coupling of classes that use the Maze data structure.
    */
   private class MazeIterator implements Iterator<MazeNode> {
-
     private int current_row;
     private int current_column;
 
