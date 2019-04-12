@@ -44,6 +44,7 @@ public class Mouse {
   private Maze maze;
   private Point center = new Point();
 
+  private Point origin;
   private Point start_position;
   private Orientation orientation;
   private Stack<MazeNode> explore_stack = new Stack<MazeNode>();
@@ -69,6 +70,7 @@ public class Mouse {
     this.maze = maze;
     this.canvas = canvas;
     this.mouse = new MouseShape();
+    this.origin = new Point( x, y );
     this.start_position = new Point( x, y );
     this.visited = new boolean[ maze.getDimension() ][ maze.getDimension() ];
     start();
