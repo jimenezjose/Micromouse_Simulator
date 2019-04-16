@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
 class Maze implements Iterable<MazeNode> {
   private static final int EVEN = 2;
   private final int dimension;
-  private int max_cycles;
+  private int non_tree_edges;
   private MazeNode[][] maze;
   private LinkedList<MazeNode> dijkstraPath = new LinkedList<MazeNode>();
   private LinkedList<MazeNode> dfsPath = new LinkedList<MazeNode>();
@@ -41,7 +41,7 @@ class Maze implements Iterable<MazeNode> {
   public Maze( int dimension ) {
     /* dimension padding added to emulate maze walls */
     this.dimension = dimension;
-    this.max_cycles = 0;
+    this.non_tree_edges = 0;
     maze = new MazeNode[ dimension ][ dimension ];
 
     for( int row = 0; row < maze.length; row++ ) {
@@ -202,12 +202,12 @@ class Maze implements Iterable<MazeNode> {
   }
 
   /**
-   * Creates a new random maze with a new upper bound of max cycles.
-   * @param max_cycles inclusive max cycles upper bound for new maze.
+   * Creates a new random maze with a the given number of non-tree edges.
+   * @param non_tree_edges Number of non tree cycles present in MST. 
    * @return Nothing.
    */
-  public void createRandomMaze( int max_cycles ) {
-    this.max_cycles = max_cycles;
+  public void createRandomMaze( int non_tree_edges ) {
+    this.non_tree_edges = non_tree_edges;
     createRandomMaze();
   }
 
@@ -217,7 +217,6 @@ class Maze implements Iterable<MazeNode> {
    */
   public void createRandomMaze() {                                                                    
     final int MIN_DIM = 3;
-    final int MAX_CYCLES = max_cycles;
     ArrayList<Pair<MazeNode, MazeNode>> walls = new ArrayList<Pair<MazeNode, MazeNode>>( getDimension() * getDimension() );
     Random rand = new Random();
 
@@ -296,8 +295,8 @@ class Maze implements Iterable<MazeNode> {
       count++;
     }
  
-    /* list of back edges */
-    ArrayList<Pair<MazeNode, MazeNode>> cycleWalls = new ArrayList<Pair<MazeNode, MazeNode>>( getDimension() * getDimension() );
+    /* list of non_tree_edges */
+    ArrayList<Pair<MazeNode, MazeNode>> extraWalls = new ArrayList<Pair<MazeNode, MazeNode>>( getDimension() * getDimension() );
 
     /* random maze generation */
     while( walls.size() != 0 ) {
@@ -315,7 +314,7 @@ class Maze implements Iterable<MazeNode> {
       }
       else {
         /* walls that border cells in the same set */
-        cycleWalls.add( node_pair );
+        extraWalls.add( node_pair );
       }
       
       /* remove wall from wall list */
@@ -323,10 +322,11 @@ class Maze implements Iterable<MazeNode> {
     }
 
     /* create multiple paths to solution */
-    int numOfPaths = ( MAX_CYCLES == 0 ) ? 0 : rand.nextInt( MAX_CYCLES ) + 1;
-    for( int index = 0; cycleWalls.size() != 0 && index < numOfPaths; index++ ) {
-      randomIndex = rand.nextInt( cycleWalls.size() );
-      Pair<MazeNode, MazeNode> node_pair = cycleWalls.get( randomIndex );
+    //int numOfPaths = ( MAX_CYCLES == 0 ) ? 0 : rand.nextInt( MAX_CYCLES ) + 1;
+    int numOfPaths = non_tree_edges;
+    for( int index = 0; extraWalls.size() != 0 && index < numOfPaths; index++ ) {
+      randomIndex = rand.nextInt( extraWalls.size() );
+      Pair<MazeNode, MazeNode> node_pair = extraWalls.get( randomIndex );
       MazeNode vertex_A = node_pair.first;
       MazeNode vertex_B = node_pair.second;
       
@@ -334,15 +334,15 @@ class Maze implements Iterable<MazeNode> {
       addEdge( vertex_A, vertex_B );
       count++;
 
-      /* remove back edge picked */
-      cycleWalls.remove( randomIndex );
+      /* remove non-tree edge picked */
+      extraWalls.remove( randomIndex );
     }
 
-    cycleWalls.clear();
+    extraWalls.clear();
     System.err.println( "Number of walls taken down: " + count);
-    System.err.println( "Number of cycles: " + numOfPaths );
+    System.err.println( "Number of non-tree edges: " + numOfPaths );
 
-    //System.err.println( "Time taken for Maze Generation: " + (System.currentTimeMillis() - prevMillis) / 1000.0 + " sec" );
+    System.err.println( "Time taken for Maze Generation: " + (System.currentTimeMillis() - prevMillis) / 1000.0 + " sec" );
   }
 
   /**
@@ -600,8 +600,8 @@ class Maze implements Iterable<MazeNode> {
    * cycles that can exist in a randomly generated maze.
    * @return the current max cycle attribute.
    */
-  public int getMaxCycles() {
-    return max_cycles;
+  public int getTotalNonTreeEdges() {
+    return non_tree_edges;
   }
 
   /**
