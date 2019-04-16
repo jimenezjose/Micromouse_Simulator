@@ -70,22 +70,21 @@ public class MazeGUI extends JFrame implements ActionListener {
   private Point center         = new Point();
 
   private boolean runDijkstra = false;
-  private boolean runDFS = false;
-  private boolean doneRunning = false;
-
+  private boolean runDFS      = false;
+  private boolean outputStats = true;
 
   /**
    * Constructor: Creates and sets up MazeGUI 
    * @param dimension number of unit cells per side of square maze.
    */
-  public MazeGUI( int dimension, int max_cycles, boolean dijkstra, boolean dfs ) {
+  public MazeGUI( int dimension, int non_tree_edges, boolean dijkstra, boolean dfs ) {
     super( "Maze Graphics" );
     if( dimension < 1 ) dimension = 1;
     runDijkstra = dijkstra;
     runDFS = dfs;
     ref_maze = new Maze( dimension );
     mouse_maze = new Maze( dimension );
-    ref_maze.createRandomMaze( max_cycles );
+    ref_maze.createRandomMaze( non_tree_edges );
     mouse = new Mouse( dimension - 1, 0, ref_maze, mouse_maze, this );
 
     try {
@@ -250,7 +249,13 @@ public class MazeGUI extends JFrame implements ActionListener {
       if( ref_maze.getDijkstraPath().size() == 0 ) ref_maze.dijkstra( startVertex, endVertex );
       drawSolutionMessage( g, center, leftMazePoint, maze_diameter, canvas_height );
     }
-
+    
+    if( mouse.isDone() && outputStats ) {
+      outputStats = false;
+      int mouse_visited = mouse.getTotalCellsVisited();
+      int total = mouse_maze.getDimension() * mouse_maze.getDimension();
+      System.out.println( "Proportion of cells visited by mouse: " + ((double)(mouse_visited) / total * 100) + "% on a dimension of " + mouse_maze.getDimension() + "x" + mouse_maze.getDimension() );
+    }
   }
 
   
@@ -371,11 +376,11 @@ public class MazeGUI extends JFrame implements ActionListener {
         /* horizontal wall is also present below current cell */
         horizontal_wall.setLocation( mazePoint.x + (int)(column * cell_unit), mazePoint.y + (int)((row + 1) * cell_unit) );
 
-        if( column < maze.getDimension() - 1 && maze.wallBetween(currentPoint, rightPoint) ) {
+	if( column < maze.getDimension() - 1 && maze.wallBetween(currentPoint, rightPoint) ) {
           g2d.setColor( WALL_COLOR );
           g2d.fill( vertical_wall );
         }
-        else {
+        else if( column != maze.getDimension() -1 ) {
           g2d.setColor( NO_WALL_COLOR );
           g2d.fill( vertical_wall );
         }
@@ -384,7 +389,7 @@ public class MazeGUI extends JFrame implements ActionListener {
           g2d.setColor( WALL_COLOR );
           g2d.fill( horizontal_wall );
         }
-        else {
+        else if( row != maze.getDimension() - 1 ) {
           g2d.setColor( NO_WALL_COLOR );
           g2d.fill( horizontal_wall );
         }
@@ -436,6 +441,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     else {
       message = "Non-optimal. Dijkstra: " + ref_maze.getDijkstraPath().size() + " steps. Flood Fill: " + mouse.getMousePath().size() + " steps.";
     }
+
     double width_offset  = g.getFontMetrics().stringWidth( message ) / 2.0;
     int charHeight = (int)(0.05 * maze_diameter);
     g.drawString( message, (int)(center.x - width_offset), mazePoint.y + maze_diameter + (int)((canvas_height - maze_diameter) / 4.0) );
@@ -480,6 +486,7 @@ public class MazeGUI extends JFrame implements ActionListener {
       ref_maze.clear();
       ref_maze.createRandomMaze();
       mouse.restart();
+      outputStats = true;
       repaint();
     }
     else if( evt.getSource() == nextButton ) {
@@ -489,11 +496,9 @@ public class MazeGUI extends JFrame implements ActionListener {
     }
     else if( evt.getSource() == timer ) {
       /* animation timer */
-      if( doneRunning || mouse.exploreNextCell() ) {
+      if( mouse.exploreNextCell() || outputStats ) {
         repaint();
       }
-      if( doneRunning != mouse.isDone() ) doneRunning = mouse.isDone();
-      else doneRunning = false;
     }
   }
 
@@ -504,7 +509,7 @@ public class MazeGUI extends JFrame implements ActionListener {
    */
   public static void main( String[] args ) {
     int dimension = 16;
-    int cycles = 0;
+    int non_tree_edges = 0;
     boolean dijkstra = true;
     boolean dfs = false;
 
@@ -572,19 +577,19 @@ public class MazeGUI extends JFrame implements ActionListener {
 	    System.exit( 1 );
 	  }
 	  break;
-	case ParsingStrings.CYCLES_FLAG_1:
-	case ParsingStrings.CYCLES_FLAG_2:
+	case ParsingStrings.NUM_PATHS_FLAG_1:
+	case ParsingStrings.NUM_PATHS_FLAG_2:
 	  /* number of cycles in graph - number of alternative solutions */
 	  try {
-            cycles = Integer.parseInt( args[ index + 1 ] );   
+            non_tree_edges = Integer.parseInt( args[ index + 1 ] );   
 	  }
 	  catch( NumberFormatException e ) {
-            System.out.println( "Integer Parsing Error: max cycles: " + args[ index + 1 ] + "\n" );
+            System.out.println( "Integer Parsing Error: non_tree_edges: " + args[ index + 1 ] + "\n" );
             System.out.println( ParsingStrings.USAGE );
 	    System.exit( 1 );
 	  }
-	  if( cycles < 0 ) {
-            System.out.println( "Max Cycles Error: argument must be positive: " + cycles + "\n" );
+	  if( non_tree_edges < 0 ) {
+            System.out.println( "Max Non-Tree Edges Error: argument must be positive: " + non_tree_edges + "\n" );
 	    System.out.println( ParsingStrings.USAGE );
 	    System.exit( 1 );
 	  }
@@ -600,7 +605,7 @@ public class MazeGUI extends JFrame implements ActionListener {
       System.exit( 1 );
     }
 
-    MazeGUI maze_frame = new MazeGUI( dimension, cycles, dijkstra, dfs );
+    MazeGUI maze_frame = new MazeGUI( dimension, non_tree_edges, dijkstra, dfs );
 
     while(true) {}
   }

@@ -84,11 +84,17 @@ public class Mouse {
   public boolean exploreNextCell() {
     if( explore_stack.empty() ) {
       /* mouse is at target. */
+      done = true;
       trackSteps();
-      if( mousePath.size() != previousPath.size() ) retreat();
-      else done = true;
-      previousPath.clear();
-      previousPath.addAll( mousePath );
+      if( !mousePath.equals(previousPath) ) {
+        /* continue searching for optimal path */
+        retreat(); 
+        previousPath.clear();
+	/* reverse mouse path in anticipation of retreat */
+	for( MazeNode cell : mousePath ) previousPath.addFirst(cell);
+	done = false;
+      }
+
       return false;
     }
 
@@ -235,27 +241,6 @@ public class Mouse {
   }
 
   /**
-   * Delegates to the restart method to restart mouse simulation. 
-   * @return Nothing.
-   */
-  private void start() {
-    restart();
-  }
-
-  /**
-   * Erases maze memory and restarts mouse simulation from mouse initial position.
-   * @return Nothing.
-   */
-  public void restart() {
-    clearMazeMemory();
-    /* initial position of mouse pushed */
-    moveTo( start_position );
-    explore_stack.clear();
-    explore_stack.push( maze.at(row, column) );
-    orientation = Orientation.NORTH;
-  }
-
-  /**
    * Emulate sensor data of mouse to mark surrounding maze walls;
    * Physical Constraint: There are only sesors on the front, left, and right
    *                      faces of the mouse.
@@ -277,6 +262,29 @@ public class Mouse {
       point = point.next();
     }
   }
+
+  /**
+   * Delegates to the restart method to restart mouse simulation. 
+   * @return Nothing.
+   */
+  private void start() {
+    restart();
+  }
+
+  /**
+   * Erases maze memory and restarts mouse simulation from mouse initial position.
+   * @return Nothing.
+   */
+  public void restart() {
+    clearMazeMemory();
+    /* initial position of mouse pushed */
+    start_position.setLocation( origin.x, origin.y );
+    moveTo( start_position );
+    explore_stack.clear();
+    explore_stack.push( maze.at(row, column) );
+    orientation = Orientation.NORTH;
+  }
+
 
   /**
    * Erases all memory about the maze configuration.
@@ -429,7 +437,7 @@ public class Mouse {
    * @param cell the cell of interest.
    * @return true if the cell has been visited by the mouse, false otherwise.
    */
-  private boolean visited( MazeNode cell ) {
+  public boolean visited( MazeNode cell ) {
     return visited[ cell.row ][ cell.column ];
   }
 
@@ -448,6 +456,15 @@ public class Mouse {
    */
   public LinkedList<MazeNode> getMousePath() {
     return new LinkedList<MazeNode>( mousePath );
+  }
+
+  /**
+   * TODO
+   */
+  public int getTotalCellsVisited() {
+    int cells_visited = 0;
+    for( MazeNode cell : maze ) if( this.visited(cell) ) cells_visited++;
+    return cells_visited;
   }
 
   /**
