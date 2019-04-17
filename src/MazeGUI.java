@@ -58,7 +58,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 
   private JTextField textField;
   private JButton animateButton;
-  private JButton dijkstraButton;
+  private JButton clearButton;
   private JButton mazeButton;
   private JButton nextButton;
 
@@ -95,7 +95,6 @@ public class MazeGUI extends JFrame implements ActionListener {
     }
 
     begin();
-
   }
 
   /**
@@ -119,7 +118,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 
     /* sets names of new buttons */
     animateButton  = new JButton( "Animate" );
-    dijkstraButton = new JButton( "Dijkstra" );
+    clearButton = new JButton( "Clear" );
     mazeButton     = new JButton( "New Maze" );
     nextButton     = new JButton( "Next" );
 
@@ -127,7 +126,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     //textField = new JTextField( 10 );
 
     /* Activates button to register state change */
-    dijkstraButton.addActionListener( this );
+    clearButton.addActionListener( this );
     animateButton.addActionListener( this );
     mazeButton.addActionListener( this );
     nextButton.addActionListener( this );
@@ -139,7 +138,7 @@ public class MazeGUI extends JFrame implements ActionListener {
     northPanel.add( mazeButton );
     southPanel.add( nextButton );
     southPanel.add( Box.createHorizontalGlue() );
-    southPanel.add( dijkstraButton );
+    southPanel.add( clearButton );
 
     /* background color of button panels */
     northPanel.setBackground( Color.BLACK );
@@ -255,6 +254,7 @@ public class MazeGUI extends JFrame implements ActionListener {
       int mouse_visited = mouse.getTotalCellsVisited();
       int total = mouse_maze.getDimension() * mouse_maze.getDimension();
       System.out.println( "Proportion of cells visited by mouse: " + ((double)(mouse_visited) / total * 100) + "% on a dimension of " + mouse_maze.getDimension() + "x" + mouse_maze.getDimension() );
+      System.out.println( "Total number of mouse runs: " + mouse.getNumberOfRuns() );
     }
   }
 
@@ -300,7 +300,6 @@ public class MazeGUI extends JFrame implements ActionListener {
   private void drawMousePath( Maze maze, Point mazePoint, double cell_unit, Color color ) {
     /* mouse object should do this on its own when ready */
     if( !mouse.isDone() ) return;
-    //if( mouse.getMousePath().size() == 0 ) mouse.trackSteps();
     colorPath( mouse.getMousePath(), color, mazePoint, cell_unit );
   }
 
@@ -457,10 +456,10 @@ public class MazeGUI extends JFrame implements ActionListener {
    */
   public void actionPerformed( ActionEvent evt ) {
    
-    if( evt.getSource() == dijkstraButton ) {
+    if( evt.getSource() == clearButton ) {
       /* continue button was pressed */
-      runDijkstra = !runDijkstra;
       mouse.restart();
+      outputStats = true;
       repaint();
     }
     else if( evt.getSource() == animateButton ) {
@@ -489,12 +488,7 @@ public class MazeGUI extends JFrame implements ActionListener {
       outputStats = true;
       repaint();
     }
-    else if( evt.getSource() == nextButton ) {
-      if( mouse.exploreNextCell() ) {
-        repaint();
-      }
-    }
-    else if( evt.getSource() == timer ) {
+    else if( evt.getSource() == nextButton || evt.getSource() == timer ) {
       /* animation timer */
       if( mouse.exploreNextCell() || outputStats ) {
         repaint();
