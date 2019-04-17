@@ -86,15 +86,12 @@ public class Mouse {
       /* mouse is at target. */
       done = true;
       trackSteps();
-      if( !mousePath.equals(previousPath) ) {
-        /* continue searching for optimal path */
-        retreat(); 
-        previousPath.clear();
-	/* reverse mouse path in anticipation of retreat */
-	for( MazeNode cell : mousePath ) previousPath.addFirst(cell);
-	done = false;
-      }
-
+      /* An optimal path was discovered */
+      if( mousePath.size() == previousPath.size() && isCompletePath(mousePath) ) return false;
+      /* otherwise continue traversing maze */
+      done = false;
+      retreat();
+      setPreviousPath( mousePath );
       return false;
     }
 
@@ -442,11 +439,42 @@ public class Mouse {
   }
 
   /**
+   * TODO
+   */
+  private void setPreviousPath( LinkedList<MazeNode> list ) {
+    previousPath.clear();
+    previousPath.addAll( list );
+  }
+
+  /**
    * Checks if the mouse has found the most optimal path to the target.
    * @return true if the mouse is done running, false otherwise.
    */
   public boolean isDone() {
     return done; 
+  }
+
+  /**
+   * TODO
+   */
+  private boolean isCompletePath( LinkedList<MazeNode> path ) {
+    if( path == null || path.size() == 0 ) {
+      /* invlaid argument */
+      System.err.println( "Mouse.java:isCompletePath parameter is invalid: path: " + path );
+      return false;
+    }
+
+    MazeNode mouse_cell = maze.at( row, column );
+    MazeNode start_cell = maze.at( start_position );
+    boolean path_contains_start = path.getFirst().equals(start_cell) || path.getLast().equals(start_cell);
+    boolean path_contains_mouse = path.getFirst().equals(mouse_cell) || path.getLast().equals(mouse_cell);
+
+    if( path_contains_start && path_contains_mouse  ) { 
+      /* path contains both end points */
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -465,6 +493,13 @@ public class Mouse {
     int cells_visited = 0;
     for( MazeNode cell : maze ) if( this.visited(cell) ) cells_visited++;
     return cells_visited;
+  }
+
+  /**
+   * TODO
+   */
+  public int getNumberOfRuns() {
+    return ( this.isDone() ) ? num_of_runs + 1: num_of_runs; 
   }
 
   /**

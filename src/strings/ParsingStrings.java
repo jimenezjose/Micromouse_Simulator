@@ -23,13 +23,13 @@ public class ParsingStrings {
     public static final String HELP_FLAG_2 = "-help";
     public static final String DIM_FLAG_1 = "-d";
     public static final String DIM_FLAG_2 = "-dimension";
-    public static final String NUM_PATHS_FLAG_1 = "-num_of_paths";
-    public static final String NUM_PATHS_FLAG_2 = "-np";
+    public static final String NUM_PATHS_FLAG_1 = "-extra_paths";
+    public static final String NUM_PATHS_FLAG_2 = "-ep";
     public static final String DIJKSTRA_FLAG = "-dijkstra";
     public static final String DFS_FLAG = "-dfs";
     public static final String HELP_MSG = "\n-help | -h\t\tHelp message\n" + 
-      "-dimension | -d\t\tDimension size of maze generated\n-num_of_paths | -np\t" +
-      "Total number of paths in maze (or non-tree edges)\n-dijkstra\t\tDijkstra's " +
+      "-dimension | -d\t\tDimension size of maze generated\n-extra_paths | -ep\t" +
+      "Total number of extra distinct paths to target.\n-dijkstra\t\tDijkstra's " +
       "Algorithm solution path traversal\n-dfs\t\t\tDepth First Search solution path traversal\n";
 
     public static final String[] FLAGS = { 
