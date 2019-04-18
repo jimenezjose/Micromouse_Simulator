@@ -1,9 +1,3 @@
-## UCSD Micromouse Team:
- * Jose Jimenez
- * Brandon Cramer
- * Chris Robles
- * Srinivas Venkatraman
-
 # Micromouse Simulator
 
 ## Maze Generation In Progress Snippet:
@@ -44,3 +38,9 @@ java MazeGUI
 ## Getting started with the [STM32](https://github.com/jimenezjose/STM32)
 
 [Documentation to get Started](https://github.com/jimenezjose/STM32)
+
+## UCSD Micromouse Team:
+ * Jose Jimenez
+ * Brandon Cramer
+ * Chris Robles
+ * Srinivas Venkatraman
