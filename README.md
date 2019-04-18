@@ -39,7 +39,7 @@ java MazeGUI
 
 [Documentation to get Started](https://github.com/jimenezjose/STM32)
 
-## UCSD Micromouse Team:
+## UCSD Micromouse Team 2019:
  * Jose Jimenez
  * Brandon Cramer
  * Chris Robles
