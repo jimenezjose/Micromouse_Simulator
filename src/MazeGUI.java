@@ -122,15 +122,11 @@ public class MazeGUI extends JFrame implements ActionListener {
     mazeButton     = new JButton( "New Maze" );
     nextButton     = new JButton( "Next" );
 
-    /* create tex field */
-    //textField = new JTextField( 10 );
-
     /* Activates button to register state change */
     clearButton.addActionListener( this );
     animateButton.addActionListener( this );
     mazeButton.addActionListener( this );
     nextButton.addActionListener( this );
-    //textField.addActionListener( this );
 
     /* add button to panels */
     northPanel.add( animateButton );
@@ -240,11 +236,9 @@ public class MazeGUI extends JFrame implements ActionListener {
 
     if( runDijkstra ) {
       drawDijkstraPath( ref_maze, leftMazePoint, startVertex, endVertex, cell_unit, DIJKSTRA_PATH_COLOR );
-      //colorPath( ref_maze.optimize(ref_maze.getDijkstraPath()), Color.GREEN, leftMazePoint, cell_unit );
     }
     if( mouse.isDone() ) {
       drawMousePath( mouse_maze, rightMazePoint, cell_unit, MOUSE_PATH_COLOR );
-      //colorPath( mouse_maze.optimize(mouse.getMousePath()), Color.GREEN, rightMazePoint, cell_unit );
       if( ref_maze.getDijkstraPath().size() == 0 ) ref_maze.dijkstra( startVertex, endVertex );
       drawSolutionMessage( g, center, leftMazePoint, maze_diameter, canvas_height );
     }

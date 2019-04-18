@@ -8,7 +8,7 @@ src/Maze.java \
 src/MazeNode.java \
 src/utility/Pair.java \
 src/utility/PQNode.java \
-src/strings/ParsingStrings.java 
+src/strings/ParsingStrings.java
 
 JAVA_TEST= \
 src/Mouse.java \
