@@ -1,7 +1,10 @@
 # Micromouse
 
-## Current Progress:
-![Alt Text](https://github.com/jimenezjose/Micromouse/blob/master/images/MazeGUI.gif)
+## Maze Generation In Progress Snippet:
+![Alt Text](https://github.com/jimenezjose/Micromouse/blob/master/images/MazeGUI_InProgress.gif)
+
+## Micromouse Simulator with Random Maze Generation on a 16 x 16 maze.
+![Alt Text](https://github.com/jimenezjose/Micromouse/blob/master/images/MazeGUI_Final.gif)
 
 ## Pointers with Git:
 
