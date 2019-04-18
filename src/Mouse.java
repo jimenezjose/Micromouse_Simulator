@@ -439,7 +439,9 @@ public class Mouse {
   }
 
   /**
-   * TODO
+   * Setter to set previouse path to be a shallow copy of list.
+   * @param list linked list of nodes that will be copied to previous path.
+   * @return Nothing.
    */
   private void setPreviousPath( LinkedList<MazeNode> list ) {
     previousPath.clear();
@@ -455,7 +457,12 @@ public class Mouse {
   }
 
   /**
-   * TODO
+   * Checks if the given path contains the starting cell and the cell the mouse
+   * is currently run
+   * @param path linked list of cells that represent the path mouse took from 
+   *             its starting point to its current cell
+   * @return true if the path contains the starting cell and the current mouse
+   *         cell at the ends of the path list.
    */
   private boolean isCompletePath( LinkedList<MazeNode> path ) {
     if( path == null || path.size() == 0 ) {
@@ -487,7 +494,8 @@ public class Mouse {
   }
 
   /**
-   * TODO
+   * Statistic that gets the total number of cells the mouse visited on the maze.
+   * @return total cells the mouse visited.
    */
   public int getTotalCellsVisited() {
     int cells_visited = 0;
@@ -496,7 +504,9 @@ public class Mouse {
   }
 
   /**
-   * TODO
+   * Statistic that measure how many times the mouse ran from a starting point 
+   * to a target, e.g 2 runs is counted when the mouse runs to the middle and back.
+   * @return number of runs the mouse took to get the optimal solution.
    */
   public int getNumberOfRuns() {
     return ( this.isDone() ) ? num_of_runs + 1: num_of_runs; 
