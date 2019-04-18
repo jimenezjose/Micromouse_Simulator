@@ -1,5 +1,12 @@
 # Micromouse Simulator
 
+## UCSD Micromouse Team:
+ * Jose Jimenez
+ * Brandon Cramer
+ * Chris Robles
+ * Srinivas Venkatraman
+
+
 ## Maze Generation In Progress Snippet:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_InProgress.gif)
 
