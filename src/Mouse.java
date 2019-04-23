@@ -8,9 +8,8 @@
  *                 University of California, San Diego
  *                      IEEE Micromouse Team 2019
  *
- * File Name:   Maze.java
- * Description: Maze data structure that will handle minimum spanning tree 
- *              and random maze generation algorithms.
+ * File Name:   Mouse.java
+ * Description: The mouse object that is emulating an ideal robotic micromouse. 
  */
 
 import java.io.*;
