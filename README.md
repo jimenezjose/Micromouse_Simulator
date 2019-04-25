@@ -3,7 +3,7 @@
 ## Maze Generation In Progress Snippet:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_InProgress.gif)
 --->
-## [Micromouse Simulator with Random Maze Generation on a 16 x 16 maze:](https://youtu.be/qkx38lglFaA)
+## [Simulator Snippet:](https://youtu.be/qkx38lglFaA)
 [![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_Final.gif)](https://youtu.be/qkx38lglFaA)
 
 ## Program Flow Diagram:
