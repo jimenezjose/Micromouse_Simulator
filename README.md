@@ -14,6 +14,7 @@
 - [Maze.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Maze.java)
 - [MazeNode.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeNode.java)
 
+<!---
 ## Pointers with Git:
 
 1) When making changes, create and switch to new branch with name relating to the change 
@@ -25,6 +26,7 @@ git checkout -b <branch_name>
 ```
 git push -u origin <branch_name>
 ```
+--->
 4) Then review the new branch, submit a pull request and compare new branch with master, and approve it if no conflicts.
 5) Then other members can git pull the changes.
  
