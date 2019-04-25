@@ -51,9 +51,11 @@ cd build
 java MazeGUI 
 ```
 
+<!---
 ## Getting started with the [STM32](https://github.com/jimenezjose/STM32)
 
 [Documentation to get Started](https://github.com/jimenezjose/STM32)
+--->
 
 ## UCSD Micromouse Team 2019:
  * Jose Jimenez
