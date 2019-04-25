@@ -26,11 +26,11 @@ git checkout -b <branch_name>
 ```
 git push -u origin <branch_name>
 ```
---->
 4) Then review the new branch, submit a pull request and compare new branch with master, and approve it if no conflicts.
 5) Then other members can git pull the changes.
  
 This way a working model will be preserved in master.
+--->
 
 ## How to Run Java Maze GUI:
     
