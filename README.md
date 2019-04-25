@@ -6,7 +6,7 @@
 ## [Micromouse Simulator with Random Maze Generation on a 16 x 16 maze:](https://youtu.be/qkx38lglFaA)
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_Final.gif)
 
-## Program Flow Diagram:
+## [Program Flow Diagram:](https://github.com/jimenezjose/Micromouse_Simulator/tree/master/src)
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/Micromouse_Simulator_Flow_Diagram.png)
 
 ## Pointers with Git:
