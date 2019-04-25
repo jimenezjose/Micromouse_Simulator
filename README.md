@@ -7,7 +7,7 @@
 [![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_Final.gif)](https://youtu.be/qkx38lglFaA)
 
 ## Program Flow Diagram:
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/Micromouse_Simulator_Flow_Diagram.png)
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/Micromouse_Simulator_Program_Flow_Diagram.png)
 
 - [MazeGUI.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeGUI.java)
 - [Mouse.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Mouse.java)
