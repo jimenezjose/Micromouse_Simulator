@@ -10,10 +10,9 @@
  *
  * File Name:   Mouse.java
  * Description: The mouse object that is emulating an ideal robotic micromouse
- * Sources of Help: 
- *                  An IEEE Research paper about quantitive comparisons 
+ * Sources of Help: An IEEE Research paper about quantitive comparisons 
  *                  between different types of flood fill algorithm 
- *                  implementations: by Dr George Law
+ *                  implementations by Dr George Law:
  *                  
  *                  http://ijcte.org/papers/738-T012.pdf
  */
