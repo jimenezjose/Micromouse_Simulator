@@ -12,8 +12,8 @@
  * Description: Maze data structure that will handle minimum spanning tree 
  *              and random maze generation algorithms
  * Sources of Help: 
- *                  A blog about maze generation algorthms from the author of
- *                  "Mazes for Programmers", Jamis Buck 
+ *                  A wonderful blog about maze generation algorithms from
+ *                  Jamis Buck 
  *
  *                  http://weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap
  */
