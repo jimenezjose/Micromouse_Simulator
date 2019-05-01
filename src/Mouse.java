@@ -9,7 +9,13 @@
  *                      IEEE Micromouse Team 2019
  *
  * File Name:   Mouse.java
- * Description: The mouse object that is emulating an ideal robotic micromouse. 
+ * Description: The mouse object that is emulating an ideal robotic micromouse
+ * Sources of Help: 
+ *                  An IEEE Research paper about quantitive comparisons 
+ *                  between different types of flood fill algorithm 
+ *                  implementations: by Dr George Law
+ *                  
+ *                  http://ijcte.org/papers/738-T012.pdf
  */
 
 import java.io.*;

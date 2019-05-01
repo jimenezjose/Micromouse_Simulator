@@ -10,7 +10,12 @@
  *
  * File Name:   Maze.java
  * Description: Maze data structure that will handle minimum spanning tree 
- *              and random maze generation algorithms.
+ *              and random maze generation algorithms
+ * Sources of Help: 
+ *                  A wonderful blog about maze generation algorithms from
+ *                  Jamis Buck 
+ *
+ *                  http://weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap
  */
 
 import java.util.LinkedList;
