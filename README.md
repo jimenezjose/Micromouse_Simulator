@@ -57,6 +57,9 @@ java MazeGUI
 [Documentation to get Started](https://github.com/jimenezjose/STM32)
 --->
 
+## Autonomous Maze Solving Robot Comming Soon
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/Micromouse_Simulator_Program_Flow_Diagram_.png)
+
 ## UCSD Micromouse Team 2019:
  * Jose Jimenez
  * Brandon Cramer
