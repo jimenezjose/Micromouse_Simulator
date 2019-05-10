@@ -6,6 +6,9 @@
 ## [Simulator Snippet on a 16x16 Random Generated Maze:](https://youtu.be/qkx38lglFaA)
 [![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_Final.gif)](https://youtu.be/qkx38lglFaA)
 
+## Maze Graph Abstraction
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/maze-graph.png)
+
 ## Program Flow Diagram:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/Micromouse_Simulator_Program_Flow_Diagram_.png)
 
