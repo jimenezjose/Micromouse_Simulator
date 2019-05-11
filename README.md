@@ -6,17 +6,6 @@
 ## [Simulator Snippet on a 16x16 Random Generated Maze:](https://youtu.be/qkx38lglFaA)
 [![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_Final.gif)](https://youtu.be/qkx38lglFaA)
 
-## Maze Graph Abstraction:
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/maze-graph.png)
-
-## Program Flow Diagram:
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/Micromouse_Simulator_Program_Flow_Diagram_.png)
-
-- [MazeGUI.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeGUI.java)
-- [Mouse.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Mouse.java)
-- [Maze.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Maze.java)
-- [MazeNode.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeNode.java)
-
 <!---
 ## Pointers with Git:
 
@@ -59,6 +48,16 @@ java MazeGUI
 
 [Documentation to get Started](https://github.com/jimenezjose/STM32)
 --->
+## Program Flow Diagram:
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/Micromouse_Simulator_Program_Flow_Diagram_.png)
+
+- [MazeGUI.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeGUI.java)
+- [Mouse.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Mouse.java)
+- [Maze.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Maze.java)
+- [MazeNode.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeNode.java)
+
+## Maze Graph Abstraction:
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/maze-graph.png)
 
 ## Autonomous Maze Solving Robot Comming Soon
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/AllLayersVisible.PNG)
