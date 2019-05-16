@@ -55,8 +55,8 @@ public class MazeGUI extends JFrame implements ActionListener {
   private Timer timer;
   private JPanel northPanel;
   private JPanel southPanel;
+  private JPanel renderPanel;
 
-  private JTextField textField;
   private JButton animateButton;
   private JButton clearButton;
   private JButton mazeButton;
@@ -110,6 +110,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 
     northPanel = new JPanel();
     southPanel = new JPanel();
+    renderPanel = new RenderPanel();
 
     /* set layout for button panels */
     northPanel.setLayout( new BoxLayout(northPanel, BoxLayout.LINE_AXIS) );
@@ -118,7 +119,7 @@ public class MazeGUI extends JFrame implements ActionListener {
 
     /* sets names of new buttons */
     animateButton  = new JButton( "Animate" );
-    clearButton = new JButton( "Clear" );
+    clearButton    = new JButton( "Clear" );
     mazeButton     = new JButton( "New Maze" );
     nextButton     = new JButton( "Next" );
 
