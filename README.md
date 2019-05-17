@@ -3,8 +3,8 @@
 ## Maze Generation In Progress Snippet:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_InProgress.gif)
 --->
-## [Simulator Snippet on a 16x16 Random Generated Maze:](https://youtu.be/qkx38lglFaA)
-[![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_Final.gif)](https://youtu.be/qkx38lglFaA)
+## [Simulator Snippet on a 16x16 Random Generated Maze:](https://youtu.be/-W2w2-MaSOE)
+[![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_Final.gif)](https://youtu.be/-W2w2-MaSOE)
 
 <!---
 ## Pointers with Git:
