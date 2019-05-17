@@ -13,13 +13,15 @@
  * Sources of Help: An IEEE Research paper about quantitive comparisons 
  *                  between different types of flood fill algorithm 
  *                  implementations by Dr George Law:
+ *                  
  *                  http://ijcte.org/papers/738-T012.pdf
  */
 
-import java.io.PrintStream;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.Color;
+import java.io.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
+import javax.swing.*;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Stack;
@@ -30,6 +32,7 @@ import java.util.Queue;
  * Micromouse class to emulate autonomous robot behavior.
  */
 public class Mouse {
+
   private final double PROPORTION = 0.3;
   private final int EVEN = 2;
   private final int TOTAL_RUNS = 2;
@@ -39,6 +42,7 @@ public class Mouse {
   private int column;
   private int row;
 
+  private final JFrame canvas;
   private MouseShape mouse;
   private Maze ref_maze;
   private Maze maze;
@@ -56,17 +60,19 @@ public class Mouse {
   private boolean done = false;
  
   /**
-   * Creates mouse object on GUI.
+   * Creates mouse object on canvas
    * @param row starting row position of mouse.
    * @param column starting column position of mouse.
    * @param ref_maze radom maze.
    * @param maze empty maze.
+   * @param canvas JFrame that the mouse will exist in.
    */
-  public Mouse( int row, int column, Maze ref_maze, Maze maze ) {
+  public Mouse( int row, int column, Maze ref_maze, Maze maze, JFrame canvas ) {
     this.row = this.y = row;
     this.column = this.x = column;
     this.ref_maze = ref_maze;
     this.maze = maze;
+    this.canvas = canvas;
     this.mouse = new MouseShape();
     this.origin = new Point( x, y );
     this.start_position = new Point( x, y );
@@ -393,8 +399,8 @@ public class Mouse {
    * @param color color of mouse to be drawn 
    * @return Nothing.
    */
-  public void draw( Graphics g, Color color ) {
-    mouse.draw( g, color );
+  public void draw( Color color ) {
+    mouse.draw( color );
   }
 
   /**
@@ -478,6 +484,7 @@ public class Mouse {
       /* path contains both end points */
       return true;
     }
+
     return false;
   }
 
@@ -603,11 +610,12 @@ public class Mouse {
     }
 
     /**
-     * Draws the mouse shape on GUI.
+     * Draws the mouse shape on canvas.
      * @param color Color of mouse shape.
      * @return Nothing.
      */
-    public void draw( Graphics g, Color color ) {
+    public void draw( Color color ) {
+      Graphics g = canvas.getGraphics();
       g.setColor( color );
       g.fillRect( location.x, location.y, dimension.width, dimension.height );
     }

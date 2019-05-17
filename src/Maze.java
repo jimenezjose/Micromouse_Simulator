@@ -13,7 +13,6 @@
  *              and random maze generation algorithms
  * Source of Help: A wonderful blog about maze generation algorithms from
  *                 Jamis Buck:
- *
  *                 weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap
  */
 
@@ -326,7 +325,6 @@ class Maze implements Iterable<MazeNode> {
     }
 
     /* create multiple paths to solution */
-    //int numOfPaths = ( MAX_CYCLES == 0 ) ? 0 : rand.nextInt( MAX_CYCLES ) + 1;
     int numOfPaths = non_tree_edges;
     for( int index = 0; extraWalls.size() != 0 && index < numOfPaths; index++ ) {
       randomIndex = rand.nextInt( extraWalls.size() );
@@ -606,6 +604,40 @@ class Maze implements Iterable<MazeNode> {
    */
   public int getTotalNonTreeEdges() {
     return non_tree_edges;
+  }
+
+  /**
+   * Starting position for maze.
+   * @return the starting position for solving the maze.
+   */
+  public MazeNode getBegin() {
+    return at( dimension - 1, 0 );
+  }
+
+  /**
+   * Destination/target position to solve maze.
+   * @return the target position to solve the maze. 
+   */
+  public MazeNode getEnd() {
+    MazeNode end = at( getDimension() / EVEN, getDimension() / EVEN );
+    if( getDimension() % EVEN == 0 ) {
+      /* quad-cell solution set. find initial entrance node */
+      int lowerBound = getDimension() / EVEN - 1;
+      for( int delta = 0; delta < EVEN; delta++ ) {
+        /* find target node with 3 children in quad-cell solution */
+        MazeNode topNode = at( lowerBound, lowerBound + delta );
+        MazeNode lowerNode = at( lowerBound + 1, lowerBound + delta );
+        if( topNode.getNeighborList().size() > EVEN ) {
+          end = topNode;
+          break;
+        }
+        if( lowerNode.getNeighborList().size() > EVEN ) {
+          end = lowerNode;
+          break;
+        }
+      }
+    }
+    return end;
   }
 
   /**

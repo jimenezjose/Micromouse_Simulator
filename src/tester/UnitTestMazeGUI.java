@@ -19,7 +19,7 @@ import java.util.PriorityQueue;
 /**
  * Unit testing for the maze GUI.
  */
-class TestMazeGUI {
+class UnitTestMazeGUI {
 
 
   public void testPQNode() {
@@ -48,7 +48,7 @@ class TestMazeGUI {
   }
 
   public static void main( String[] args ) {
-    TestMazeGUI maze = new TestMazeGUI();
+    UnitTestMazeGUI maze = new UnitTestMazeGUI();
     maze.testPQNode();
   }
 
