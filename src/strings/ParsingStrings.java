@@ -18,18 +18,18 @@
  */
 public class ParsingStrings {
 
-    public static final String USAGE = "Usage: java MazeGUI [-help] [-dimension number ] [-num_of_paths number] [-dijkstra] [-dfs]";
+    public static final String USAGE = "Usage: java MazeGUI [-help] [-dimension <number>] [-non_tree_edges <number>] [-dijkstra] [-dfs]";
     public static final String HELP_FLAG_1 = "-h";
     public static final String HELP_FLAG_2 = "-help";
     public static final String DIM_FLAG_1 = "-d";
     public static final String DIM_FLAG_2 = "-dimension";
-    public static final String NUM_PATHS_FLAG_1 = "-extra_paths";
-    public static final String NUM_PATHS_FLAG_2 = "-ep";
+    public static final String NUM_PATHS_FLAG_1 = "-non_tree_edges";
+    public static final String NUM_PATHS_FLAG_2 = "-nte";
     public static final String DIJKSTRA_FLAG = "-dijkstra";
     public static final String DFS_FLAG = "-dfs";
     public static final String HELP_MSG = "\n-help | -h\t\tHelp message\n" + 
-      "-dimension | -d\t\tDimension size of maze generated\n-extra_paths | -ep\t" +
-      "Total number of extra distinct paths to target.\n-dijkstra\t\tDijkstra's " +
+      "-dimension | -d\t\tDimension size of maze generated\n-non_tree_edges | -nte\t" +
+      "Total number of non-tree edges in maze.\n-dijkstra\t\tDijkstra's " +
       "Algorithm solution path traversal\n-dfs\t\t\tDepth First Search solution path traversal\n";
 
     public static final String[] FLAGS = { 
