@@ -222,63 +222,13 @@ public class MazeGUI implements ActionListener {
     }
  
     /**
-     * Double buffered image screen that is outputed to the GUI.
+     * Double buffered image screen paint on GUI.
      * @return Nothing.
      */
     @Override
     protected void paintComponent( Graphics g ) {
       super.paintComponent( g );
       render( g );
-    }
-
-    /**
-     * Draws a maze on the GUI.
-     * @param g Graphics environment variable.
-     * @param mazePoint desired top left point of maze being drawn.
-     * @param side length of a square side in pixels of the desired drawn maze.
-     * @param maze maze data structure that will be drawn on GUI.
-     * @param drawFloodFillValues flag to draw flood fill values of maze.
-     * @return Nothing.
-     */
-    private void drawMaze( Graphics g, Point mazePoint, int side, Maze maze, boolean drawFloodFillValues ) {
-      double cell_unit = (1.0 / maze.getDimension()) * side;
-      /* Maze Background */
-      g.setColor( MAZE_BACKGROUND_COLOR );
-      g.fillRect( mazePoint.x, mazePoint.y, side, side );
-      g.setColor( MAZE_BORDER_COLOR );
-      g.drawRect( mazePoint.x, mazePoint.y, side, side );
-
-      /* Maze Foreground - Maze Generation graphics */
-      int wall_width  = 2;
-      int wall_height = (int) cell_unit;
-      Rectangle vertical_wall   = new Rectangle( 0, 0, wall_width, wall_height );
-      Rectangle horizontal_wall = new Rectangle( 0, 0, wall_height, wall_width );
-      drawGridLines( g, maze, mazePoint, vertical_wall, horizontal_wall, cell_unit );
-
-      if( drawFloodFillValues ) {
-        /* draws flood fill values for every cell in maze */
-        drawFloodFillCellValues( g, maze, mazePoint, cell_unit );
-      }
-    }
-
-    /**
-     * Draws an image to the GUI.
-     * @param g Graphics environment variable.
-     * @param image desired image to be drawn on GUI.
-     * @param x top left x-coordinate for desired x-location of image on GUI.
-     * @param y top left y-coordinate for desired y-location of image on GUI.
-     * @param width width of image to be drawn.
-     * @param height height of image to be drawn.
-     * @return Nothing.
-     */
-    private void drawImage( Graphics g, Image image, int x, int y, int width, int height ) {
-      if( image == null ) return;
-      Image scaled_screen = image.getScaledInstance( width, height, Image.SCALE_SMOOTH );
-      BufferedImage scaled_image = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
-      Graphics2D g2d = scaled_image.createGraphics();
-      g2d.drawImage( scaled_screen, 0, 0, null );
-      g2d.dispose();
-      g.drawImage( scaled_image, x, y, null );
     }
 
     /**
@@ -334,6 +284,56 @@ public class MazeGUI implements ActionListener {
       }
     }
 
+    /**
+     * Draws a maze on the GUI.
+     * @param g Graphics environment variable.
+     * @param mazePoint desired top left point of maze being drawn.
+     * @param side length of a square side in pixels of the desired drawn maze.
+     * @param maze maze data structure that will be drawn on GUI.
+     * @param drawFloodFillValues flag to draw flood fill values of maze.
+     * @return Nothing.
+     */
+    private void drawMaze( Graphics g, Point mazePoint, int side, Maze maze, boolean drawFloodFillValues ) {
+      double cell_unit = (1.0 / maze.getDimension()) * side;
+      /* Maze Background */
+      g.setColor( MAZE_BACKGROUND_COLOR );
+      g.fillRect( mazePoint.x, mazePoint.y, side, side );
+      g.setColor( MAZE_BORDER_COLOR );
+      g.drawRect( mazePoint.x, mazePoint.y, side, side );
+
+      /* Maze Foreground - Maze Generation graphics */
+      int wall_width  = 2;
+      int wall_height = (int) cell_unit;
+      Rectangle vertical_wall   = new Rectangle( 0, 0, wall_width, wall_height );
+      Rectangle horizontal_wall = new Rectangle( 0, 0, wall_height, wall_width );
+      drawGridLines( g, maze, mazePoint, vertical_wall, horizontal_wall, cell_unit );
+
+      if( drawFloodFillValues ) {
+        /* draws flood fill values for every cell in maze */
+        drawFloodFillCellValues( g, maze, mazePoint, cell_unit );
+      }
+    }
+
+    /**
+     * Draws an image to the GUI.
+     * @param g Graphics environment variable.
+     * @param image desired image to be drawn on GUI.
+     * @param x top left x-coordinate for desired x-location of image on GUI.
+     * @param y top left y-coordinate for desired y-location of image on GUI.
+     * @param width width of image to be drawn.
+     * @param height height of image to be drawn.
+     * @return Nothing.
+     */
+    private void drawImage( Graphics g, Image image, int x, int y, int width, int height ) {
+      if( image == null ) return;
+      Image scaled_screen = image.getScaledInstance( width, height, Image.SCALE_SMOOTH );
+      BufferedImage scaled_image = new BufferedImage( width, height, BufferedImage.TYPE_INT_ARGB );
+      Graphics2D g2d = scaled_image.createGraphics();
+      g2d.drawImage( scaled_screen, 0, 0, null );
+      g2d.dispose();
+      g.drawImage( scaled_image, x, y, null );
+    }
+  
     /**
      * Draw Dijkstra's path on maze.
      * @param g Graphics environment variable.
