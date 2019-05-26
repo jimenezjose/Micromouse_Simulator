@@ -31,7 +31,6 @@ This way a working model will be preserved in master.
 3.  Open your Terminal and enter:
 ```
 cd ~/Desktop/Micromouse-master
-ls
 ```
 4. Compile the Java GUI (Graphical User Interface):
 ```
