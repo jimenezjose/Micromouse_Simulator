@@ -16,6 +16,7 @@
  *                 weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap
  */
 
+import java.io.*;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.Random;
@@ -639,6 +640,50 @@ class Maze implements Iterable<MazeNode> {
     }
     return end;
   }
+
+
+  /**
+   * Binary representation of Maze used for encoding.
+   * @return Nothing.
+   */
+   @Override
+  public String toString() {
+    String maze_str = "";
+
+    for( int row = 0; row < getDimension(); row++ ) {
+      for( int column = 0; column < getDimension(); column++ ) {
+        MazeNode currentNode = at(row, column);
+	maze_str += ( currentNode.up == null ) ? "0" : "1";
+	maze_str += ( currentNode.right == null ) ? "0" : "1";
+	maze_str += ( currentNode.down == null ) ? "0" : "1";
+	maze_str += ( currentNode.left == null ) ? "0" : "1";
+	maze_str += "\n";
+      }
+    }
+    return maze_str;
+  }
+
+  /**
+   * Encodes a binary representation of the maze to a file.
+   * @return Nothing.
+   */
+  public void encodeToDisk( String filename ) throws IOException {
+    FileOutputStream out = null;
+
+    try {
+      out = new FileOutputStream( filename );
+      String encoded_str = toString();
+      for( int index = 0; index < encoded_str.length(); index++ ) {
+        out.write(encoded_str.charAt(index));
+      }
+    }
+    finally {
+      if( out != null ) {
+        out.close();
+      }
+    }
+  }
+
 
   /**
    * Iterator for the the Maze data structure.
