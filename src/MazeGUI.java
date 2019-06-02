@@ -92,6 +92,13 @@ public class MazeGUI implements ActionListener {
     runDijkstra = dijkstra;
     runDFS = dfs;
     begin();
+
+    try {
+      ref_maze.encodeToDisk("../encodedMaze.txt");
+    }
+    catch( IOException e ) {
+      e.printStackTrace(); 
+    }
   }
 
   /**
@@ -188,6 +195,12 @@ public class MazeGUI implements ActionListener {
       mouse.restart();
       outputStats = true;
       renderPanel.repaint();
+      try {
+        ref_maze.encodeToDisk("../encodedMaze.txt");
+      }
+      catch( IOException e ) {
+        e.printStackTrace(); 
+      }
     }
     else if( evt.getSource() == nextButton || evt.getSource() == timer ) {
       /* animation timer */
