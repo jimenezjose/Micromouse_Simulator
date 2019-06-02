@@ -643,13 +643,13 @@ class Maze implements Iterable<MazeNode> {
 
 
   /**
-   * Binary representation of Maze used for encoding.
-   * @return Nothing.
+   * Binary string representation of Maze with decimal dimensions.
+   * @return String of encoded maze.
    */
-   @Override
-  public String toString() {
+  public String encode() {
     String maze_str = "";
-
+    maze_str += getDimension() + "\n";
+    maze_str += getDimension() + "\n";
     for( int row = 0; row < getDimension(); row++ ) {
       for( int column = 0; column < getDimension(); column++ ) {
         MazeNode currentNode = at(row, column);
@@ -672,7 +672,7 @@ class Maze implements Iterable<MazeNode> {
 
     try {
       out = new FileOutputStream( filename );
-      String encoded_str = toString();
+      String encoded_str = encode();
       for( int index = 0; index < encoded_str.length(); index++ ) {
         out.write(encoded_str.charAt(index));
       }
