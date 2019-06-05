@@ -60,6 +60,7 @@ java MazeGUI
 
 ## Autonomous Maze Solving Robot Comming Soon
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/AllLayersVisible.PNG)
+![Alt Teaxt](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/Micromouse_Hardware.jpg)
 
 ## UCSD Micromouse Team 2019:
  * Jose Jimenez
