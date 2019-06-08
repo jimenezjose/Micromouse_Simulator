@@ -55,7 +55,7 @@ java MazeGUI
 - [Maze.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Maze.java)
 - [MazeNode.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeNode.java)
 
-## Maze Graph Abstraction:
+## Maze Graph Visualization:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/maze-graph.png)
 
 ## Autonomous Maze Solving Robot Comming Soon
