@@ -26,17 +26,21 @@ This way a working model will be preserved in master.
 
 ## How to Run Java Maze GUI:
 1. Clone the repository to your current directory:
-```git clone https://github.com/jimenezjose/Micromouse_Simulator.git```
+```
+$ git clone https://github.com/jimenezjose/Micromouse_Simulator.git
+```
 2. Change current directory to 'Micromouse_Simulator':
-```cd Micromouse-Simulator```
+```
+$ cd Micromouse-Simulator
+```
 4. Compile the Java GUI (Graphical User Interface):
 ```
-make
+$ make
 ```
 5. Run the Java executable: 
 ```
-cd build
-java MazeGUI 
+$ cd build
+$ java MazeGUI 
 ```
 
 <!---
