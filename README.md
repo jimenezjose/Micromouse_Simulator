@@ -33,9 +33,6 @@ $ cd build
 $ java MazeGUI 
 ```
 
-### Known error:
-If an error is thrown in the `make` command in step 4, execute `mkdir build` then continue from step 4 again.
-
 <!---
 ## Getting started with the [STM32](https://github.com/jimenezjose/STM32)
 
