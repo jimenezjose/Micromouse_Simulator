@@ -28,17 +28,8 @@ This way a working model will be preserved in master.
 1. Clone the repository to your current directory:
 ```
 $ git clone https://github.com/jimenezjose/Micromouse_Simulator.git
-```
-2. Change current directory to 'Micromouse_Simulator':
-```
-$ cd Micromouse-Simulator
-```
-4. Compile the Java GUI (Graphical User Interface):
-```
+$ cd Micromouse_Simulator
 $ make
-```
-5. Run the Java executable: 
-```
 $ cd build
 $ java MazeGUI 
 ```
