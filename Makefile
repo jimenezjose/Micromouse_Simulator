@@ -21,10 +21,12 @@ src/strings/ParsingStrings.java
 
 
 all:
+	mkdir -p $(BUILD_DIR)
 	javac -Xlint:unchecked -g $(JAVA_SOURCES) -d $(BUILD_DIR)
 
-test: clean
-	javac -Xlint:unchecked -g $(JAVA_TEST) -d $(TEST_DIR)
+#test: clean
+#	mkdir -p $(TEST_DIR)
+#	javac -Xlint:unchecked -g $(JAVA_TEST) -d $(TEST_DIR)
 
 clean:
 	rm -rf $(BUILD_DIR)
