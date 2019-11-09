@@ -53,6 +53,13 @@ $ java MazeGUI
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/AllLayersVisible.PNG)
 ![Alt Teaxt](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/Micromouse_Hardware.jpg)
 
+## UCSD Micromouse Team 2020:
+  * Jose Jimenez
+  * Brandon Cramer
+  * Minh Pham
+  * Tony Guan
+  * Victor Chen
+
 ## UCSD Micromouse Team 2019:
  * Jose Jimenez
  * Brandon Cramer
