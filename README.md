@@ -54,8 +54,8 @@ $ java MazeGUI
 ![Alt Teaxt](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/Micromouse_Hardware.jpg)
 
 ## UCSD Micromouse Team 2020:
-  * Jose Jimenez
-  * Brandon Cramer
+  * Jose Jimenez (Software Design Lead)
+  * Brandon Cramer (Hardware Design Lead)
   * Minh Pham
   * Tony Guan
   * Victor Chen
