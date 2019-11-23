@@ -1,4 +1,6 @@
 # Micromouse Simulator
+
+# NOTE: The mouse animation is currently not working because we are running some tests.
 <!---
 ## Maze Generation In Progress Snippet:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_InProgress.gif)
