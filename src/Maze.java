@@ -2,11 +2,12 @@
  *
  * Jose Jimenez
  * Brandon Cramer
- * Chris Robles
- * Srinivas Venkatraman
+ * Minh Pham
+ * Tony Guan
+ * Victor Chen
  *
  *                 University of California, San Diego
- *                      IEEE Micromouse Team 2019
+ *                      IEEE Micromouse Team 2020
  *
  * File Name:   Maze.java
  * Description: Maze data structure that will handle minimum spanning tree 

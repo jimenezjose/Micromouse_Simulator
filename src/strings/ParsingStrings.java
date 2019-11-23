@@ -2,11 +2,12 @@
  *
  * Jose Jimenez
  * Brandon Cramer
- * Chris Robles
- * Srinivas Venkatraman
+ * Minh Pham
+ * Tony Guan
+ * Victor Chen
  *
  *                 University of California, San Diego
- *                      IEEE Micromouse Team 2019
+ *                      IEEE Micromouse Team 2020
  *
  * File Name:   ParsingStrings.java
  * Description: Contains a list of public strings for user notifications during
