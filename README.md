@@ -1,6 +1,6 @@
 # Micromouse Simulator
 
-### NOTE: The mouse animation is currently not working because we are running assessments tests on our path finding algorithm.
+### NOTE: The mouse animation is currently not working because we are running assessments tests on our path finding algorithm. 
 <!---
 ## Maze Generation In Progress Snippet:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/images/MazeGUI_InProgress.gif)
