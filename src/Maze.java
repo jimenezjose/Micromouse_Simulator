@@ -190,7 +190,7 @@ class Maze implements Iterable<MazeNode> {
     LinkedList<MazeNode> bestPath = new LinkedList<MazeNode>();
     MazeNode startVertex = path.peekFirst();
     MazeNode endVertex = path.peekLast();
-
+ 
     bestPath.addLast( startVertex );
 
     while( path.size() > 1 ) {
@@ -204,6 +204,29 @@ class Maze implements Iterable<MazeNode> {
 
     bestPath.addLast( endVertex );
     return bestPath;
+  }
+
+   
+
+  /**
+   * Creates a new random maze and saves maze to datafile.
+   * @param non_tree_edges Number of non tree cycles present in MST. 
+   * @param datafile Encoded maze data file.
+   * @return Nothing.
+   */
+  public void createRandomMaze( int non_tree_edges, File datafile ) {
+    createRandomMaze( non_tree_edges );
+    saveMaze( datafile );
+  }
+ 
+  /**
+   * Creates random maze and saves maze to datafile.
+   * @param datafile Encoded maze data file.
+   * @return Nothing.
+   */
+  public void createRandomMaze( File datafile ) {
+    createRandomMaze();
+    saveMaze( datafile );
   }
 
   /**
@@ -642,12 +665,103 @@ class Maze implements Iterable<MazeNode> {
     return end;
   }
 
+  /**
+   * Loads the saved maze.
+   * @param datafile Encoded maze data file.
+   * @return True if load is successful, false otherwise.
+   */
+  public boolean loadMaze(File datafile) {
+    if( datafile.exists() && !datafile.isDirectory() ) {
+      return deserialize( datafile );
+    }
+
+    return false;
+  }
+
+  /**
+   * Deserialize encoded maze data file.
+   * @param datafile Encoded maze data file.
+   * @return True for successful deserialization, false otherwise.
+   */
+  public boolean deserialize( File datafile ) {
+    BufferedReader br = null;
+    
+    try {
+      br = new BufferedReader( new FileReader(datafile) );
+      String line;
+      int read_width = ( (line = br.readLine()) != null ) ? Integer.parseInt(line): -1;
+      int read_height = ( (line = br.readLine()) != null ) ? Integer.parseInt(line): -1;
+
+      if( read_width != dimension || read_height != dimension ) {
+        /* width and height is not the same dimension as this maze object */
+	System.err.println("Incompatible dimensions read from file: aborting maze build");
+	return false;
+      }
+
+      clearWalls();
+      for( int row = 0; row < dimension; row++ ) {
+        for( int column = 0; column < dimension; column++ ) {
+	  /* build maze graph cell by cell */
+	  MazeNode currentNode = at(row, column);
+          line = br.readLine();
+	  if( line == null || deserializeNode(currentNode, line) == false ) {
+	    System.err.println("reading from curropted file: aborting maze build");
+            return false;
+	  }
+	}
+      }
+    }
+    catch( IOException e ) {
+      e.printStackTrace();
+    }
+    finally {
+      try {
+        if( br != null ) {
+          br.close();
+        }
+      }
+      catch( IOException e ) {
+        e.printStackTrace();
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Deserializes and builds node topology from a nibble of data.
+   * @param node Node to be loaded with data.
+   * @param nibble Nibble of data that represent node neighbors.
+   * @return True for a successful deserialization, false otherwise.
+   */
+  private boolean deserializeNode( MazeNode node, String nibble ) {
+    final int up_index = 0;
+    final int right_index = 1;
+    final int down_index = 2;
+    final int left_index = 3;
+
+    if( node == null || nibble.length() != MazeNode.MAX_NEIGHBORS ) {
+      return false;
+    }
+
+    if( nibble.charAt( right_index ) == '0' && node.column != dimension - 1 ) {
+      /* add right wall */
+      addWall( at(node.row, node.column), at(node.row, node.column + 1) ); 
+    }
+
+    if( nibble.charAt( down_index ) == '0' && node.row != dimension - 1 ) {
+      /* add down wall */
+      addWall( at(node.row, node.column), at(node.row + 1, node.column) );
+    }
+
+    return true;
+  }
 
   /**
    * Binary string representation of Maze with decimal dimensions.
    * @return String of encoded maze.
    */
-  public String encode() {
+  public String serialize() {
     String maze_str = "";
     maze_str += getDimension() + "\n";
     maze_str += getDimension() + "\n";
@@ -668,19 +782,27 @@ class Maze implements Iterable<MazeNode> {
    * Encodes a binary representation of the maze to a file.
    * @return Nothing.
    */
-  public void encodeToDisk( String filename ) throws IOException {
+  public void saveMaze( File datafile ) {
     FileOutputStream out = null;
 
     try {
-      out = new FileOutputStream( filename );
-      String encoded_str = encode();
+      out = new FileOutputStream( datafile );
+      String encoded_str = serialize();
       for( int index = 0; index < encoded_str.length(); index++ ) {
         out.write(encoded_str.charAt(index));
       }
     }
+    catch( IOException e ) {
+      e.printStackTrace();
+    }
     finally {
-      if( out != null ) {
-        out.close();
+      try {
+        if( out != null ) {
+          out.close();
+        }
+      }
+      catch( IOException e ) {
+        e.printStackTrace();
       }
     }
   }

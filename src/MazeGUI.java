@@ -43,6 +43,7 @@ import java.awt.Image;
  */
 public class MazeGUI implements ActionListener {
   public static final double MAZE_PROPORTION = 0.49;
+  private static final File DATAFILE = new File("../encodedMaze.txt");
   private static final int DELAY = 250;
   private static final int EVEN = 2;
 
@@ -88,18 +89,14 @@ public class MazeGUI implements ActionListener {
     if( dimension < 1 ) dimension = 1;
     ref_maze   = new Maze( dimension );
     mouse_maze = new Maze( dimension );
-    ref_maze.createRandomMaze( non_tree_edges );
+    if( ref_maze.loadMaze(DATAFILE) == false ) {
+      /* load datafile - otherwise create new random maze if that didn't work */
+      ref_maze.createRandomMaze( non_tree_edges, DATAFILE );
+    }
     mouse = new Mouse( dimension - 1, 0, ref_maze, mouse_maze );
     runDijkstra = dijkstra;
     runDFS = dfs;
     begin();
-
-    try {
-      ref_maze.encodeToDisk("../encodedMaze.txt");
-    }
-    catch( IOException e ) {
-      e.printStackTrace(); 
-    }
   }
 
   /**
@@ -192,16 +189,10 @@ public class MazeGUI implements ActionListener {
       if( timer.isRunning() == true ) timer.stop();
       nextButton.setEnabled( true );
       ref_maze.clear();
-      ref_maze.createRandomMaze();
+      ref_maze.createRandomMaze( DATAFILE );
       mouse.restart();
       outputStats = true;
       renderPanel.repaint();
-      try {
-        ref_maze.encodeToDisk("../encodedMaze.txt");
-      }
-      catch( IOException e ) {
-        e.printStackTrace(); 
-      }
     }
     else if( evt.getSource() == nextButton || evt.getSource() == timer ) {
       /* animation timer */
