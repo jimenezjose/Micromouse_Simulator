@@ -23,6 +23,7 @@ import java.util.LinkedList;
 class MazeNode {
   private final String ADD_EDGE_ERROR = "Error: attempt to add edge to a pair on non-adjacent nodes. ";
   private final String REMOVE_EDGE_ERROR = "Error: attempt to remove edge to a non-adjacent node. ";
+  public static final int MAX_NEIGHBORS = 4;
 
   /* begin - maze generation data */
   public MazeNode parent = null;
