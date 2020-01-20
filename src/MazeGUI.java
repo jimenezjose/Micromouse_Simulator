@@ -43,7 +43,7 @@ import java.awt.Image;
  */
 public class MazeGUI implements ActionListener {
   public static final double MAZE_PROPORTION = 0.49;
-  private static final File DATAFILE = new File("../encodedMaze.txt");
+  private static final File DATAFILE = new File("../datafile");
   private static final int DELAY = 250;
   private static final int EVEN = 2;
 
