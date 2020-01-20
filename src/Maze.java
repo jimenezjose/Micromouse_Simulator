@@ -18,6 +18,7 @@
  */
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.Random;
@@ -122,8 +123,6 @@ class Maze implements Iterable<MazeNode> {
       currentNode = pathStack.pop();
       dijkstraPath.addLast( currentNode );
     }
-
-    System.err.println( "Dijkstra's Algorithm, Done." );
   }
 
   /**
@@ -146,7 +145,6 @@ class Maze implements Iterable<MazeNode> {
 
     dfsPath.clear();
     dfsHelper( startVertex, endVertex );
-    System.err.println( "DFS Algorithm, Done." );
   }
 
   /**
@@ -248,6 +246,8 @@ class Maze implements Iterable<MazeNode> {
     ArrayList<Pair<MazeNode, MazeNode>> walls = new ArrayList<Pair<MazeNode, MazeNode>>( getDimension() * getDimension() );
     Random rand = new Random();
 
+    System.err.println( "Generating Random Maze..." );
+
     if( getDimension() < MIN_DIM ) {
       /* invalid dimension for random maze generation */
       System.err.println( "Invalid Dimension for Maze Generation. Valid dimension >= 3." );
@@ -295,7 +295,6 @@ class Maze implements Iterable<MazeNode> {
       }
     }
 
-    System.err.println( "Total Walls: " + walls.size() );
     long prevMillis = System.currentTimeMillis();
 
     /* create entry point for target */
@@ -366,9 +365,7 @@ class Maze implements Iterable<MazeNode> {
     }
 
     extraWalls.clear();
-    System.err.println( "Number of walls taken down: " + count);
     System.err.println( "Number of non-tree edges: " + numOfPaths );
-
     System.err.println( "Time taken for Maze Generation: " + (System.currentTimeMillis() - prevMillis) / 1000.0 + " sec" );
   }
 
@@ -666,131 +663,18 @@ class Maze implements Iterable<MazeNode> {
   }
 
   /**
-   * Loads the saved maze.
-   * @param datafile Encoded maze data file.
-   * @return True if load is successful, false otherwise.
-   */
-  public boolean loadMaze(File datafile) {
-    if( datafile.exists() && !datafile.isDirectory() ) {
-      return deserialize( datafile );
-    }
-
-    return false;
-  }
-
-  /**
-   * Deserialize encoded maze data file.
-   * @param datafile Encoded maze data file.
-   * @return True for successful deserialization, false otherwise.
-   */
-  public boolean deserialize( File datafile ) {
-    BufferedReader br = null;
-    
-    try {
-      br = new BufferedReader( new FileReader(datafile) );
-      String line;
-      int read_width = ( (line = br.readLine()) != null ) ? Integer.parseInt(line): -1;
-      int read_height = ( (line = br.readLine()) != null ) ? Integer.parseInt(line): -1;
-
-      if( read_width != dimension || read_height != dimension ) {
-        /* width and height is not the same dimension as this maze object */
-	System.err.println("Incompatible dimensions read from file: aborting maze build");
-	return false;
-      }
-
-      clearWalls();
-      for( int row = 0; row < dimension; row++ ) {
-        for( int column = 0; column < dimension; column++ ) {
-	  /* build maze graph cell by cell */
-	  MazeNode currentNode = at(row, column);
-          line = br.readLine();
-	  if( line == null || deserializeNode(currentNode, line) == false ) {
-	    System.err.println("reading from curropted file: aborting maze build");
-            return false;
-	  }
-	}
-      }
-    }
-    catch( IOException e ) {
-      e.printStackTrace();
-    }
-    finally {
-      try {
-        if( br != null ) {
-          br.close();
-        }
-      }
-      catch( IOException e ) {
-        e.printStackTrace();
-      }
-    }
-
-    return true;
-  }
-
-  /**
-   * Deserializes and builds node topology from a nibble of data.
-   * @param node Node to be loaded with data.
-   * @param nibble Nibble of data that represent node neighbors.
-   * @return True for a successful deserialization, false otherwise.
-   */
-  private boolean deserializeNode( MazeNode node, String nibble ) {
-    final int up_index = 0;
-    final int right_index = 1;
-    final int down_index = 2;
-    final int left_index = 3;
-
-    if( node == null || nibble.length() != MazeNode.MAX_NEIGHBORS ) {
-      return false;
-    }
-
-    if( nibble.charAt( right_index ) == '0' && node.column != dimension - 1 ) {
-      /* add right wall */
-      addWall( at(node.row, node.column), at(node.row, node.column + 1) ); 
-    }
-
-    if( nibble.charAt( down_index ) == '0' && node.row != dimension - 1 ) {
-      /* add down wall */
-      addWall( at(node.row, node.column), at(node.row + 1, node.column) );
-    }
-
-    return true;
-  }
-
-  /**
-   * Binary string representation of Maze with decimal dimensions.
-   * @return String of encoded maze.
-   */
-  public String serialize() {
-    String maze_str = "";
-    maze_str += getDimension() + "\n";
-    maze_str += getDimension() + "\n";
-    for( int row = 0; row < getDimension(); row++ ) {
-      for( int column = 0; column < getDimension(); column++ ) {
-        MazeNode currentNode = at(row, column);
-	maze_str += ( currentNode.up == null ) ? "0" : "1";
-	maze_str += ( currentNode.right == null ) ? "0" : "1";
-	maze_str += ( currentNode.down == null ) ? "0" : "1";
-	maze_str += ( currentNode.left == null ) ? "0" : "1";
-	maze_str += "\n";
-      }
-    }
-    return maze_str;
-  }
-
-  /**
    * Encodes a binary representation of the maze to a file.
    * @return Nothing.
    */
   public void saveMaze( File datafile ) {
     FileOutputStream out = null;
 
+    long prevMillis = System.currentTimeMillis();
+    System.err.println( "Saving Maze..." );
+
     try {
       out = new FileOutputStream( datafile );
-      String encoded_str = serialize();
-      for( int index = 0; index < encoded_str.length(); index++ ) {
-        out.write(encoded_str.charAt(index));
-      }
+      serialize( out );
     }
     catch( IOException e ) {
       e.printStackTrace();
@@ -805,8 +689,175 @@ class Maze implements Iterable<MazeNode> {
         e.printStackTrace();
       }
     }
+    System.err.println( "Time taken to save maze: " + (System.currentTimeMillis() - prevMillis) / 1000.0 + " sec" );
   }
 
+  /**
+   * Loads the saved maze.
+   * @param datafile Encoded maze data file.
+   * @return True if load is successful, false otherwise.
+   */
+  public boolean loadMaze( File datafile ) {
+    if( !datafile.exists() || datafile.isDirectory() ) {
+      /* datafile does not exist */
+      return false;
+    }
+
+    FileInputStream in = null;
+    boolean status = false;
+
+    long prevMillis = System.currentTimeMillis();
+    System.out.println( "Loading Maze..." );
+
+    try {
+      in = new FileInputStream( datafile );
+      status = deserialize( in );
+    }
+    catch( IOException e ) {
+      e.printStackTrace();
+      status = false;
+    }
+    finally {
+      try {
+        if( in != null ) {
+          in.close();
+	}
+      }
+      catch( IOException e ) {
+        e.printStackTrace();
+        status = false;
+      }
+    }
+
+    if( status == true ) {
+      System.err.println( "Time taken to load maze: " + (System.currentTimeMillis() - prevMillis) / 1000.0 + " sec" );
+    }
+    else {
+      System.err.println( "Unsuccessful maze load." );
+    }
+
+    return status;
+  }
+
+  /**
+   * Binary string representation of Maze with decimal dimensions.
+   * @param stream output stream that serialize will write data to.
+   * @return String of encoded maze.
+   */ 
+  public void serialize( FileOutputStream outstream ) throws IOException {
+    int data = 0;
+    int bitcount = 0;
+    /* write dimensions of maze out to stream - order: width height */
+    ByteBuffer buffer = ByteBuffer.allocate( EVEN * Integer.BYTES );
+    buffer.putInt( dimension ).putInt( dimension );
+    outstream.write( buffer.array() );
+
+    /* cell info to stream */
+    for( int row = 0; row < dimension; row++ ) {
+      for( int column = 0; column < dimension; column++ ) {
+        MazeNode currentNode = at( row, column );
+	/* bitflag of open down neighbor */
+	data = data << 1;
+	if( currentNode.down != null ) data |= 0x01;
+	bitcount++;
+        /* bitflag of open right neighbor */
+	data = data << 1;
+	if( currentNode.right != null ) data |= 0x01;
+	bitcount++;
+	/* time to write byte to stream*/
+	if( bitcount == Byte.SIZE ) {
+          outstream.write( (byte) data );
+	  data = bitcount = 0;
+	}
+      }
+    }
+    /* flush data to outstream */
+    if( bitcount != 0 ) {
+      outstream.write( (byte) (data << (Byte.SIZE - bitcount)) ); /* trailing zeros only */
+    }
+  }
+
+  /**
+   * Deserialize encoded maze data.
+   * @param instream File stream pointing to an encoded data file.
+   * @return True for successful deserialization, false otherwise.
+   */
+  private boolean deserialize( FileInputStream instream ) throws IOException {
+    final int EOF = -1;
+    final int codeword_size = 2; /* bit size */
+    final int codeword_bitmask = ( 0x3 << (Byte.SIZE - codeword_size) ); 
+    int recieved; 
+
+    /* read dimensions of maze from input stream - order: width height */
+    byte[] proxy = new byte[EVEN * Integer.BYTES];
+    recieved = instream.read( proxy ); /* reads in two integers from instream */
+    ByteBuffer buffer = ByteBuffer.wrap( proxy ); /* copy byte array */
+    if( recieved == EOF ) {
+      /* corrupted datafile - missing bytes */
+      System.err.println( "Currupted file detected: Incompatible file size: Aborting maze build" );
+      return false;
+    }
+    int read_width = buffer.getInt();
+    int read_height = buffer.getInt();
+    System.out.println( "Loading dimensions: (" + read_width + "," + read_height + ")" );
+    if( read_width != dimension || read_height != dimension ) {
+      /* width or height is not the same dimension as this maze object */
+      System.err.println( "Incompatible dimensions read from file: Aborting maze build" );
+      return false;
+    }
+
+    /* read and build maze graph cell by cell */
+    int row = 0;
+    int column = 0;
+    clearWalls(); /* creating walls are easier than removing walls */
+    recieved = instream.read(); /* read byte */
+    while( recieved != EOF ) {
+      /* reading 2-bit codewords. (1 codeword = 1 encoded maze node) */
+      for( int index = 0; index < Byte.SIZE / codeword_size; index++ ) {
+        if( row == dimension ) {
+          /* maze building is done - all cells visited */
+	  if( instream.available() > 1 ) {
+	    System.err.println( "Curropted file detected: Incompatible file size: Aborting maze build" );
+	    clear();
+	    return false;
+	  }
+	  return true;
+	}
+	/* build walls of node */
+        MazeNode currentNode = at( row, column );
+	int codeword = ((recieved & codeword_bitmask) >>> (Byte.SIZE - codeword_size));
+	deserializeNode( currentNode, codeword );
+	recieved = recieved << codeword_size;
+	column++;
+	if( column == dimension ) {
+          column = 0;
+	  row++;
+	}
+      }
+      recieved = instream.read();
+    }
+    return true;
+  }
+
+  /**
+   * Builds encoded maze node from a two bit codeword.
+   * @param node Node to be deserialized.
+   * @param codeword Two-bit encoded node.
+   * @return Nothing.
+   */
+  private void deserializeNode( MazeNode node, int codeword ) {
+    final int down_bitmask = 0x01 << 1;
+    final int right_bitmask = 0x01;
+
+    if( (codeword & down_bitmask) == 0 && node.row != dimension - 1 ) {
+      /* add down wall */
+      addWall( at(node.row + 1, node.column), at(node.row, node.column) );
+    }
+    if( (codeword & right_bitmask) == 0 && node.column != dimension - 1 ) {
+      /* add right wall */
+      addWall( at(node.row, node.column), at(node.row, node.column + 1) );
+    }
+  }
 
   /**
    * Iterator for the the Maze data structure.

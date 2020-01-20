@@ -106,7 +106,7 @@ class MazeNode {
   }
 
   /**
-   * Clear MazeNode graph data.
+   * Clear MazeNode graph data except its coordinates. 
    */
   public void clearData() {
     up = down = left = right = null;
