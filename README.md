@@ -1,5 +1,5 @@
 # Micromouse Simulator
-
+ 
 ### NOTE: The mouse animation is currently not working because we are running assessment tests on our path finding algorithm. 
 <!---
 ## Maze Generation In Progress Snippet:
