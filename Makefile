@@ -19,7 +19,6 @@ src/utility/Pair.java \
 src/utility/PQNode.java \
 src/strings/ParsingStrings.java
 
-
 all:
 	mkdir -p $(BUILD_DIR)
 	javac -Xlint:unchecked -g $(JAVA_SOURCES) -d $(BUILD_DIR)
