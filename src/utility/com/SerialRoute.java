@@ -1,0 +1,207 @@
+/**
+ *
+ * Jose Jimenez
+ * Brandon Cramer
+ * Minh Pham
+ * Tony Guan
+ * Victor Chen
+ *
+ *                 University of California, San Diego
+ *                      IEEE Micromouse Team 2020
+ *
+ * File Name:   SerialRoute.java
+ * Description: This class reads data from a serial port and notifies its i
+ *              listeners with message recieved
+ * Sources of Help: https://github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example#byte--or-multibyte-delimited-message-received
+ */
+// messages that have multiple \n characters in a single string? TODO
+
+import java.io.PrintStream;
+import java.lang.Thread;
+import com.fazecast.jSerialComm.*;
+import java.util.ArrayList;
+import java.util.Vector;
+import java.util.EventListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+/**
+ * Serial Route object that interacts and connects to hardware ports
+ * - Singleton design 
+ * @see https://github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example
+ */
+public class SerialRoute implements SerialPortMessageListener {
+
+  private static final SerialRoute instance = new SerialRoute();
+  private ArrayList<ActionListener> listenerList;
+  private SerialPort port = null; 
+
+  /*
+   * Private constructor for singleton design to create listener list.
+   */
+  private SerialRoute() {
+    listenerList = new ArrayList<ActionListener>();
+  }
+
+  /**
+   * Gets single instance of the serial route object.
+   * @return A Serial Route object.
+   */
+  public static SerialRoute getInstance() {
+    return instance;
+  }
+
+  /**
+   * Connects to a specific port by string name.
+   * @param selectedPortName User friendly port name.
+   * @return True upon success, false otherwise.
+   */
+  public boolean connectTo( String selectedPortName ) {
+    int index = 0;
+    for( String portName : getPortList() ) {
+      /* all bindable ports */
+      if( selectedPortName.equals(portName) ) {
+	/* connect to port and listen to serial data asynchronously */
+        disconnect();
+        port = SerialPort.getCommPorts()[ index ];
+	port.openPort();
+	port.addDataListener( this );
+        return true;
+      }
+      index++;
+    }
+    return false;
+  }
+
+  /**
+   * Disconnects port from being open.
+   * @return Nothing.
+   */
+  public void disconnect() {
+    if( port != null && port.isOpen() ) {
+      /* clean-up previous port connection */
+      port.removeDataListener();
+      port.closePort();
+    }
+  }
+
+  /**
+   * Gets list of user friendly port names.
+   * @return List of port names.
+   */
+  public Vector<String> getPortList() {
+    SerialPort commPortList[] = SerialPort.getCommPorts();
+    Vector<String> portList = new Vector<String>();
+
+    for( SerialPort commPort : commPortList ) {
+      /* name port as described by the host system */
+      portList.add( commPort.getSystemPortName() );
+    }
+    return portList;
+  }
+ 
+  /**
+   * Notify all listeners that a message was recieved.
+   * @param evt Action event - likely a SeroualRouteEvent.
+   * @return Nothing.
+   */
+  private void fireActionPerformed( ActionEvent evt ) {
+    for( ActionListener listener : listenerList ) {
+      /* notify all action listeners of new event */
+      listener.actionPerformed( evt );
+    }
+  }
+
+  /**
+   * Adds new action listener for complete data messages from serial port.
+   * @param listener Action listener object that wants to asynchronous listen
+   *                 to message events.
+   * @return Nothing.
+   */
+  public void addActionListener( ActionListener listener ) {
+    listenerList.add( listener ); 
+  }
+
+  /**
+   * Removes an action listener.
+   * @param listener listener object that was previosly listening.
+   * @return Nothing.
+   */
+  public void removeActionListener( ActionListener listener ) {
+    listenerList.remove( listener );
+  }
+
+
+  /**
+   * Serial Port dependency that checks if it should trigger an event
+   * based on delimiting data.
+   * @see https://github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example
+   * @return True because our Serial route data is expecting a delimeter.
+   */
+  @Override
+  public boolean delimiterIndicatesEndOfMessage() { 
+    return true; 
+  }
+
+  /**
+   * Notify listener of message recieved on serial port.
+   * @see https://github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example
+   * @param event Serial port event that is converted to a SerialRoute event.
+   * @return Nothing.
+   */
+  @Override
+  public void serialEvent( SerialPortEvent event ) {
+    String message = "";
+    for( byte character : event.getReceivedData() ) {
+      /* convert byte data to character data */
+      if( !isInDelimiter(character) ) {
+        /* character is not in message delimiter */
+        message += (char) character;
+      }
+    }
+    /* fire new event for new message detected */
+    fireActionPerformed( new SerialRouteEvent(this, message) );
+  }
+ 
+  /**
+   * Signify that events are triggered from reading data.
+   * @see https://github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example
+   * @return Serial port constant that signifies that events should be triggered from data recieved. 
+   */
+  @Override
+  public int getListeningEvents() { 
+    return SerialPort.LISTENING_EVENT_DATA_RECEIVED; 
+  }
+
+  /**
+   * Getter for the delimiter.
+   * @see https://github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example
+   * @return Byte array that will be treated as the delimiter.
+   */
+  @Override
+  public byte[] getMessageDelimiter() { 
+    return new byte[] { '\r', '\n' }; 
+  }
+
+  /**
+   * Check is the character is in the delimiter.
+   * @param character byte of data in interest.
+   * @return True if character is in delimiter, false otherwise.
+   */
+  public boolean isInDelimiter( byte character ) {
+    for( byte delimiter : getMessageDelimiter() ) {
+      if( character == delimiter ) {
+        return true;
+      }
+    }
+    return false;
+  }
+ 
+  /**
+   * Getter method to recieve the number of ports available on the machine.
+   * @return Total number ports available.
+   */
+  public int getAvailablePortCount() {
+    return getPortList().size();
+  }
+}
