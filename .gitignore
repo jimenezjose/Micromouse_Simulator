@@ -1,0 +1,6 @@
+*.class
+/test
+*.swp
+/build
+.DS_Store
+datafile
