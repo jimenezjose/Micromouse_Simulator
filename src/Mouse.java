@@ -81,43 +81,83 @@ public class Mouse {
    *         mouse is at target.
    */
   public boolean exploreNextCell() {
-    // push to explore stack the next cell you want to visit
-    // look at rotateTo, moveTo, setVisited, markNeighborWalls, MazeNode.getNeighborList, MazeNode.getAdjacentCellList
-    // it would also be useful to look at the MazeNode definition and the solution video for help.
-    // program with logic with respect to a robotic mouse. (rotateTo, moveTo)
-    // TODO: make a single run to the center of the maze (where the cell.distance is 0). (does not have to be optimal)
-    // NOTE: the cell at the top of the stack after this function is called is the cell that will be visited with the virtual mouse in Java GUI.
-    // NOTE: http://ijcte.org/papers/738-T012.pdf 
-
     if( explore_stack.empty() ) {
-      /* what does it mean for the stack to be empty? */
+      /* mouse is at target. */
+      done = true;
+      trackSteps();
+      /* An optimal path was discovered */
+      if( mousePath.size() == previousPath.size() && isCompletePath(mousePath) ) return false;
+      /* otherwise continue traversing maze */
+      done = false;
+      retreat();
+      setPreviousPath( mousePath );
       return false;
     }
 
-    MazeNode cell = explore_stack.pop(); 
+    MazeNode cell = explore_stack.pop();
 
     /* sensor surroundings */
-    //rotateTo( cell );
-    //moveTo( cell );
-    //setVisited( cell, true );
-    //markNeighborWalls( cell, orientation );
+    rotateTo( cell );
+    moveTo( cell );
+    setVisited( cell, true );
+    markNeighborWalls( cell, orientation );
+    /* notify other cells of new walls */
+    callibrateDistances( cell );
 
-    /* notify other cells of new walls - (update maze cell distances) */
-    //calibrateDistances( cell );
-
-    /* push best adacent open cell and push to the explore stack */
-    /* are you at the target cell? */
-
+    for( MazeNode openNeighbor : cell.getNeighborList() ) {
+      /* choose best adjacent open cell */
+      if( openNeighbor.distance == cell.distance - 1 ) {
+        /* hueristic to move closer to the target */
+        explore_stack.push( openNeighbor );
+        if( openNeighbor.distance == 0 ) explore_stack.push( openNeighbor );
+        return true;
+      }
+      else if( openNeighbor.distance == 0 && this.visited( openNeighbor ) == false ) {
+        /* visit all target nodes in quad-cell solution */
+        explore_stack.push( openNeighbor );
+        return true;
+      }
+    }
     return true;
   }
 
   /**
-   * Floods the current cell and its adjacent cell distance values towards the target;
+   * Floods the current cell and its adjacent cell distance value towards the target;
+   * This fuction delegates to callibrate.
    * @param cell curret positional cell.
    * @return Nothing.
    */
   private void callibrateDistances( MazeNode cell ) {
+    callibrate( cell );
+    for( MazeNode globalNeighbor : maze.getAdjacentCellsList( cell ) ) {
+      if( globalNeighbor.distance == 0 ) continue;
+      callibrate( globalNeighbor );
+    }
+  }
 
+  /**
+   * Floods currenct cell such that there exist an "open" neighbor with a 
+   * distance of cell.distance - 1.
+   * @param cell a cell in need of distance validation.
+   * @return Nothing.
+   */
+  private void callibrate( MazeNode cell ) {
+    int minDistance = Integer.MAX_VALUE;
+
+    for( MazeNode openNeighbor : cell.getNeighborList() ) {
+      /* validate cell's need for callibration */
+      if( openNeighbor.distance == cell.distance - 1 ) return;
+      if( openNeighbor.distance < minDistance ) minDistance = openNeighbor.distance;
+    }
+
+    /* update non target cell to a higher elevation */
+    if( cell.distance != 0 ) cell.distance = minDistance + 1;
+
+    for( MazeNode globalNeighbor : maze.getAdjacentCellsList( cell ) ) {
+      /* callibrate all global neighbors except for the target cells */
+      if( globalNeighbor.distance == 0 ) continue;
+      callibrate( globalNeighbor );
+    }
   }
 
   /**

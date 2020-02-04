@@ -18,9 +18,11 @@ import java.io.PrintStream;
 import java.io.IOException;
 import java.io.File;
 import java.util.LinkedList;
+import java.util.Vector;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.Timer;
 import javax.swing.BoxLayout;
 import javax.swing.Box;
@@ -73,6 +75,7 @@ public class MazeGUI implements ActionListener {
   private JButton clearButton;
   private JButton mazeButton;
   private JButton nextButton;
+  private JComboBox<String> portComboBox; 
 
   private boolean runDijkstra = false;
   private boolean runDFS      = false;
@@ -123,6 +126,11 @@ public class MazeGUI implements ActionListener {
     clearButton    = new JButton( "Clear" );
     mazeButton     = new JButton( "New Maze" );
     nextButton     = new JButton( "Next" );
+
+    /* Create port combo box */
+    Vector<String> portList = SerialRoute.getInstance().getPortList();
+    portList.add( 0, "Disconnected" );
+    portComboBox = new JComboBox<String>( portList );
 
     /* Activates button to register state change */
     clearButton.addActionListener( this );

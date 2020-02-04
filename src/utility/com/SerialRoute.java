@@ -10,9 +10,10 @@
  *                      IEEE Micromouse Team 2020
  *
  * File Name:   SerialRoute.java
- * Description: This class reads data from a serial port and notifies its i
+ * Description: This class reads data from a serial port and notifies it's
  *              listeners with message recieved
- * Sources of Help: https://github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example#byte--or-multibyte-delimited-message-received
+ * Sources of Help: In section "Byte- or Multibyte-Delimited Message Received"
+ *        github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example
  */
 // messages that have multiple \n characters in a single string? TODO
 
@@ -166,7 +167,8 @@ public class SerialRoute implements SerialPortMessageListener {
   /**
    * Signify that events are triggered from reading data.
    * @see https://github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example
-   * @return Serial port constant that signifies that events should be triggered from data recieved. 
+   * @return Serial port constant that signifies that events should be triggered from 
+   *         data recieved. 
    */
   @Override
   public int getListeningEvents() { 
