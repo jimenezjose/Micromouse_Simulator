@@ -1,5 +1,5 @@
 # Micromouse Simulator
-##### [Documentation](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
+### [Documentation](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
 
 <!---
 ## Maze Generation In Progress Snippet:
