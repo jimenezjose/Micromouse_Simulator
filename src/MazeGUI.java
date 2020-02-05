@@ -377,7 +377,9 @@ public class MazeGUI implements ActionListener {
     }
 
     /**
-     * TODO
+     * Setter for GUI mode.
+     * @param enable Value to set to periscope mode.
+     * @return Nothing.
      */
     public void setPeriscopeMode( boolean enable ) {
       periscopeMode = enable;
