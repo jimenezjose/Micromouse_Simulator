@@ -75,6 +75,7 @@ public class MazeGUI implements ActionListener {
   private JButton clearButton;
   private JButton mazeButton;
   private JButton nextButton;
+  private SerialRoute serialComm;
   private JComboBox<String> portComboBox; 
 
   private boolean runDijkstra = false;
@@ -128,18 +129,26 @@ public class MazeGUI implements ActionListener {
     nextButton     = new JButton( "Next" );
 
     /* Create port combo box */
-    Vector<String> portList = SerialRoute.getInstance().getPortList();
+    serialComm = SerialRoute.getInstance();
+    Vector<String> portList = serialComm.getPortList();
     portList.add( 0, "Disconnected" );
     portComboBox = new JComboBox<String>( portList );
+    portComboBox.setMaximumSize( portComboBox.getPreferredSize() );
+    portComboBox.setSelectedItem( 0 );
 
-    /* Activates button to register state change */
+    /* Activates button/comboBox to register state change */
     clearButton.addActionListener( this );
     animateButton.addActionListener( this );
     mazeButton.addActionListener( this );
     nextButton.addActionListener( this );
+    portComboBox.addActionListener( this );
+    /* Activates multithreaded serial communication on a specified port */
+    serialComm.addActionListener( this );
 
     /* add button to panels */
     northPanel.add( animateButton );
+    northPanel.add( Box.createHorizontalGlue() );
+    northPanel.add( portComboBox );
     northPanel.add( Box.createHorizontalGlue() );
     northPanel.add( mazeButton );
     southPanel.add( nextButton );
@@ -170,14 +179,39 @@ public class MazeGUI implements ActionListener {
    * @return Nothing.
    */
   public void actionPerformed( ActionEvent evt ) {
+    if( evt.getSource() == serialComm ) {
+      /* data received from serial port */
+      handleSerialCommEvent( evt );
+    }
+
     if( evt.getSource() == clearButton ) {
-      /* continue button was pressed */
-      mouse.restart();
-      outputStats = true;
-      renderPanel.repaint();
+      /* clear button was pressed */
+      handleClearButtonEvent( evt );
+    }
+    else if( evt.getSource() == portComboBox ) {
+      handlePortComboBoxEvent( evt );
     }
     else if( evt.getSource() == animateButton ) {
       /* animate button was pressed */
+      handleAnimateButtonEvent( evt );
+    }
+    else if( evt.getSource() == mazeButton ) {
+      /* new maze button was pressed */
+      handleMazeButtonEvent( evt );
+    }
+    else if( evt.getSource() == nextButton || evt.getSource() == timer ) {
+      /* animation timer */
+      handleNextButtonEvent( evt );
+    }
+  }
+
+  private void handleClearButtonEvent( ActionEvent evt ) {
+      mouse.restart();
+      outputStats = true;
+      renderPanel.repaint();
+  }
+
+  private void handleAnimateButtonEvent( ActionEvent evt ) {
       if( timer.isRunning() == false ) {
         timer.start();
         animateButton.setText( "Stop" );
@@ -189,9 +223,9 @@ public class MazeGUI implements ActionListener {
         nextButton.setEnabled( true );
       }
       renderPanel.repaint();
-    }
-    else if( evt.getSource() == mazeButton ) {
-      /* new maze button was pressed */
+  }
+
+  private void handleMazeButtonEvent( ActionEvent evt ) {
       System.out.println( "\nnew maze" );
       animateButton.setText( "Animate" );
       if( timer.isRunning() == true ) timer.stop();
@@ -201,12 +235,51 @@ public class MazeGUI implements ActionListener {
       mouse.restart();
       outputStats = true;
       renderPanel.repaint();
-    }
-    else if( evt.getSource() == nextButton || evt.getSource() == timer ) {
-      /* animation timer */
+  }
+
+  private void handleNextButtonEvent( ActionEvent evt ) {
       if( mouse.exploreNextCell() || outputStats ) {
         renderPanel.repaint();
       }
+      else if( mouse.isDone() ) {
+        System.out.println("Mouse is done running.");
+      }
+  }
+
+  /**
+   * 
+   */
+  private void handleSerialCommEvent( ActionEvent evt ) {
+    SerialRouteEvent serialEvt = (SerialRouteEvent) evt;
+    String data = serialEvt.getReceivedMessage();
+    System.err.println("Received: " + data);
+  }
+
+  /**
+   * 
+   */
+  private void handlePortComboBoxEvent( ActionEvent evt ) {
+    String selectedPort = portComboBox.getSelectedItem().toString();
+    String noPort = portComboBox.getItemAt(0).toString();
+
+    if( serialComm.connectTo(selectedPort) ) {
+      /* serial communication is binded to the new selected port */
+      System.out.println( "Connected: " + selectedPort );
+    }
+    else if( selectedPort.equals(noPort) ) {
+      /* Manual disconnection option */
+      System.out.println("Disconnected.");
+      serialComm.disconnect();
+    }
+    else {
+      /* unsuccessful port connection */
+      System.out.println( "Failed Connection: " + selectedPort );
+      portComboBox.setSelectedItem( 0 );
+    }
+
+    if( portComboBox.getItemCount() - 1 != serialComm.getAvailablePortCount() ) {
+      /* new available port detected. update portComboBox */
+      System.out.println("Not implementd: new port detected but not updated in JComboBox");
     }
   }
 
@@ -227,7 +300,7 @@ public class MazeGUI implements ActionListener {
      */
     public RenderPanel() {
       try {
-        image = ImageIO.read( new File("../images/UCSD-logo.png") );
+        image = ImageIO.read( new File( "../src/utility/images/UCSD-logo.png" ) );
       }
       catch( IOException e ) {
         System.err.println( "UCSD logo non-existent" );
