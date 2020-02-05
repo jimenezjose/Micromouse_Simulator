@@ -286,7 +286,9 @@ public class MazeGUI implements ActionListener {
   }
 
   /**
-   * Handles 
+   * Handles a logic associated with the JComboBox.
+   * @param evt Event that is fired when user interacts with the JComboBox.
+   * @return Nothing.
    */
   private void handlePortComboBoxEvent( ActionEvent evt ) {
     String selectedPort = portComboBox.getSelectedItem().toString();
