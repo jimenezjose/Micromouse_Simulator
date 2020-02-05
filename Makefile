@@ -13,9 +13,9 @@ src/Maze.java \
 src/MazeNode.java \
 src/utility/Pair.java \
 src/utility/PQNode.java \
-src/strings/ParsingStrings.java \
-src/utility/com/SerialRoute.java \
-src/utility/com/SerialRouteEvent.java 
+src/utility/strings/ParsingStrings.java \
+src/utility/comm/SerialRoute.java \
+src/utility/comm/SerialRouteEvent.java 
 
 all:
 	mkdir -p $(BUILD_DIR)
