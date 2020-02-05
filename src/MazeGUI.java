@@ -44,7 +44,8 @@ import java.awt.Image;
  * MazeGUI will create maze exploring interface.
  */
 public class MazeGUI implements ActionListener {
-  public static final double MAZE_PROPORTION = 0.49;
+  public static final double MAZE_DEFAULT_PROPORTION = 0.50;
+  public static final double MAZE_PERISCOPE_PROPORTION = 0.75;
   private static final File DATAFILE = new File("../datafile");
   private static final int DELAY = 250;
   private static final int EVEN = 2;
@@ -69,14 +70,15 @@ public class MazeGUI implements ActionListener {
   private Timer timer;
   private JPanel northPanel;
   private JPanel southPanel;
-  private JPanel renderPanel;
+  private RenderPanel renderPanel;
 
   private JButton animateButton;
   private JButton clearButton;
   private JButton mazeButton;
   private JButton nextButton;
-  private SerialRoute serialComm;
+  private JButton periscopeButton;
   private JComboBox<String> portComboBox; 
+  private SerialRoute serialComm;
 
   private boolean runDijkstra = false;
   private boolean runDFS      = false;
@@ -123,10 +125,11 @@ public class MazeGUI implements ActionListener {
     southPanel.setLayout( new BoxLayout(southPanel, BoxLayout.LINE_AXIS) );
 
     /* sets names of new buttons */
-    animateButton  = new JButton( "Animate" );
-    clearButton    = new JButton( "Clear" );
-    mazeButton     = new JButton( "New Maze" );
-    nextButton     = new JButton( "Next" );
+    animateButton   = new JButton( "Animate" );
+    clearButton     = new JButton( "Clear" );
+    mazeButton      = new JButton( "New Maze" );
+    nextButton      = new JButton( "Next" );
+    periscopeButton = new JButton( "Periscope" );
 
     /* Create port combo box */
     serialComm = SerialRoute.getInstance();
@@ -135,12 +138,14 @@ public class MazeGUI implements ActionListener {
     portComboBox = new JComboBox<String>( portList );
     portComboBox.setMaximumSize( portComboBox.getPreferredSize() );
     portComboBox.setSelectedItem( 0 );
+    portComboBox.setVisible( false );
 
     /* Activates button/comboBox to register state change */
     clearButton.addActionListener( this );
     animateButton.addActionListener( this );
     mazeButton.addActionListener( this );
     nextButton.addActionListener( this );
+    periscopeButton.addActionListener( this );
     portComboBox.addActionListener( this );
     /* Activates multithreaded serial communication on a specified port */
     serialComm.addActionListener( this );
@@ -152,6 +157,8 @@ public class MazeGUI implements ActionListener {
     northPanel.add( Box.createHorizontalGlue() );
     northPanel.add( mazeButton );
     southPanel.add( nextButton );
+    southPanel.add( Box.createHorizontalGlue() );
+    southPanel.add( periscopeButton );
     southPanel.add( Box.createHorizontalGlue() );
     southPanel.add( clearButton );
 
@@ -198,6 +205,10 @@ public class MazeGUI implements ActionListener {
     else if( evt.getSource() == mazeButton ) {
       /* new maze button was pressed */
       handleMazeButtonEvent( evt );
+    }
+    else if( evt.getSource() == periscopeButton ) {
+      /* toggle periscope mode */
+      handlePeriscopeButtonEvent( evt );
     }
     else if( evt.getSource() == nextButton || evt.getSource() == timer ) {
       /* animation timer */
@@ -275,14 +286,28 @@ public class MazeGUI implements ActionListener {
   }
 
   /**
-   * Handles serial port communication.
-   * @param evt Event that was fired by SerialRoute when data is recieved.
+   * Realtime event streaming communication from hardware micromouse.
+   * @param evt Event that triggered a periscope button toggle.
    * @return Nothing.
    */
-  private void handleSerialCommEvent( ActionEvent evt ) {
-    SerialRouteEvent serialEvt = (SerialRouteEvent) evt;
-    String data = serialEvt.getReceivedMessage();
-    System.err.println("Received: " + data);
+  private void handlePeriscopeButtonEvent( ActionEvent evt ) {
+    boolean periscopeMode = !portComboBox.isVisible();
+    String buttonText = (periscopeMode) ? "Exit" : "Periscope";
+    periscopeButton.setText( buttonText );
+    portComboBox.setVisible( periscopeMode );
+    /* reset mouse and environment */
+    handleClearButtonEvent( evt );
+    /* disable animation buttons when in Periscope Mode */
+    animateButton.setEnabled( !periscopeMode );
+    nextButton.setEnabled( !periscopeMode );
+    mazeButton.setEnabled( !periscopeMode );
+    if( timer.isRunning() ) {
+      timer.stop();
+      animateButton.setText( "Animate" );
+    }
+
+    renderPanel.setPeriscopeMode( periscopeMode );
+    renderPanel.repaint();
   }
 
   /**
@@ -316,6 +341,17 @@ public class MazeGUI implements ActionListener {
   }
 
   /**
+   * Handles serial port communication.
+   * @param evt Event that was fired by SerialRoute when data is recieved.
+   * @return Nothing.
+   */
+  private void handleSerialCommEvent( ActionEvent evt ) {
+    SerialRouteEvent serialEvt = (SerialRouteEvent) evt;
+    String data = serialEvt.getReceivedMessage();
+    System.err.println("Received: " + data);
+  }
+
+  /**
    * Handles a double buffered image screen for smooth animations.
    */
   private class RenderPanel extends JPanel {
@@ -326,6 +362,7 @@ public class MazeGUI implements ActionListener {
     private Point downPoint      = new Point();
     private Point center         = new Point();
 
+    private boolean periscopeMode = false;
 
     /**
      * Constructor: Creates a JPanel for the maze GUI.
@@ -337,6 +374,13 @@ public class MazeGUI implements ActionListener {
       catch( IOException e ) {
         System.err.println( "UCSD logo non-existent" );
       }
+    }
+
+    /**
+     * TODO
+     */
+    public void setPeriscopeMode( boolean enable ) {
+      periscopeMode = enable;
     }
  
     /**
@@ -355,15 +399,59 @@ public class MazeGUI implements ActionListener {
      * @return Nothing.
      */
     private void render( Graphics g ) {
+      if( periscopeMode ) {
+        renderPeriscope( g );
+      }
+      else {
+        renderDefault( g );
+      }
+    }
+
+    /**
+     * Renders Pericope GUI interface with a singular center maze wirelessly 
+     * communicating with hardware micromouse to display it virtually.
+     * @param g GUI graphics environment.
+     * @return Nothing.
+     */
+    private void renderPeriscope( Graphics g) {
+      center.setLocation( getWidth() / 2, getHeight() / 2 );
+      int num_of_walls  = mouse_maze.getDimension() - 1;
+      int maze_diameter = (int)(double)( MAZE_PERISCOPE_PROPORTION * Math.min(getHeight(), getWidth()) );
+      int maze_radius   = (int)(double)( 0.5 * maze_diameter );
+      int maze_offset   = (int)(double)( 0.5 * (getWidth() - maze_diameter) );
+      double cell_unit  = (1.0 / mouse_maze.getDimension()) * maze_diameter;
+
+      /* draws the UCSD Logo - upper left corner */
+      int image_diameter = (int)(double)(0.25 * maze_diameter);
+      int image_radius = (int)(double)( 0.5 * image_diameter );
+      drawImage( g, image, 0, 0, image_diameter, image_diameter );
+
+      /* draw singular centered maze */
+      center.setLocation( center.x, (image_diameter * 3)/4 + (getHeight() - image_diameter) / 2 );
+      rightMazePoint.setLocation( maze_offset, center.y - maze_radius );
+      drawMaze( g, rightMazePoint, maze_diameter, mouse_maze, true ); //TODO communicate cell distances? a lot of data here - can compute locally but wont be the mouse data
+
+      /* draws mouse on maze */
+      mouse.setGraphicsEnvironment( rightMazePoint, maze_diameter );
+      mouse.draw( g, MOUSE_COLOR );
+    }
+
+    /**
+     * Renders Standard GUI interface with two mazes which is used to simulate a
+     * virtual micromouse and quickly test maze traversal algorithms.
+     * @param g GUI graphics environment.
+     * @return Nothing.
+     */
+    private void renderDefault( Graphics g ) {
       center.setLocation( getWidth() / 2, getHeight() / 2 );
       int num_of_walls  = ref_maze.getDimension() - 1;
-      int maze_diameter = (int)(double)( MAZE_PROPORTION * Math.min(getHeight(), getWidth()) );
+      int maze_diameter = (int)(double)( MAZE_DEFAULT_PROPORTION * Math.min(getHeight(), getWidth()) );
       int maze_radius   = (int)(double)( 0.5 * maze_diameter );
       int maze_offset   = (int)(double)( 0.25 * (getWidth() - 2 * maze_diameter) );
       double cell_unit  = (1.0 / ref_maze.getDimension()) * maze_diameter;
 
       /* draws the UCSD Logo - upper left corner */
-      drawImage( g, image, 0, 0, (int)(0.5 * maze_diameter), (int)(0.5 * maze_diameter) );
+      drawImage( g, image, 0, 0, (int)(0.4 * maze_diameter), (int)(0.4 * maze_diameter) );
 
       /* draws the 2 square mazes in the center of the frame */
       leftMazePoint.setLocation( maze_offset, center.y - maze_radius );
