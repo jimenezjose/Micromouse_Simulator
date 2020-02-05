@@ -5,7 +5,7 @@
 ## Maze Generation In Progress Snippet:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/MazeGUI_InProgress.gif)
 --->
-## [Simulator Snippet on a 16x16 Random Generated Maze:](https://youtu.be/-W2w2-MaSOE)
+## Simulator Snippet on a 16x16 Random Generated Maze:
 [![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/MazeGUI_Final.gif)](https://youtu.be/-W2w2-MaSOE)
 
 <!---
