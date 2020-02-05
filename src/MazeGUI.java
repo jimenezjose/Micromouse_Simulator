@@ -205,49 +205,79 @@ public class MazeGUI implements ActionListener {
     }
   }
 
+  /**
+   * Handles the functionality of the clear button click.
+   * @param evt Event that fired from the clear JButton.
+   * @return Nothing.
+   */
   private void handleClearButtonEvent( ActionEvent evt ) {
-      mouse.restart();
-      outputStats = true;
-      renderPanel.repaint();
-  }
-
-  private void handleAnimateButtonEvent( ActionEvent evt ) {
-      if( timer.isRunning() == false ) {
-        timer.start();
-        animateButton.setText( "Stop" );
-        nextButton.setEnabled( false );
-      }
-      else {
-        timer.stop();
-        animateButton.setText( "Animate" );
-        nextButton.setEnabled( true );
-      }
-      renderPanel.repaint();
-  }
-
-  private void handleMazeButtonEvent( ActionEvent evt ) {
-      System.out.println( "\nnew maze" );
-      animateButton.setText( "Animate" );
-      if( timer.isRunning() == true ) timer.stop();
-      nextButton.setEnabled( true );
-      ref_maze.clear();
-      ref_maze.createRandomMaze( DATAFILE );
-      mouse.restart();
-      outputStats = true;
-      renderPanel.repaint();
-  }
-
-  private void handleNextButtonEvent( ActionEvent evt ) {
-      if( mouse.exploreNextCell() || outputStats ) {
-        renderPanel.repaint();
-      }
-      else if( mouse.isDone() ) {
-        System.out.println("Mouse is done running.");
-      }
+    mouse.restart();
+    outputStats = true;
+    renderPanel.repaint();
   }
 
   /**
-   * 
+   * Handles the functionality of the Animate button.
+   * @param evt Event that fired from the animate JButton.
+   * @return Nothing.
+   */
+  private void handleAnimateButtonEvent( ActionEvent evt ) {
+    if( timer.isRunning() == false ) {
+      /* start animation */
+      timer.start();
+      animateButton.setText( "Stop" );
+      nextButton.setEnabled( false );
+    }
+    else {
+      /* stop animation */
+      timer.stop();
+      animateButton.setText( "Animate" );
+      nextButton.setEnabled( true );
+    }
+    renderPanel.repaint();
+  }
+
+  /**
+   * Handles the functionality of the new maze button click.
+   * @param evt Event that fired the maze button click.
+   * @return Nothing.
+   */
+  private void handleMazeButtonEvent( ActionEvent evt ) {
+    System.out.println( "\nnew maze" );
+    animateButton.setText( "Animate" );
+    if( timer.isRunning() == true ) timer.stop();
+    nextButton.setEnabled( true );
+    ref_maze.clear();
+    ref_maze.createRandomMaze( DATAFILE );
+    mouse.restart();
+    outputStats = true;
+    renderPanel.repaint();
+  }
+
+  /**
+   * Handles the functionality of the next button click.
+   * @param evt Event that registered the next button click.
+   * @return Nothing.
+   */
+  private void handleNextButtonEvent( ActionEvent evt ) {
+    if( mouse.exploreNextCell() || outputStats ) {
+      /* mouse is exploring maze or display mouse statistics after its run */
+      renderPanel.repaint();
+    }
+    else if( mouse.isDone() ) {
+      /* mouse is done running. */
+      System.out.println("Mouse is done running.");
+      if( timer.isRunning() ) timer.stop();
+      animateButton.setText( "Animate" );
+      animateButton.setEnabled( true );
+      nextButton.setEnabled( true );
+    }
+  }
+
+  /**
+   * Handles serial port communication.
+   * @param evt Event that was fired by SerialRoute when data is recieved.
+   * @return Nothing.
    */
   private void handleSerialCommEvent( ActionEvent evt ) {
     SerialRouteEvent serialEvt = (SerialRouteEvent) evt;
@@ -256,7 +286,7 @@ public class MazeGUI implements ActionListener {
   }
 
   /**
-   * 
+   * Handles 
    */
   private void handlePortComboBoxEvent( ActionEvent evt ) {
     String selectedPort = portComboBox.getSelectedItem().toString();
