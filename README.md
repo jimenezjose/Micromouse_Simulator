@@ -1,6 +1,5 @@
-# Micromouse Simulator
+# [Micromouse Simulator](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
 
-### NOTE: The mouse animation is currently not working because we are running assessment tests on our path finding algorithm.
 <!---
 ## Maze Generation In Progress Snippet:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/MazeGUI_InProgress.gif)
@@ -43,10 +42,10 @@ $ java -cp ../lib/*:. MazeGUI
 ## Program Flow Diagram:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/Micromouse_Simulator_Program_Flow_Diagram_.png)
 
-- [MazeGUI.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/src/MazeGUI.java)
-- [Mouse.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/src/Mouse.java)
-- [Maze.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/src/Maze.java)
-- [MazeNode.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/src/MazeNode.java)
+- [MazeGUI.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeGUI.java)
+- [Mouse.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Mouse.java)
+- [Maze.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Maze.java)
+- [MazeNode.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeNode.java)
 
 ## Maze Graph Visualization:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/maze-graph.png)
