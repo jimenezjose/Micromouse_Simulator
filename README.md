@@ -32,7 +32,7 @@ $ git clone https://github.com/jimenezjose/Micromouse_Simulator.git
 $ cd Micromouse_Simulator
 $ make
 $ cd build
-$ java MazeGUI
+$ java -cp ../lib/*:. MazeGUI
 ```
 
 <!---
