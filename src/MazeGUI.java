@@ -47,6 +47,8 @@ public class MazeGUI implements ActionListener {
   public static final double MAZE_DEFAULT_PROPORTION = 0.50;
   public static final double MAZE_PERISCOPE_PROPORTION = 0.75;
   private static final File DATAFILE = new File("../datafile");
+  private static final File PERISCOPE_LOG = new File("../src/utility/periscope/session.log");
+  private static final File PERISCOPE_HOME_DIR = new File("../src/utility/periscope");
   private static final int DELAY = 250;
   private static final int EVEN = 2;
 
@@ -83,6 +85,10 @@ public class MazeGUI implements ActionListener {
   private boolean runDijkstra = false;
   private boolean runDFS      = false;
   private boolean outputStats = true;
+
+  private PrintStream periscopeStream = System.out;
+  private Process periscopeMonitor = null;
+  private Process periscopePrompt  = null;
 
   /**
    * Constructor: Creates and sets up MazeGUI 
@@ -254,7 +260,7 @@ public class MazeGUI implements ActionListener {
    * @return Nothing.
    */
   private void handleMazeButtonEvent( ActionEvent evt ) {
-    System.out.println( "\nnew maze" );
+    System.err.println( "\nnew maze" );
     animateButton.setText( "Animate" );
     if( timer.isRunning() == true ) timer.stop();
     nextButton.setEnabled( true );
@@ -298,16 +304,82 @@ public class MazeGUI implements ActionListener {
     /* reset mouse and environment */
     handleClearButtonEvent( evt );
     /* disable animation buttons when in Periscope Mode */
-    animateButton.setEnabled( !periscopeMode );
-    nextButton.setEnabled( !periscopeMode );
-    mazeButton.setEnabled( !periscopeMode );
+    animateButton.setVisible( !periscopeMode );
+    nextButton.setVisible( !periscopeMode );
+    mazeButton.setVisible( !periscopeMode );
+    clearButton.setVisible( !periscopeMode );
     if( timer.isRunning() ) {
       timer.stop();
       animateButton.setText( "Animate" );
     }
 
+    if( periscopeStream == System.out ) {
+      /* stream data to periscope monitor */
+      try {
+        periscopeStream = new PrintStream( PERISCOPE_LOG  );
+      }
+      catch( Exception e ) {
+        System.err.println( "Periscope stream failed to open" );
+      }
+    }
+
+    if( periscopeMode ) {
+      /* spawn micromouse serial monitors */
+      System.setOut( periscopeStream );
+      spawnPeriscopeMonitor();
+    }
+    else {
+      /* remove serial monitors */
+      System.setOut( System.out );
+      killPeriscopeMonitor();
+    }
+
     renderPanel.setPeriscopeMode( periscopeMode );
     renderPanel.repaint();
+  }
+
+  /**
+   * TODO
+   */
+  private void spawnPeriscopeMonitor() {
+    String periscope_home = PERISCOPE_HOME_DIR.getAbsolutePath();
+    String monitorScript = periscope_home + "/serialMonitor.sh";
+    String promptScript = periscope_home + "/serialPrompt.sh";
+    String monitorCmd = String.format("open -a Terminal %s", monitorScript);
+    String promptCmd = String.format("open -a Terminal %s", promptScript);
+
+    try {
+      if( periscopeMonitor == null ) {
+        periscopeMonitor = Runtime.getRuntime().exec( monitorCmd );
+      }
+      if(periscopePrompt == null) {
+        periscopePrompt = Runtime.getRuntime().exec( promptCmd );
+      }
+    }
+    catch( IOException e ) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * TODO
+   */
+  private void killPeriscopeMonitor() {
+    try {
+      if( periscopeMonitor != null ) {
+        periscopeMonitor.waitFor();
+	periscopeMonitor.destroyForcibly();
+	if( !periscopeMonitor.isAlive() ) periscopeMonitor = null;
+      }
+      if( periscopePrompt != null ) {
+        periscopePrompt.waitFor();
+        periscopePrompt.destroyForcibly();
+	if( !periscopePrompt.isAlive() ) periscopePrompt = null;
+      }
+    }
+    catch( InterruptedException e ) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -348,7 +420,7 @@ public class MazeGUI implements ActionListener {
   private void handleSerialCommEvent( ActionEvent evt ) {
     SerialRouteEvent serialEvt = (SerialRouteEvent) evt;
     String data = serialEvt.getReceivedMessage();
-    System.err.println("Received: " + data);
+    System.out.println("Received: " + data);
   }
 
   /**
@@ -376,14 +448,7 @@ public class MazeGUI implements ActionListener {
       }
     }
 
-    /**
-     * Setter for GUI mode.
-     * @param enable Value to set to periscope mode.
-     * @return Nothing.
-     */
-    public void setPeriscopeMode( boolean enable ) {
-      periscopeMode = enable;
-    }
+    
  
     /**
      * Double buffered image screen paint on GUI.
@@ -425,6 +490,7 @@ public class MazeGUI implements ActionListener {
 
       /* draws the UCSD Logo - upper left corner */
       int image_diameter = (int)(double)(0.25 * maze_diameter);
+      if( image_diameter == 0 ) image_diameter = 1; 
       int image_radius = (int)(double)( 0.5 * image_diameter );
       drawImage( g, image, 0, 0, image_diameter, image_diameter );
 
@@ -453,7 +519,9 @@ public class MazeGUI implements ActionListener {
       double cell_unit  = (1.0 / ref_maze.getDimension()) * maze_diameter;
 
       /* draws the UCSD Logo - upper left corner */
-      drawImage( g, image, 0, 0, (int)(0.4 * maze_diameter), (int)(0.4 * maze_diameter) );
+      int image_diameter = (int)(double)(0.4 * maze_diameter);
+      if( image_diameter == 0 ) image_diameter = 1; 
+      drawImage( g, image, 0, 0, image_diameter, image_diameter );
 
       /* draws the 2 square mazes in the center of the frame */
       leftMazePoint.setLocation( maze_offset, center.y - maze_radius );
@@ -732,6 +800,15 @@ public class MazeGUI implements ActionListener {
       double width_offset  = g.getFontMetrics().stringWidth( message ) / 2.0;
       int charHeight = (int)(0.05 * maze_diameter);
       g.drawString( message, (int)(center.x - width_offset), mazePoint.y + maze_diameter + (int)((getHeight() - maze_diameter) / 4.0) );
+    }
+
+    /**
+     * Setter for GUI mode.
+     * @param enable Value to set to periscope mode.
+     * @return Nothing.
+     */
+    public void setPeriscopeMode( boolean enable ) {
+      periscopeMode = enable;
     }
   }
 
