@@ -12,8 +12,10 @@ cd $DIR
 echo -n > $LOGFILE
 
 # serial monitor UI
+#stty -echo
 clear
 printf "${GREEN}"
 printf "Micromouse Periscope Monitor\n\n"
 tail -f $LOGFILE
 printf "${DEFAULT}"
+#stty echo
