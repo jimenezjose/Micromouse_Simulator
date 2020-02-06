@@ -49,6 +49,7 @@ public class MazeGUI implements ActionListener {
   private static final File DATAFILE = new File("../datafile");
   private static final File PERISCOPE_LOG = new File("../src/utility/periscope/session.log");
   private static final File PERISCOPE_HOME_DIR = new File("../src/utility/periscope");
+  private static final PrintStream stdoutStream = System.out;
   private static final int DELAY = 250;
   private static final int EVEN = 2;
 
@@ -283,7 +284,7 @@ public class MazeGUI implements ActionListener {
     }
     else if( mouse.isDone() ) {
       /* mouse is done running. */
-      System.out.println("Mouse is done running.");
+      System.err.println("Mouse is done running.");
       if( timer.isRunning() ) timer.stop();
       animateButton.setText( "Animate" );
       animateButton.setEnabled( true );
@@ -313,7 +314,7 @@ public class MazeGUI implements ActionListener {
       animateButton.setText( "Animate" );
     }
 
-    if( periscopeStream == System.out ) {
+    if( periscopeStream == stdoutStream ) {
       /* stream data to periscope monitor */
       try {
         periscopeStream = new PrintStream( PERISCOPE_LOG  );
@@ -330,7 +331,7 @@ public class MazeGUI implements ActionListener {
     }
     else {
       /* remove serial monitors */
-      System.setOut( System.out );
+      System.setOut( stdoutStream );
       killPeriscopeMonitor();
     }
 
@@ -555,8 +556,8 @@ public class MazeGUI implements ActionListener {
         outputStats = false;
         int mouse_visited = mouse.getTotalCellsVisited();
         int total = mouse_maze.getDimension() * mouse_maze.getDimension();
-        System.out.println( "Proportion of cells visited by mouse: " + ((double)(mouse_visited) / total * 100) + "% on a dimension of " + mouse_maze.getDimension() + "x" + mouse_maze.getDimension() );
-        System.out.println( "Total number of mouse runs: " + mouse.getNumberOfRuns() );
+        System.err.println( "Proportion of cells visited by mouse: " + ((double)(mouse_visited) / total * 100) + "% on a dimension of " + mouse_maze.getDimension() + "x" + mouse_maze.getDimension() );
+        System.err.println( "Total number of mouse runs: " + mouse.getNumberOfRuns() );
       }
     }
 
@@ -913,6 +914,17 @@ public class MazeGUI implements ActionListener {
       System.out.println( "Example: java MazeGUI -dimension 16\n" );
       System.out.println( ParsingStrings.USAGE );
       System.exit( 1 );
+    }
+
+    try {
+      Class.forName("com.fazecast.jSerialComm.SerialPort");
+    }
+    catch( ClassNotFoundException e ) {
+      System.out.println( "Incorrect program start-up. (invalid classpath)");
+      System.out.println( "Try following command to resolve issue: \n" );
+      System.out.println( "$ export CLASSPATH=\"$CLASSPATH:../lib/*:.\"\n" );
+      System.out.println( ParsingStrings.USAGE );
+      System.exit( 0 );
     }
 
     MazeGUI gui = new MazeGUI( dimension, non_tree_edges, dijkstra, dfs );
