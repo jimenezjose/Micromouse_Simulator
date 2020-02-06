@@ -707,7 +707,7 @@ class Maze implements Iterable<MazeNode> {
     boolean status = false;
 
     long prevMillis = System.currentTimeMillis();
-    System.out.println( "Loading Maze..." );
+    System.err.println( "Loading Maze..." );
 
     try {
       in = new FileInputStream( datafile );
@@ -799,7 +799,7 @@ class Maze implements Iterable<MazeNode> {
     }
     int read_width = buffer.getInt();
     int read_height = buffer.getInt();
-    System.out.println( "Loading dimensions: (" + read_width + "," + read_height + ")" );
+    System.err.println( "Loading dimensions: (" + read_width + "," + read_height + ")" );
     if( read_width != dimension || read_height != dimension ) {
       /* width or height is not the same dimension as this maze object */
       System.err.println( "Incompatible dimensions read from file: Aborting maze build" );
