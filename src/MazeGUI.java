@@ -48,6 +48,7 @@ public class MazeGUI implements ActionListener {
   public static final double MAZE_PERISCOPE_PROPORTION = 0.75;
   private static final File DATAFILE = new File("../datafile");
   private static final File PERISCOPE_LOG = new File("../src/utility/periscope/session.log");
+  private static final File DEVICES_CONNECTED = new File("../src/utility/periscope/devices.connected");
   private static final File PERISCOPE_HOME_DIR = new File("../src/utility/periscope");
   private static final PrintStream stdoutStream = System.out;
   private static final int DELAY = 250;
@@ -88,6 +89,7 @@ public class MazeGUI implements ActionListener {
   private boolean outputStats = true;
 
   private PrintStream periscopeStream = System.out;
+  private PrintStream deviceHistoryStream = System.out;
   private Process periscopeMonitor = null;
   private Process periscopePrompt  = null;
 
@@ -293,6 +295,41 @@ public class MazeGUI implements ActionListener {
   }
 
   /**
+   * Handles a logic associated with the JComboBox.
+   * @param evt Event that is fired when user interacts with the JComboBox.
+   * @return Nothing.
+   */
+  private void handlePortComboBoxEvent( ActionEvent evt ) {
+    String selectedPort = portComboBox.getSelectedItem().toString();
+    String noPort = portComboBox.getItemAt(0).toString();
+
+    if( serialComm.connectTo(selectedPort) ) {
+      /* serial communication is binded to the new selected port */
+      System.out.println( "Connected: " + selectedPort );
+      /* spawn micromouse serial monitors */
+      spawnPeriscopeMonitor( selectedPort );
+
+    }
+    else if( selectedPort.equals(noPort) ) {
+      /* Manual disconnection option */
+      if( System.out != stdoutStream ) System.setOut( stdoutStream );
+      System.out.println("Disconnected.");
+      serialComm.disconnect();
+    }
+    else {
+      /* unsuccessful port connection */
+      if( System.out != stdoutStream ) System.setOut( stdoutStream );
+      System.out.println( "Failed Connection: " + selectedPort );
+      portComboBox.setSelectedItem( 0 );
+    }
+
+    if( portComboBox.getItemCount() - 1 != serialComm.getAvailablePortCount() ) {
+      /* new available port detected. update portComboBox */
+      System.out.println("Not implementd: new port detected but not updated in JComboBox");
+    }
+  }
+
+  /**
    * Realtime event streaming communication from hardware micromouse.
    * @param evt Event that triggered a periscope button toggle.
    * @return Nothing.
@@ -314,27 +351,10 @@ public class MazeGUI implements ActionListener {
       animateButton.setText( "Animate" );
     }
 
-    if( periscopeStream == stdoutStream ) {
-      /* stream data to periscope monitor */
-      try {
-        periscopeStream = new PrintStream( PERISCOPE_LOG  );
-      }
-      catch( Exception e ) {
-        System.err.println( "Periscope stream failed to open" );
-      }
-    }
-
-    if( periscopeMode ) {
-      /* spawn micromouse serial monitors */
-      System.setOut( periscopeStream );
-      spawnPeriscopeMonitor();
-    }
-    else {
-      /* remove serial monitors */
-      System.setOut( stdoutStream );
+    if( !periscopeMode ) {
       killPeriscopeMonitor();
     }
-
+    
     renderPanel.setPeriscopeMode( periscopeMode );
     renderPanel.repaint();
   }
@@ -342,13 +362,37 @@ public class MazeGUI implements ActionListener {
   /**
    * TODO
    */
-  private void spawnPeriscopeMonitor() {
+  private void spawnPeriscopeMonitor( String devicePort ) {
     String periscope_home = PERISCOPE_HOME_DIR.getAbsolutePath();
     String monitorScript = periscope_home + "/serialMonitor.sh";
     String promptScript = periscope_home + "/serialPrompt.sh";
     String monitorCmd = String.format("open -a Terminal %s", monitorScript);
     String promptCmd = String.format("open -a Terminal %s", promptScript);
 
+    /* notify periscope of new device to connect to */
+    if( deviceHistoryStream == stdoutStream ) {
+      try {
+        deviceHistoryStream = new PrintStream( DEVICES_CONNECTED );
+      }
+      catch( Exception e ) {
+        System.err.println( "Device history stream failed to open" );
+      }
+    }
+    deviceHistoryStream.println( devicePort );
+
+    /* open periscope communication channel */
+    if( periscopeStream == stdoutStream ) {
+      try {
+        periscopeStream = new PrintStream( PERISCOPE_LOG  );
+      }
+      catch( Exception e ) {
+        System.err.println( "Periscope stream failed to open" );
+      }
+    }
+    /* setting output stream to point to periscope monitors */
+    System.setOut( periscopeStream );
+
+    /* open periscope monitors */
     try {
       if( periscopeMonitor == null ) {
         periscopeMonitor = Runtime.getRuntime().exec( monitorCmd );
@@ -366,6 +410,11 @@ public class MazeGUI implements ActionListener {
    * TODO
    */
   private void killPeriscopeMonitor() {
+ 
+    /* reset output stream to standard out */
+    System.setOut( stdoutStream );
+
+    /* kill periscope monitor processes */
     try {
       if( periscopeMonitor != null ) {
         periscopeMonitor.waitFor();
@@ -383,35 +432,7 @@ public class MazeGUI implements ActionListener {
     }
   }
 
-  /**
-   * Handles a logic associated with the JComboBox.
-   * @param evt Event that is fired when user interacts with the JComboBox.
-   * @return Nothing.
-   */
-  private void handlePortComboBoxEvent( ActionEvent evt ) {
-    String selectedPort = portComboBox.getSelectedItem().toString();
-    String noPort = portComboBox.getItemAt(0).toString();
-
-    if( serialComm.connectTo(selectedPort) ) {
-      /* serial communication is binded to the new selected port */
-      System.out.println( "Connected: " + selectedPort );
-    }
-    else if( selectedPort.equals(noPort) ) {
-      /* Manual disconnection option */
-      System.out.println("Disconnected.");
-      serialComm.disconnect();
-    }
-    else {
-      /* unsuccessful port connection */
-      System.out.println( "Failed Connection: " + selectedPort );
-      portComboBox.setSelectedItem( 0 );
-    }
-
-    if( portComboBox.getItemCount() - 1 != serialComm.getAvailablePortCount() ) {
-      /* new available port detected. update portComboBox */
-      System.out.println("Not implementd: new port detected but not updated in JComboBox");
-    }
-  }
+  
 
   /**
    * Handles serial port communication.
