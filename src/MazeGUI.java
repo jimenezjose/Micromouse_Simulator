@@ -17,6 +17,7 @@
 import java.io.PrintStream;
 import java.io.IOException;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.LinkedList;
 import java.util.Vector;
 import javax.swing.JPanel;
@@ -370,15 +371,24 @@ public class MazeGUI implements ActionListener {
     String promptCmd = String.format("open -a Terminal %s", promptScript);
 
     /* notify periscope of new device to connect to */
-    if( deviceHistoryStream == stdoutStream ) {
+    FileOutputStream device_connected = null;
+    try {
+      device_connected = new FileOutputStream( DEVICES_CONNECTED );
+      device_connected.write( devicePort.getBytes() );
+    }
+    catch( IOException e ) {
+      e.printStackTrace();
+    }
+    finally {
       try {
-        deviceHistoryStream = new PrintStream( DEVICES_CONNECTED );
+        if( device_connected != null ) {
+          device_connected.close();
+        }
       }
-      catch( Exception e ) {
-        System.err.println( "Device history stream failed to open" );
+      catch( IOException e ) {
+        e.printStackTrace();
       }
     }
-    deviceHistoryStream.println( devicePort );
 
     /* open periscope communication channel */
     if( periscopeStream == stdoutStream ) {
