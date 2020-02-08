@@ -9,29 +9,22 @@ DIR=$(dirname "${0}")
 
 DEVICE=""
 
+# ensure working directory is in periscope
+cd $DIR
+
 # ensure file exists
-while [[ ! -f $DEVICE_FILE ]]; do
-        sleep 5
-done
+touch $DEVICE_FILE
 
 # ensure device is connected
 DEVICE="$DEVICE_DIR/`awk '/./{line=$0} END{print line}' $DEVICE_FILE`"
-
-echo "tail -f $DEVICE_FILE"
-tail -f $DEVICE_FILE
-
-if [[ ! -f $DEVICE ]] || [[ "$DEVICE" == "" ]]; then
+if [[ ! -c $DEVICE ]] || [[ "$DEVICE" == "" ]]; then
         # device not found
 	printf "Device \"$DEVICE\" not found.\n"
         exit 0
 fi
 
-# ensure working directory is in periscope
-cd $DIR
-
 # clear log file
 echo -n > $LOGFILE
-
 # serial monitor UI
 stty -echo
 clear

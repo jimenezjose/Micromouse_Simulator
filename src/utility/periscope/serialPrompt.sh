@@ -7,17 +7,17 @@ PROMPT="> "
 DEVICE_FILE="devices.connected"
 DEVICE_DIR="/dev"
 DIR=$(dirname "${0}")
-
 DEVICE=""
 
+# ensure working directory is in periscope
+cd $DIR
+
 # ensure file exists
-while [[ ! -f $DEVICE_FILE ]]; do
-	sleep 5
-done
+touch $DEVICE_FILE
 
 # ensure device is connected
 DEVICE="$DEVICE_DIR/`awk '/./{line=$0} END{print line}' $DEVICE_FILE`"
-if [[ ! -f $DEVICE ]] || [[ "$DEVICE" == "" ]]; then
+if [[ ! -c $DEVICE ]] || [[ "$DEVICE" == "" ]]; then
 	# device not found
 	printf "Device \"$DEVICE\" not found.\n"
 	exit 0
@@ -25,8 +25,6 @@ else
 	PROMPT="${BLUE}$DEVICE:${GREEN} periscope $PROMPT"
 fi
 
-# ensure working directory is in periscope
-cd $DIR
 
 # serial prompt UI
 clear
