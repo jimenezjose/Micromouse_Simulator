@@ -48,8 +48,8 @@ public class MazeGUI implements ActionListener {
   public static final double MAZE_DEFAULT_PROPORTION = 0.50;
   public static final double MAZE_PERISCOPE_PROPORTION = 0.75;
   private static final File DATAFILE = new File("../datafile");
-  private static final File PERISCOPE_LOG = new File("../src/utility/periscope/session.log");
-  private static final File DEVICES_CONNECTED = new File("../src/utility/periscope/devices.connected");
+  private static final File PERISCOPE_LOG = new File("/tmp/session.log");
+  private static final File DEVICES_CONNECTED = new File("/tmp/device.connected");
   private static final File PERISCOPE_HOME_DIR = new File("../src/utility/periscope");
   private static final PrintStream stdoutStream = System.out;
   private static final int DELAY = 250;
