@@ -5,3 +5,4 @@
 .DS_Store
 datafile
 session.log
+device.connected

@@ -3,7 +3,7 @@
 GREEN="\e[32m"
 DEFAULT="\e[39m"
 LOGFILE="session.log"
-DEVICE_FILE="devices.connected"
+DEVICE_FILE="/tmp/device.connected"
 DEVICE_DIR="/dev"
 DIR=$(dirname "${0}")
 
@@ -13,7 +13,7 @@ DEVICE=""
 cd $DIR
 
 # ensure file exists
-touch $DEVICE_FILE
+#touch $DEVICE_FILE
 
 # ensure device is connected
 DEVICE="$DEVICE_DIR/`awk '/./{line=$0} END{print line}' $DEVICE_FILE`"

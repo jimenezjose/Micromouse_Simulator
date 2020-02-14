@@ -4,7 +4,7 @@ BLUE="\e[34m"
 GREEN="\e[32m"
 DEFAULT="\e[39m"
 PROMPT="> "
-DEVICE_FILE="devices.connected"
+DEVICE_FILE="/tmp/device.connected"
 DEVICE_DIR="/dev"
 DIR=$(dirname "${0}")
 DEVICE=""
@@ -43,6 +43,11 @@ while true; do
 	# prompt user to interact with device
 	printf "$PROMPT"
 	read
+	if [[ "$REPLY" == "clear" ]]; then
+		clear
+		printf "Micromouse Periscope Prompt:\n\n"
+		continue
+	fi
 	printf "$REPLY" > "$DEVICE"
 done
 printf "${DEFAULT}"
