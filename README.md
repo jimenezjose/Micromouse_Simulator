@@ -63,8 +63,8 @@ $ java -cp ../lib/*:. MazeGUI
   * Victor Chen
 
 ## UCSD Micromouse Team 2019:
- * Jose Jimenez
- * Brandon Cramer
+ * Jose Jimenez (Team Lead)
+ * Brandon Cramer (PCB Design Lead)
  * Chris Robles
  * Srinivas Venkatraman
 
