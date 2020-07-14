@@ -30,9 +30,7 @@ This way a working model will be preserved in master.
 ```
 $ git clone https://github.com/jimenezjose/Micromouse_Simulator.git
 $ cd Micromouse_Simulator
-$ make
-$ cd build
-$ java -cp ../lib/*:. MazeGUI
+$ ./runMazeGUI.sh
 ```
 
 <!---
