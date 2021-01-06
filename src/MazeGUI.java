@@ -185,6 +185,7 @@ public class MazeGUI implements ActionListener {
 
     main_frame.setVisible( true );
     timer = new Timer( DELAY, this );
+    periscopeButton.setVisible( false );
   }
 
   /**
