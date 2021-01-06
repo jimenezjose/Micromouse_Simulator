@@ -50,7 +50,7 @@ $ ./runMazeGUI.sh
 ## Maze Graph Visualization:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/maze-graph.png)
 
-## Autonomous Maze Solving Robot Comming Soon
+## Autonomous Maze Solving Robot
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/AllLayersVisible.PNG)
 ![Alt Teaxt](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/Micromouse_Hardware.jpg)
 
