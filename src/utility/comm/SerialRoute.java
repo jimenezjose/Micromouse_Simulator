@@ -25,6 +25,7 @@ import java.util.Vector;
 import java.util.EventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Serial Route object that interacts and connects to hardware ports
@@ -53,6 +54,28 @@ public class SerialRoute implements SerialPortMessageListener {
   }
 
   /**
+   * Transmits bytes through serial port.
+   * @param buffer byte buffer to be sent through serial port.
+   * @param bytesToWrite number of bytes in byte buffer to send.
+   * @return Number of bytes successfully written otherwise return -1 for error.
+   */
+  public int writeBytes( byte[] buffer, long bytesToWrite ) {
+    if( port == null ) return -1;
+    return port.writeBytes(buffer, bytesToWrite);
+  }
+
+  /**
+   * Transmits message through port with implicit append of delimeter.
+   * @param message String message to be sent.
+   * @return Number of bytes successfully written otherwise return -1 for error.
+   */
+  public int sendMessage( String message ) {
+    String delimeter = new String(getMessageDelimiter(), StandardCharsets.UTF_8);
+    message = message + delimeter;
+    return writeBytes(message.getBytes(), message.length());
+  }
+
+  /**
    * Connects to a specific port by string name.
    * @param selectedPortName User friendly port name.
    * @return True upon success, false otherwise.
@@ -62,11 +85,11 @@ public class SerialRoute implements SerialPortMessageListener {
     for( String portName : getPortList() ) {
       /* all bindable ports */
       if( selectedPortName.equals(portName) ) {
-	/* connect to port and listen to serial data asynchronously */
+	      /* connect to port and listen to serial data asynchronously */
         disconnect();
         port = SerialPort.getCommPorts()[ index ];
-	port.openPort();
-	port.addDataListener( this );
+	      port.openPort();
+	      port.addDataListener( this );
         return true;
       }
       index++;

@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.util.LinkedList;
 import java.util.Vector;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -40,6 +41,8 @@ import java.awt.Container;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Image;
+import java.awt.GridLayout;
+import java.awt.Dimension;
 
 /**
  * MazeGUI will create maze exploring interface.
@@ -76,12 +79,17 @@ public class MazeGUI implements ActionListener {
   private JPanel northPanel;
   private JPanel southPanel;
   private RenderPanel renderPanel;
+  private JPanel northButtonPanel;
+  private JPanel southButtonPanel;
+  private JPanel periscopePanel;
 
   private JButton animateButton;
   private JButton clearButton;
   private JButton mazeButton;
   private JButton nextButton;
   private JButton periscopeButton;
+  private JButton sendButton;
+  private JTextField periscopePrompt;
   private JComboBox<String> portComboBox; 
   private SerialRoute serialComm;
 
@@ -92,7 +100,6 @@ public class MazeGUI implements ActionListener {
   private PrintStream periscopeStream = System.out;
   private PrintStream deviceHistoryStream = System.out;
   private Process periscopeMonitor = null;
-  private Process periscopePrompt  = null;
 
   /**
    * Constructor: Creates and sets up MazeGUI 
@@ -126,13 +133,18 @@ public class MazeGUI implements ActionListener {
     main_frame.setBackground( Color.BLACK );
     main_frame.setResizable( true );
 
+    /* main sections of layout, north, south, center */
     northPanel  = new JPanel();
-    southPanel  = new JPanel();
+    southPanel = new JPanel();
     renderPanel = new RenderPanel();
+    /* sub-panels for cosmetic needs */ 
+    northButtonPanel = new JPanel();
+    periscopePanel = new JPanel();
+    southButtonPanel  = new JPanel();
 
     /* set layout for button panels */
-    northPanel.setLayout( new BoxLayout(northPanel, BoxLayout.LINE_AXIS) );
-    southPanel.setLayout( new BoxLayout(southPanel, BoxLayout.LINE_AXIS) );
+    northButtonPanel.setLayout( new BoxLayout(northButtonPanel, BoxLayout.LINE_AXIS) );
+    southButtonPanel.setLayout( new BoxLayout(southButtonPanel, BoxLayout.LINE_AXIS) );
 
     /* sets names of new buttons */
     animateButton   = new JButton( "Animate" );
@@ -140,6 +152,8 @@ public class MazeGUI implements ActionListener {
     mazeButton      = new JButton( "New Maze" );
     nextButton      = new JButton( "Next" );
     periscopeButton = new JButton( "Periscope" );
+    sendButton = new JButton( "Send" );
+    periscopePrompt = new JTextField( 25 );
 
     /* Create port combo box */
     serialComm = SerialRoute.getInstance();
@@ -157,24 +171,40 @@ public class MazeGUI implements ActionListener {
     nextButton.addActionListener( this );
     periscopeButton.addActionListener( this );
     portComboBox.addActionListener( this );
+
+    sendButton.addActionListener(this);
     /* Activates multithreaded serial communication on a specified port */
     serialComm.addActionListener( this );
 
     /* add button to panels */
-    northPanel.add( animateButton );
-    northPanel.add( Box.createHorizontalGlue() );
-    northPanel.add( portComboBox );
-    northPanel.add( Box.createHorizontalGlue() );
-    northPanel.add( mazeButton );
-    southPanel.add( nextButton );
-    southPanel.add( Box.createHorizontalGlue() );
-    southPanel.add( periscopeButton );
-    southPanel.add( Box.createHorizontalGlue() );
-    southPanel.add( clearButton );
+    northButtonPanel.add( animateButton );
+    northButtonPanel.add( Box.createHorizontalGlue() );
+    northButtonPanel.add( portComboBox );
+    northButtonPanel.add( Box.createHorizontalGlue() );
+    northButtonPanel.add( mazeButton );
+    /* south button panel buttons */
+    southButtonPanel.add( nextButton );
+    southButtonPanel.add( Box.createHorizontalGlue() );
+    southButtonPanel.add( periscopeButton );
+    southButtonPanel.add( Box.createHorizontalGlue() );
+    southButtonPanel.add( clearButton );
+    /* periscope panel buttons */
+    periscopePanel.add( periscopePrompt );
+    periscopePanel.add( Box.createHorizontalGlue() );
+    periscopePanel.add( sendButton );
+    periscopePanel.setVisible( false );
 
     /* background color of button panels */
-    northPanel.setBackground( Color.BLACK );
-    southPanel.setBackground( Color.BLACK );
+    northButtonPanel.setBackground( Color.BLACK );
+    southButtonPanel.setBackground( Color.BLACK );
+
+    /* set up north panel */
+    northPanel.setLayout( new GridLayout(0, 1));
+    northPanel.add(northButtonPanel);
+    /* set up south panel  */
+    southPanel.setLayout( new BoxLayout(southPanel, BoxLayout.Y_AXIS) );
+    southPanel.add( periscopePanel );
+    southPanel.add( southButtonPanel );
 
     /* add panels with their buttons on the final window */
     Container contentPane = main_frame.getContentPane();
@@ -185,7 +215,6 @@ public class MazeGUI implements ActionListener {
 
     main_frame.setVisible( true );
     timer = new Timer( DELAY, this );
-    periscopeButton.setVisible( false );
   }
 
   /**
@@ -220,6 +249,10 @@ public class MazeGUI implements ActionListener {
     else if( evt.getSource() == periscopeButton ) {
       /* toggle periscope mode */
       handlePeriscopeButtonEvent( evt );
+    }
+    else if( evt.getSource() == sendButton ) {
+      /* send user input out of device port */
+      handleSendButtonEvent( evt );
     }
     else if( evt.getSource() == nextButton || evt.getSource() == timer ) {
       /* animation timer */
@@ -297,6 +330,21 @@ public class MazeGUI implements ActionListener {
   }
 
   /**
+   * Send button event to transmit data through selected port.
+   * @param evt Event that registered the send button click.
+   * @return Nothing. 
+   */
+  private void handleSendButtonEvent( ActionEvent evt) {
+    // send button should be disabled when slected port is disconnected
+    String selectedPort = portComboBox.getSelectedItem().toString();
+    String noPort = portComboBox.getItemAt(0).toString();
+    if( selectedPort.equals(noPort) || serialComm == null) return;
+    String message = periscopePrompt.getText();
+    serialComm.sendMessage( message );
+    periscopePrompt.setText("");
+  }
+
+  /**
    * Handles a logic associated with the JComboBox.
    * @param evt Event that is fired when user interacts with the JComboBox.
    * @return Nothing.
@@ -341,6 +389,7 @@ public class MazeGUI implements ActionListener {
     String buttonText = (periscopeMode) ? "Exit" : "Periscope";
     periscopeButton.setText( buttonText );
     portComboBox.setVisible( periscopeMode );
+    periscopePanel.setVisible( periscopeMode );
     /* reset mouse and environment */
     handleClearButtonEvent( evt );
     /* disable animation buttons when in Periscope Mode */
@@ -356,7 +405,7 @@ public class MazeGUI implements ActionListener {
     if( !periscopeMode ) {
       killPeriscopeMonitor();
     }
-    
+
     renderPanel.setPeriscopeMode( periscopeMode );
     renderPanel.repaint();
   }
@@ -367,9 +416,7 @@ public class MazeGUI implements ActionListener {
   private void spawnPeriscopeMonitor( String devicePort ) {
     String periscope_home = PERISCOPE_HOME_DIR.getAbsolutePath();
     String monitorScript = periscope_home + "/serialMonitor.sh";
-    String promptScript = periscope_home + "/serialPrompt.sh";
     String monitorCmd = String.format("open -a Terminal %s", monitorScript);
-    String promptCmd = String.format("open -a Terminal %s", promptScript);
 
     /* notify periscope of new device to connect to */
     FileOutputStream device_connected = null;
@@ -408,9 +455,6 @@ public class MazeGUI implements ActionListener {
       if( periscopeMonitor == null ) {
         periscopeMonitor = Runtime.getRuntime().exec( monitorCmd );
       }
-      if(periscopePrompt == null) {
-        periscopePrompt = Runtime.getRuntime().exec( promptCmd );
-      }
     }
     catch( IOException e ) {
       e.printStackTrace();
@@ -421,29 +465,29 @@ public class MazeGUI implements ActionListener {
    * TODO
    */
   private void killPeriscopeMonitor() {
+    serialComm.disconnect();
  
     /* reset output stream to standard out */
     System.setOut( stdoutStream );
 
     /* kill periscope monitor processes */
-    try {
-      if( periscopeMonitor != null ) {
-        periscopeMonitor.waitFor();
-	periscopeMonitor.destroyForcibly();
-	if( !periscopeMonitor.isAlive() ) periscopeMonitor = null;
-      }
-      if( periscopePrompt != null ) {
-        periscopePrompt.waitFor();
-        periscopePrompt.destroyForcibly();
-	if( !periscopePrompt.isAlive() ) periscopePrompt = null;
-      }
-    }
-    catch( InterruptedException e ) {
-      e.printStackTrace();
-    }
-  }
+    // try {
+    //   if( periscopeMonitor != null ) {
+    //     periscopeMonitor.waitFor();
+	  //     periscopeMonitor.destroyForcibly();
+	  //     if( !periscopeMonitor.isAlive() ) periscopeMonitor = null;
+    //   }
+    //   if( periscopePrompt != null ) {
+    //     periscopePrompt.waitFor();
+    //     periscopePrompt.destroyForcibly();
+	  //     if( !periscopePrompt.isAlive() ) periscopePrompt = null;
+    //   }
+    // }
+    // catch( InterruptedException e ) {
+    //   e.printStackTrace();
+    // }
 
-  
+  }
 
   /**
    * Handles serial port communication.
@@ -453,7 +497,7 @@ public class MazeGUI implements ActionListener {
   private void handleSerialCommEvent( ActionEvent evt ) {
     SerialRouteEvent serialEvt = (SerialRouteEvent) evt;
     String data = serialEvt.getReceivedMessage();
-    System.out.println("Received: " + data);
+    System.out.println(data);
   }
 
   /**

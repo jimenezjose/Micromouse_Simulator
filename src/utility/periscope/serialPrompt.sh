@@ -31,23 +31,24 @@ clear
 printf "${GREEN}"
 printf "Micromouse Periscope Prompt:\n\n"
 
+NEW_DEVICE="$DEVICE_DIR/`awk '/./{line=$0} END{print line}' $DEVICE_FILE`"
 while true; do
-	NEW_DEVICE="$DEVICE_DIR/`awk '/./{line=$0} END{print line}' $DEVICE_FILE`"
+	#NEW_DEVICE="$DEVICE_DIR/`awk '/./{line=$0} END{print line}' $DEVICE_FILE`"
 
-	if [[ "$NEW_DEVICE" != "$DEVICE" ]]; then
-		# stop interacting with old device - abort 
-		printf "Disconnected.\n"
-		exit 0
-	fi
+	#if [[ "$NEW_DEVICE" != "$DEVICE" ]]; then
+	#	# stop interacting with old device - abort 
+	#	printf "Disconnected.\n"
+	#	exit 0
+	#fi
 
 	# prompt user to interact with device
 	printf "$PROMPT"
 	read
-	if [[ "$REPLY" == "clear" ]]; then
-		clear
-		printf "Micromouse Periscope Prompt:\n\n"
-		continue
-	fi
-	printf "$REPLY" > "$DEVICE"
+	#if [[ "$REPLY" == "clear" ]]; then
+	#	clear
+	#	printf "Micromouse Periscope Prompt:\n\n"
+	#	continue
+	#fi
+	printf "$REPLY\r\n" > "$DEVICE"
 done
 printf "${DEFAULT}"
