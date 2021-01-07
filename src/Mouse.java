@@ -2,9 +2,6 @@
  *
  * Jose Jimenez
  * Brandon Cramer
- * Minh Pham
- * Tony Guan
- * Victor Chen
  *
  *                 University of California, San Diego
  *                      IEEE Micromouse Team 2020
@@ -17,7 +14,6 @@
  *                  http://ijcte.org/papers/738-T012.pdf
  */
 
-import java.io.PrintStream;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Color;

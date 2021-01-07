@@ -1,3 +1,12 @@
+################################################################################
+ # Jose Jimenez
+ # Brandon Cramer
+ #
+ #                 University of California, San Diego
+ #                            IEEE Micromouse
+ # File Name:   serialMonitor.sh
+ # Description: Reads serial data from a log file and displays it to the console
+################################################################################
 #!/bin/bash
 
 GREEN="\e[32m"

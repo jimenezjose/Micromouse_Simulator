@@ -1,3 +1,12 @@
+################################################################################
+ # Jose Jimenez
+ # Brandon Cramer
+ #
+ #                 University of California, San Diego
+ #                            IEEE Micromouse
+ # File Name:   serialPrompt.sh
+ # Description: (Inactive) Serial Prompt UI that sends serial data to a device.
+################################################################################
 #!/bin/bash
 
 BLUE="\e[34m"

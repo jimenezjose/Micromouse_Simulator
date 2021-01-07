@@ -1,5 +1,20 @@
-import java.awt.event.ActionEvent;
+/**
+ *
+ * Jose Jimenez
+ * Brandon Cramer
+ *
+ *                 University of California, San Diego
+ *                      IEEE Micromouse Team 2020
+ *
+ * File Name:   SerialRouteEvent.java
+ * Description: This class notifies the serialRoute listeners by firing 
+ *              an event asynchronously with the data recieved on a serial 
+ *              port.
+ * Sources of Help: In section "Byte- or Multibyte-Delimited Message Received"
+ *        github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example
+ */
 
+import java.awt.event.ActionEvent;
 
 /*
  * Class definition of serial message events.

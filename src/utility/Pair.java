@@ -2,9 +2,6 @@
  *
  * Jose Jimenez
  * Brandon Cramer
- * Minh Pham
- * Tony Guan
- * Victor Chen
  *
  *                 University of California, San Diego
  *                      IEEE Micromouse Team 2020

@@ -2,9 +2,6 @@
  *
  * Jose Jimenez
  * Brandon Cramer
- * Minh Pham
- * Tony Guan
- * Victor Chen
  *
  *                 University of California, San Diego
  *                      IEEE Micromouse Team 2020
@@ -53,7 +50,7 @@ public class MazeGUI implements ActionListener {
   private static final File DATAFILE = new File("../datafile");
   private static final File PERISCOPE_LOG = new File("/tmp/session.log");
   private static final File DEVICES_CONNECTED = new File("/tmp/device.connected");
-  private static final File PERISCOPE_HOME_DIR = new File("../src/utility/periscope");
+  private static final File PERISCOPE_HOME_DIR = new File("../src/utility/bin");
   private static final PrintStream stdoutStream = System.out;
   private static final int DELAY = 250;
   private static final int EVEN = 2;

@@ -2,9 +2,6 @@
  *
  * Jose Jimenez
  * Brandon Cramer
- * Minh Pham
- * Tony Guan
- * Victor Chen
  *
  *                 University of California, San Diego
  *                      IEEE Micromouse Team 2020
@@ -15,7 +12,6 @@
  * Sources of Help: In section "Byte- or Multibyte-Delimited Message Received"
  *        github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example
  */
-// messages that have multiple \n characters in a single string? TODO
 
 import java.io.PrintStream;
 import java.lang.Thread;
