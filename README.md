@@ -55,7 +55,7 @@ $ ./runMazeGUI.sh
 ![Alt Teaxt](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/Micromouse_Hardware.jpg)
 
 ## UCSD Micromouse Team 2020:
-  * Jose Jimenez (Software Design Lead)
+  * Jose Jimenez (Team & Software Design Lead)
   * Brandon Cramer (Hardware Design Lead)
   * Minh Pham
   * Tony Guan
