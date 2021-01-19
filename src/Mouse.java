@@ -14,6 +14,8 @@
  *                  http://ijcte.org/papers/738-T012.pdf
  */
 
+import java.util.Arrays;
+import java.lang.Integer;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Color;
@@ -22,6 +24,7 @@ import java.awt.Point;
 import java.util.Stack;
 import java.util.LinkedList;
 import java.util.Queue;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Micromouse class to emulate autonomous robot behavior.
@@ -29,16 +32,17 @@ import java.util.Queue;
 public class Mouse {
   private final double PROPORTION = 0.3;
   private final int EVEN = 2;
-  private final int TOTAL_RUNS = 2;
+  public boolean periscopeDisplayCellValues = false;
 
   public int x;
   public int y;
   private int column;
   private int row;
 
-  private MouseShape mouse;
   private Maze ref_maze;
   private Maze maze;
+
+  private MouseShape mouse;
   private Point center = new Point();
 
   private Point origin;
@@ -192,9 +196,9 @@ public class Mouse {
       for( MazeNode openNeighbor : cell.getNeighborList() ) {
         /* update distance only to open neighbor of cell */
         if( openNeighbor.visited ) continue;
-	q.add( openNeighbor );
-	openNeighbor.setVisited( true );
-	openNeighbor.distance = cell.distance + 1;
+	      q.add( openNeighbor );
+	      openNeighbor.setVisited( true );
+	      openNeighbor.distance = cell.distance + 1;
       }
     }
   }
@@ -228,7 +232,7 @@ public class Mouse {
       /* otherwise least */
       if( neighbor.distance == start.distance - 1 ) {
         updateMousePath( neighbor, end );
-	return;
+	      return;
       }
     }
   }
@@ -238,7 +242,8 @@ public class Mouse {
    * Physical Constraint: There are only sesors on the front, left, and right
    *                      faces of the mouse.
    * @param cell Location in maze.
-   * @param orientation mouse front face direction.
+   * @param orientation mouse front face direction.\
+   * @return Nothing.
    */
   private void markNeighborWalls( MazeNode cell, Orientation orientation ) {
     MazeNode ref_cell = ref_maze.at( cell.row, cell.column );
@@ -250,10 +255,35 @@ public class Mouse {
       /* sweep across the left wall, up wall, and right wall */
       if( ref_neighbors[ point.ordinal() ] == null ) {
         /* wall found in reference maze */
-	maze.removeEdge( cell, neighbors[ point.ordinal() ] );
+	      maze.removeEdge( cell, neighbors[ point.ordinal() ] );
       }
       point = point.next();
     }
+  }
+
+  /**
+   * Used in periscope mode, this function marks the neighboring wall indicated
+   * by the code argument and current orientation of the mouse.
+   * Example: mouse is facing south and wants to mark a code="right" wall, 
+   *          then cell.left is a wall.
+   * @param cell current location of mouse in maze.
+   * @param code Relative wall detected. See local variable code_list.
+   * @return Nothing.
+   */
+  private void markNeighborWall( MazeNode cell, String code ) {
+    String[] code_list = {"up", "right", "down", "left"};
+    MazeNode[] neighbors = { cell.up, cell.right, cell.down, cell.left }; 
+    Orientation point = orientation;
+    while( point != orientation.relativeLeft() ) {
+      /* mark relative wall with respect to current orientation */
+      int index = (point.ordinal() - orientation.ordinal() + orientation.size()) % orientation.size();
+      if( code_list[ index ].equals(code) ) {
+        maze.addWall( cell, neighbors[ point.ordinal() ] );
+        return;
+      }
+      point = point.next();
+    }
+   
   }
 
   /**
@@ -278,12 +308,105 @@ public class Mouse {
     orientation = Orientation.NORTH;
   }
 
+  /**
+   * Communication protocol to display micromouse data in virtual environment.
+   * @param data Byte string sent from micromouse to simulator.
+   * @return Nothing.
+   */
+  public void periscopeProtocol( String data ) {
+    String textPreamble = "Periscope:";
+    byte[] bytePreamble = {(byte)0xBE, (byte)0xCA};
+
+    if( data.startsWith(textPreamble) ) {
+      /*  text-based protocol */
+      periscopeDisplayCellValues = false;
+      String payload = data.substring(textPreamble.length());
+      periscopeTextProtocol(payload);
+    }
+    else if( data.startsWith(new String(bytePreamble)) ) {
+      /* byte-based protocol */
+      periscopeDisplayCellValues = true;
+      String payload = data.substring(bytePreamble.length);
+      periscopeByteProtocol(payload);
+    }
+  }
+
+  /**
+   * Periscope Text Protocol handling.
+   * Preamble: "Periscope: "
+   * Example payload: "(3x3)(0,0)(north)(up)"
+   * @param payload current data sent from micromouse.
+   * @return Nothing.
+   */
+  private void periscopeTextProtocol( String payload ) {
+    final int NUM_OF_HEADERS = 4;
+    String[] headers_array = StringUtils.substringsBetween(payload, "(", ")");
+    LinkedList<String> headers = new LinkedList<>( Arrays.asList(headers_array) );
+
+    if( headers.size() != NUM_OF_HEADERS ) {
+      return;
+    }
+
+    String[] maze_dimensions = headers.removeFirst().split("x");
+    String[] mouse_location  = headers.removeFirst().split(",");
+    String mouse_orientation = headers.removeFirst().toUpperCase();
+    String wall_detected     = headers.removeFirst();
+
+    /* maze dimension parse */
+    for( String value : maze_dimensions ) {
+      if( !StringUtils.isNumeric(value) ) return;
+    }
+    int width  = Integer.parseInt( maze_dimensions[0] );
+    int height = Integer.parseInt( maze_dimensions[1] ); 
+    if( width != maze.getDimension() || height != maze.getDimension() ) {
+      if( width != height ) System.err.println("Not implemented: non-square dimensions in periscope protocol");
+      maze = new Maze( width );
+      maze.clearWalls();
+    }
+
+    /* mouse location parse */
+    for( String value : mouse_location ) {
+      if( !StringUtils.isNumeric(value) ) return;
+    }
+    int row = Integer.parseInt( mouse_location[0] );
+    int column = Integer.parseInt( mouse_location[1] );
+    if( maze.outOfBounds(row) || maze.outOfBounds(column) ) {
+      return;
+    }
+
+    /* mouse orientation parse */
+    if( !Orientation.contains(mouse_orientation) ) {
+      return;
+    }
+
+    /* walls detected parse */
+    String[] wallCodes = {"up", "right", "down", "left", ""}; 
+    if( !Arrays.asList(wallCodes).contains(wall_detected) ) {
+      return;
+    }
+
+    /* Successful parse. Update virtual mouse environment */
+    MazeNode cell = maze.at( row, column );
+    rotateTo( Orientation.valueOf(mouse_orientation) );
+    moveTo( cell );
+    markNeighborWall(cell, wall_detected);
+
+  }
+
+  private void periscopeByteProtocol( String payload ) {
+    System.err.println("Not Implemented");
+  }
+
 
   /**
    * Erases all memory about the maze configuration.
    * @return Nothing.
    */
   private void clearMazeMemory() {
+    if( maze.getDimension() != ref_maze.getDimension() ) {
+      /* periscope changed maze dimension - reset */
+      maze = new Maze( ref_maze.getDimension() );
+    }
     /* break all walls in maze - (this fully connected graph) */
     maze.clearWalls();
     /* erase memory from exploring maze */
@@ -348,6 +471,15 @@ public class Mouse {
   }
 
   /**
+   * Rotate mouse to face the given orientation.
+   * @param orientatin Compass value the mouse will face.
+   * @return Nothing.
+   */
+  void rotateTo( Orientation orientation ) {
+    this.orientation = orientation;
+  } 
+
+  /**
    * Traslates mouse to the give cell.
    * @param cell maze cell that the mouse will move to.
    * @return Nothing.
@@ -402,7 +534,7 @@ public class Mouse {
    * @return Nothing.
    */
   public void setGraphicsEnvironment( Point maze_draw_point, int maze_diameter ) {
-    double UNIT = (1.0 / ref_maze.getDimension()) * maze_diameter;
+    double UNIT = (1.0 / maze.getDimension()) * maze_diameter;
     double unitCenterX = maze_draw_point.x + column * UNIT + (UNIT / 2.0);
     double unitCenterY = maze_draw_point.y + row * UNIT + (UNIT / 2.0);
     double width = UNIT * PROPORTION; 
@@ -489,6 +621,14 @@ public class Mouse {
   }
 
   /**
+   * Getter for mouse maze.
+   * @return current mouse maze.
+   */
+  public Maze getMaze() {
+    return maze;
+  }
+
+  /**
    * Statistic that gets the total number of cells the mouse visited on the maze.
    * @return total cells the mouse visited.
    */
@@ -508,6 +648,15 @@ public class Mouse {
   }
 
   /**
+   * String representation of mouse.
+   * @return string that uniquely represents mouse.
+   */
+  @Override
+  public String toString() {
+    return super.toString() + "-(" + row + "," + column + ")-" + orientation;
+  }
+
+  /**
    * Enum class the define the orientation of the mouse in the maze.
    */
   private enum Orientation {
@@ -516,6 +665,19 @@ public class Mouse {
     SOUTH,
     WEST;
 
+    /**
+     * Checks if the string equivalent enum exists in orientation.
+     * @param value String of interest.
+     * @return true if value exists in orientation, false otherwise.
+     */
+    public static boolean contains( String value ) {
+      for( Orientation orientation : Orientation.values() ) {
+        if( orientation.name().equals(value) ) {
+          return true;
+        }
+      }
+      return false;
+    }
     /**
      * Relative to the current orientation, what is right.
      * @return the relative orientation facing to the right.

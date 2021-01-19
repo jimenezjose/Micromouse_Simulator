@@ -3,8 +3,11 @@ BUILD_DIR=build
 JSERIALCOMM_JAR = \
 lib/jSerialComm-2.5.1.jar
 
+COMMONS_LANG3_JAR = \
+lib/commons-lang3-3.11.jar
+
 JAR_SOURCES= \
-$(JSERIALCOMM_JAR)
+$(JSERIALCOMM_JAR):$(COMMONS_LANG3_JAR)
 
 JAVA_SOURCES= \
 src/MazeGUI.java \

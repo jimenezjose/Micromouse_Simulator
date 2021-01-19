@@ -37,6 +37,11 @@ class Maze implements Iterable<MazeNode> {
   private LinkedList<MazeNode> dijkstraPath = new LinkedList<MazeNode>();
   private LinkedList<MazeNode> dfsPath = new LinkedList<MazeNode>();
 
+  /*
+  private final int width;
+  private final int height;
+  */
+
   /**
    * Creates a Maze object as a 2d array of MazeNodes.
    * @param dimension Side units for square maze.
@@ -165,7 +170,7 @@ class Maze implements Iterable<MazeNode> {
       if( endVertex.getVisited() ) break;
       if( neighbor.getVisited() == false ) {
         /* visit every node exactly once */
-	dfsHelper( neighbor, endVertex );
+	      dfsHelper( neighbor, endVertex );
       }
     }
 
@@ -200,8 +205,6 @@ class Maze implements Iterable<MazeNode> {
     bestPath.addLast( endVertex );
     return bestPath;
   }
-
-   
 
   /**
    * Creates a new random maze and saves maze to datafile.
@@ -255,11 +258,11 @@ class Maze implements Iterable<MazeNode> {
       for( int column = 0; column < maze[0].length; column++ ) {
         if( row < maze.length - 1 ) {
           /* insert wall below the current cell */
-	  walls.add( new Pair<>( maze[row][column], maze[row + 1][column] ) );
+	        walls.add( new Pair<>( maze[row][column], maze[row + 1][column] ) );
 	}
 	if( column < maze[0].length - 1 ) {
           /* insert wall to the right current cell */
-	  walls.add( new Pair<>( maze[row][column], maze[row][column + 1] ) );
+	        walls.add( new Pair<>( maze[row][column], maze[row][column + 1] ) );
 	}
       }
     }
@@ -279,16 +282,16 @@ class Maze implements Iterable<MazeNode> {
           solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row ][ column + 1 ] ) );
           solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row - 1 ][ column ] ) );
           solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row + 1][ column ] ) );
-	  break;
-	}
+	        break;
+	      }
 
         targetNodes.addLast( maze[ row ][ column ] );
-	int dr = ( row == lowerCenter ) ? -1 : +1;
-	int dc = ( column == lowerCenter ) ? -1 : + 1;
+	      int dr = ( row == lowerCenter ) ? -1 : +1;
+	      int dc = ( column == lowerCenter ) ? -1 : + 1;
 	
         /* quad-cell solution */
-	solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row + dr ][ column ] ) );
-	solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row ][ column + dc ] ) );
+	      solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row + dr ][ column ] ) );
+	      solutionEntry.add( new Pair<>( maze[ row ][ column ], maze[ row ][ column + dc ] ) );
       }
     }
 
@@ -333,14 +336,13 @@ class Maze implements Iterable<MazeNode> {
       if( inSameSet( vertex_A, vertex_B ) == false ) {
         /* combine disjoint sets and create new edge */
         union( vertex_A, vertex_B );
-	addEdge( vertex_A, vertex_B );
-	count++;
+        addEdge( vertex_A, vertex_B );
+	      count++;
       }
       else {
         /* walls that border cells in the same set */
         extraWalls.add( node_pair );
       }
-      
       /* remove wall from wall list */
       walls.remove( randomIndex );
     }
@@ -437,7 +439,7 @@ class Maze implements Iterable<MazeNode> {
 
       if( a_set.rank == b_set.rank ) {
         /* union of trees of equal height */
-	b_set.rank = a_set.rank + 1;
+	      b_set.rank = a_set.rank + 1;
       }
     }
   }
@@ -550,13 +552,13 @@ class Maze implements Iterable<MazeNode> {
         MazeNode currentNode = maze[ row ][ column ];
     
         if( !outOfBounds(row + 1) ) {
-	  /* vertical deviation downwards */
-	  addEdge( currentNode, maze[ row + 1 ][ column ] );
-	}
-	if( !outOfBounds(column + 1) ) {
-	  /* horizontal deviation to the right */
-	  addEdge( currentNode, maze[ row ][ column + 1 ] );
-	}
+	        /* vertical deviation downwards */
+	        addEdge( currentNode, maze[ row + 1 ][ column ] );
+	      }
+	      if( !outOfBounds(column + 1) ) {
+	        /* horizontal deviation to the right */
+	        addEdge( currentNode, maze[ row ][ column + 1 ] );
+	      }
       }
     }
   }
@@ -718,7 +720,7 @@ class Maze implements Iterable<MazeNode> {
       try {
         if( in != null ) {
           in.close();
-	}
+	      }
       }
       catch( IOException e ) {
         e.printStackTrace();
@@ -753,19 +755,19 @@ class Maze implements Iterable<MazeNode> {
     for( int row = 0; row < dimension; row++ ) {
       for( int column = 0; column < dimension; column++ ) {
         MazeNode currentNode = at( row, column );
-	/* bitflag of open down neighbor */
-	data = data << 1;
-	if( currentNode.down != null ) data |= 0x01;
-	bitcount++;
-        /* bitflag of open right neighbor */
-	data = data << 1;
-	if( currentNode.right != null ) data |= 0x01;
-	bitcount++;
-	/* time to write byte to stream*/
-	if( bitcount == Byte.SIZE ) {
-          outstream.write( (byte) data );
-	  data = bitcount = 0;
-	}
+	      /* bitflag of open down neighbor */
+	      data = data << 1;
+	      if( currentNode.down != null ) data |= 0x01;
+	      bitcount++;
+              /* bitflag of open right neighbor */
+	      data = data << 1;
+	      if( currentNode.right != null ) data |= 0x01;
+	      bitcount++;
+	      /* time to write byte to stream */
+	      if( bitcount == Byte.SIZE ) {
+                outstream.write( (byte) data );
+	        data = bitcount = 0;
+	      }
       }
     }
     /* flush data to outstream */
@@ -812,24 +814,24 @@ class Maze implements Iterable<MazeNode> {
       /* reading 2-bit codewords. (1 codeword = 1 encoded maze node) */
       for( int index = 0; index < Byte.SIZE / codeword_size; index++ ) {
         if( row == dimension ) {
-          /* maze building is done - all cells visited */
-	  if( instream.available() > 1 ) {
-	    System.err.println( "Curropted file detected: Incompatible file size: Aborting maze build" );
-	    clear();
-	    return false;
-	  }
-	  return true;
-	}
-	/* build walls of node */
-        MazeNode currentNode = at( row, column );
-	int codeword = ((recieved & codeword_bitmask) >>> (Byte.SIZE - codeword_size));
-	deserializeNode( currentNode, codeword );
-	recieved = recieved << codeword_size;
-	column++;
-	if( column == dimension ) {
-          column = 0;
-	  row++;
-	}
+                /* maze building is done - all cells visited */
+	        if( instream.available() > 1 ) {
+	          System.err.println( "Curropted file detected: Incompatible file size: Aborting maze build" );
+	          clear();
+	          return false;
+	        }
+	        return true;
+	      }
+	      /* build walls of node */
+              MazeNode currentNode = at( row, column );
+	      int codeword = ((recieved & codeword_bitmask) >>> (Byte.SIZE - codeword_size));
+	      deserializeNode( currentNode, codeword );
+	      recieved = recieved << codeword_size;
+	      column++;
+	      if( column == dimension ) {
+                column = 0;
+	        row++;
+	      }
       }
       recieved = instream.read();
     }

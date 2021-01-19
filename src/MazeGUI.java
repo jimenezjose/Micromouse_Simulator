@@ -34,6 +34,8 @@ import java.awt.Point;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.Rectangle;
@@ -44,7 +46,7 @@ import java.awt.Dimension;
 /**
  * MazeGUI will create maze exploring interface.
  */
-public class MazeGUI implements ActionListener {
+public class MazeGUI implements ActionListener, KeyListener {
   public static final double MAZE_DEFAULT_PROPORTION = 0.50;
   public static final double MAZE_PERISCOPE_PROPORTION = 0.75;
   private static final File DATAFILE = new File("../datafile");
@@ -55,8 +57,9 @@ public class MazeGUI implements ActionListener {
   private static final int DELAY = 250;
   private static final int EVEN = 2;
 
-  private static final Color LIGHT_BLACK   = new Color( 32, 32, 32 );
-  private static final Color NO_WALL_COLOR = new Color( 135, 135, 135 );
+  private static final Color LIGHT_BLACK           = new Color( 32, 32, 32 );
+  private static final Color NO_WALL_COLOR         = new Color( 135, 135, 135 );
+  private static final Color PERISCOPE_PANEL_COLOR = new Color( 43, 50, 56); 
   private static final Color WALL_COLOR            = Color.BLACK;
   private static final Color MAZE_BORDER_COLOR     = Color.BLACK;
   private static final Color MOUSE_COLOR           = Color.YELLOW;
@@ -168,8 +171,8 @@ public class MazeGUI implements ActionListener {
     nextButton.addActionListener( this );
     periscopeButton.addActionListener( this );
     portComboBox.addActionListener( this );
-
     sendButton.addActionListener(this);
+    periscopePrompt.addKeyListener( this );
     /* Activates multithreaded serial communication on a specified port */
     serialComm.addActionListener( this );
 
@@ -194,6 +197,7 @@ public class MazeGUI implements ActionListener {
     /* background color of button panels */
     northButtonPanel.setBackground( Color.BLACK );
     southButtonPanel.setBackground( Color.BLACK );
+    periscopePanel.setBackground( PERISCOPE_PANEL_COLOR );
 
     /* set up north panel */
     northPanel.setLayout( new GridLayout(0, 1));
@@ -331,7 +335,7 @@ public class MazeGUI implements ActionListener {
    * @param evt Event that registered the send button click.
    * @return Nothing. 
    */
-  private void handleSendButtonEvent( ActionEvent evt) {
+  private void handleSendButtonEvent( ActionEvent evt ) {
     // send button should be disabled when slected port is disconnected
     String selectedPort = portComboBox.getSelectedItem().toString();
     String noPort = portComboBox.getItemAt(0).toString();
@@ -340,6 +344,20 @@ public class MazeGUI implements ActionListener {
     serialComm.sendMessage( message );
     periscopePrompt.setText("");
   }
+
+  /**
+   * Triggers when a key is pressed on the machine's keyboard.
+   * @param evt Key Event fired.
+   * @return Nothing
+   */
+  public void keyPressed( KeyEvent evt ) {
+    if( evt.getKeyCode() == KeyEvent.VK_ENTER ) {
+      handleSendButtonEvent( null );
+    }
+  }
+  /* required override for KeyListener inheritcance of interface */
+  public void keyReleased( KeyEvent evt ) {}
+  public void keyTyped( KeyEvent evt ) {} 
 
   /**
    * Handles a logic associated with the JComboBox.
@@ -408,7 +426,10 @@ public class MazeGUI implements ActionListener {
   }
 
   /**
-   * TODO
+   * Creates a serial monitor on the selected device port to ouput the data
+   * being broadcasted from the device.
+   * @param devicePort File path of device file that is being listened to.
+   * @return Nothing
    */
   private void spawnPeriscopeMonitor( String devicePort ) {
     String periscope_home = PERISCOPE_HOME_DIR.getAbsolutePath();
@@ -459,31 +480,13 @@ public class MazeGUI implements ActionListener {
   }
 
   /**
-   * TODO
+   * Closes serial monitor and disconnects the currently connected device.
+   * @return Nothing.
    */
   private void killPeriscopeMonitor() {
     serialComm.disconnect();
- 
     /* reset output stream to standard out */
     System.setOut( stdoutStream );
-
-    /* kill periscope monitor processes */
-    // try {
-    //   if( periscopeMonitor != null ) {
-    //     periscopeMonitor.waitFor();
-	  //     periscopeMonitor.destroyForcibly();
-	  //     if( !periscopeMonitor.isAlive() ) periscopeMonitor = null;
-    //   }
-    //   if( periscopePrompt != null ) {
-    //     periscopePrompt.waitFor();
-    //     periscopePrompt.destroyForcibly();
-	  //     if( !periscopePrompt.isAlive() ) periscopePrompt = null;
-    //   }
-    // }
-    // catch( InterruptedException e ) {
-    //   e.printStackTrace();
-    // }
-
   }
 
   /**
@@ -495,6 +498,8 @@ public class MazeGUI implements ActionListener {
     SerialRouteEvent serialEvt = (SerialRouteEvent) evt;
     String data = serialEvt.getReceivedMessage();
     System.out.println(data);
+    mouse.periscopeProtocol( data );
+    renderPanel.repaint();
   }
 
   /**
@@ -521,8 +526,6 @@ public class MazeGUI implements ActionListener {
         System.err.println( "UCSD logo non-existent" );
       }
     }
-
-    
  
     /**
      * Double buffered image screen paint on GUI.
@@ -556,6 +559,7 @@ public class MazeGUI implements ActionListener {
      */
     private void renderPeriscope( Graphics g) {
       center.setLocation( getWidth() / 2, getHeight() / 2 );
+      mouse_maze = mouse.getMaze();
       int num_of_walls  = mouse_maze.getDimension() - 1;
       int maze_diameter = (int)(double)( MAZE_PERISCOPE_PROPORTION * Math.min(getHeight(), getWidth()) );
       int maze_radius   = (int)(double)( 0.5 * maze_diameter );
@@ -571,8 +575,7 @@ public class MazeGUI implements ActionListener {
       /* draw singular centered maze */
       center.setLocation( center.x, (image_diameter * 3)/4 + (getHeight() - image_diameter) / 2 );
       rightMazePoint.setLocation( maze_offset, center.y - maze_radius );
-      drawMaze( g, rightMazePoint, maze_diameter, mouse_maze, true ); //TODO communicate cell distances? a lot of data here - can compute locally but wont be the mouse data
-
+      drawMaze( g, rightMazePoint, maze_diameter, mouse_maze, mouse.periscopeDisplayCellValues ); 
       /* draws mouse on maze */
       mouse.setGraphicsEnvironment( rightMazePoint, maze_diameter );
       mouse.draw( g, MOUSE_COLOR );
@@ -586,6 +589,7 @@ public class MazeGUI implements ActionListener {
      */
     private void renderDefault( Graphics g ) {
       center.setLocation( getWidth() / 2, getHeight() / 2 );
+      mouse_maze = mouse.getMaze();
       int num_of_walls  = ref_maze.getDimension() - 1;
       int maze_diameter = (int)(double)( MAZE_DEFAULT_PROPORTION * Math.min(getHeight(), getWidth()) );
       int maze_radius   = (int)(double)( 0.5 * maze_diameter );
