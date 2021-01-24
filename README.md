@@ -1,7 +1,7 @@
 # Micromouse Simulator
 # [Wiki](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
 
-Explain here how a ucsd student would interact with this product. Instead of showcasing it like this. This will all be updated soon and removed
+Explain here how a ucsd student would interact with this product. Instead of showcasing it like this. This will all be updated soon and removed!!
 
 <!---
 ## Maze Generation In Progress Snippet:
