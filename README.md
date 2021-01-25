@@ -1,6 +1,6 @@
 # Micromouse Simulator
 
-## [Wiki](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
+## [__________Wiki__________](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
 
 ## How to Run The Micromouse Simulator:
 ```
@@ -25,6 +25,9 @@ $ ./runSimulator.sh
 - [Mouse.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Mouse.java)
 - [Maze.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Maze.java)
 - [MazeNode.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeNode.java)
+
+## Periscope Architecture
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20Architecture.png)
 
 ## Maze Graph Visualization:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png)
