@@ -127,7 +127,7 @@ public class MazeGUI implements ActionListener, KeyListener {
    * @return Nothing.
    */
   private void begin() {
-    JFrame main_frame = new JFrame( "Maze Graphics" );
+    JFrame main_frame = new JFrame( "Micromouse Simulator" );
     main_frame.setSize( 800, 800 );
     main_frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
     main_frame.setBackground( Color.BLACK );
