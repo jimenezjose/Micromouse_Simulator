@@ -10,13 +10,13 @@ $ ./runSimulator.sh
 ```
 
 ## Maze Generation In Progress Snippet:
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/MazeGUI_InProgress.gif)
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/gif/MazeGUI_InProgress.gif)
 
 ## Simulator Snippet on a 16x16 Random Generated Maze:
-[![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/MazeGUI_Final.gif)](https://youtu.be/-W2w2-MaSOE)
+[![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/gif/MazeGUI_Final.gif)](https://youtu.be/-W2w2-MaSOE)
 
 ## Program Flow Diagram:
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/Micromouse_Simulator_Program_Flow_Diagram_.png)
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Simulator_Program_Flow_Diagram_.png)
 
 - [MazeGUI.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeGUI.java)
 - [Mouse.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Mouse.java)
@@ -24,11 +24,11 @@ $ ./runSimulator.sh
 - [MazeNode.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeNode.java)
 
 ## Maze Graph Visualization:
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/maze-graph.png)
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png)
 
 ## Autonomous Maze Solving Robot
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/AllLayersVisible.PNG)
-![Alt Teaxt](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/Micromouse_Hardware.jpg)
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/AllLayersVisible.PNG)
+![Alt Teaxt](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Hardware.jpg)
 
 ## UCSD Micromouse Team 2020:
   * Jose Jimenez (Team & Software Design Lead)
