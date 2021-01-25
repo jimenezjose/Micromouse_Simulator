@@ -36,8 +36,8 @@ $ ./runSimulator.sh
 <img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png" width="50%">
 
 ## Autonomous Maze Solving Robot
-<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/AllLayersVisible.PNG" width="100%">
-<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Hardware.jpg" width="100%">
+<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/AllLayersVisible.PNG" width="75%">
+<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Hardware.jpg" width="75%">
 
 ## UCSD Micromouse Team 2020:
   * Jose Jimenez (Team & Software Design Lead)
