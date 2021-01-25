@@ -2,7 +2,7 @@
 
 ## [Wiki](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
 
-## How to Run Micromouse Simulator:
+## How to Run The Micromouse Simulator:
 ```
 $ git clone https://github.com/jimenezjose/Micromouse_Simulator.git
 $ cd Micromouse_Simulator
