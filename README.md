@@ -30,7 +30,7 @@ $ ./runSimulator.sh
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20Architecture.png)
 
 ## Periscope Packet
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20Byte-Based%20Protocol.png)
+<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20%20Text-Based%20Protocol.png" width="50%">
 
 ## Maze Graph Visualization:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png)
