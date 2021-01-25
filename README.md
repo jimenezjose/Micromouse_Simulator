@@ -9,6 +9,30 @@ $ cd Micromouse_Simulator
 $ ./runSimulator.sh
 ```
 
+Explain here how a ucsd student would interact with this product. Instead of showcasing it like this. This will all be updated soon and removed!! This is awesome!
+
+
+## Maze Generation In Progress Snippet:
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/MazeGUI_InProgress.gif)
+
+## Simulator Snippet on a 16x16 Random Generated Maze:
+[![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/MazeGUI_Final.gif)](https://youtu.be/-W2w2-MaSOE)
+
+## Program Flow Diagram:
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/Micromouse_Simulator_Program_Flow_Diagram_.png)
+
+- [MazeGUI.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeGUI.java)
+- [Mouse.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Mouse.java)
+- [Maze.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Maze.java)
+- [MazeNode.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeNode.java)
+
+## Maze Graph Visualization:
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/maze-graph.png)
+
+## Autonomous Maze Solving Robot
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/AllLayersVisible.PNG)
+![Alt Teaxt](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/Micromouse_Hardware.jpg)
+
 ## UCSD Micromouse Team 2020:
   * Jose Jimenez (Team & Software Design Lead)
   * Brandon Cramer (Hardware Design Lead)
