@@ -1,10 +1,10 @@
 /**
- *
- * Jose Jimenez
+ * Jose Jimenez-Olivas 
  * Brandon Cramer
- *
+ * Email: jjj023@ucsd.edu
+ * 
  *                 University of California, San Diego
- *                      IEEE Micromouse Team 2020
+ *                           IEEE Micromouse
  *
  * File Name:   MazeNode.java 
  * Description: Contains all information for traversing a maze and creating a 

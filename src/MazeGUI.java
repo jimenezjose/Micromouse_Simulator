@@ -1,10 +1,10 @@
 /**
- *
- * Jose Jimenez
+ * Jose Jimenez-Olivas 
  * Brandon Cramer
- *
+ * Email: jjj023@ucsd.edu
+ * 
  *                 University of California, San Diego
- *                      IEEE Micromouse Team 2020
+ *                           IEEE Micromouse
  *
  * File Name:   MazeGUI.java
  * Description: Emulate a real-time micromouse environment for quicker debugging 
@@ -345,6 +345,7 @@ public class MazeGUI implements ActionListener, KeyListener {
     periscopePrompt.setText("");
   }
 
+  private String payload = "";
   /**
    * Triggers when a key is pressed on the machine's keyboard.
    * @param evt Key Event fired.
@@ -353,6 +354,52 @@ public class MazeGUI implements ActionListener, KeyListener {
   public void keyPressed( KeyEvent evt ) {
     if( evt.getKeyCode() == KeyEvent.VK_ENTER ) {
       handleSendButtonEvent( null );
+    }
+
+    String preamble = "Periscope: (" + mouse_maze.getDimension() + "x" + mouse_maze.getDimension() + ")";
+    String wallDetected = "";
+    boolean hotkey = false;
+    switch( evt.getKeyCode() ) {
+      case KeyEvent.VK_UP:
+        payload = "(" + (mouse.getRow()-1) + "," + mouse.getColumn() + ")(north)";
+        hotkey = true;
+        break;
+      case KeyEvent.VK_RIGHT:
+        payload = "(" + mouse.getRow() + "," + (mouse.getColumn()+1) + ")(east)";
+        hotkey = true;
+        break;
+      case KeyEvent.VK_DOWN: 
+        payload = "(" + (mouse.getRow()+1) + "," + mouse.getColumn() + ")(south)";
+        hotkey = true;
+        break;
+      case KeyEvent.VK_LEFT:
+        payload = "(" + mouse.getRow() + "," + (mouse.getColumn()-1) + ")(west)";
+        hotkey = true;
+        break;
+      case KeyEvent.VK_W:
+        wallDetected = "up";
+        hotkey = true;
+        break;
+      case KeyEvent.VK_D:
+        wallDetected = "right";
+        hotkey = true;
+        break;
+      case KeyEvent.VK_X: 
+        wallDetected = "down";
+        hotkey = true;
+        break;
+      case KeyEvent.VK_A:
+        wallDetected = "left";
+        hotkey = true;
+        break;
+      case KeyEvent.VK_Y:
+        payload = "(" + mouse.getRow() + "," + mouse.getColumn() + ")(north)";
+        hotkey = true;
+    }
+    if( hotkey ) {
+      periscopePrompt.setText(preamble + payload + "(" + wallDetected + ")");
+      handleSendButtonEvent( null );
+      hotkey = false;
     }
   }
   /* required override for KeyListener inheritcance of interface */
@@ -433,7 +480,7 @@ public class MazeGUI implements ActionListener, KeyListener {
    */
   private void spawnPeriscopeMonitor( String devicePort ) {
     String periscope_home = PERISCOPE_HOME_DIR.getAbsolutePath();
-    String monitorScript = periscope_home + "/serialMonitor.sh";
+    String monitorScript = periscope_home + "/periscopeSerialMonitor.sh";
     String monitorCmd = String.format("open -a Terminal %s", monitorScript);
 
     /* notify periscope of new device to connect to */

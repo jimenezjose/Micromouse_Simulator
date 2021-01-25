@@ -1,10 +1,12 @@
 ################################################################################
  # Jose Jimenez
  # Brandon Cramer
+ # Email: jjj023@ucsd.edu
  #
  #                 University of California, San Diego
  #                            IEEE Micromouse
- # File Name:   serialMonitor.sh
+ #
+ # File Name:   periscopeSerialMonitor.sh
  # Description: Reads serial data from a log file and displays it to the console
 ################################################################################
 #!/bin/bash

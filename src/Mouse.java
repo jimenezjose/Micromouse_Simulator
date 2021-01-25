@@ -1,10 +1,10 @@
 /**
- *
- * Jose Jimenez
+ * Jose Jimenez-Olivas 
  * Brandon Cramer
- *
+ * Email: jjj023@ucsd.edu
+ * 
  *                 University of California, San Diego
- *                      IEEE Micromouse Team 2020
+ *                           IEEE Micromouse
  *
  * File Name:   Mouse.java
  * Description: The mouse object that is emulating an ideal robotic micromouse
@@ -14,12 +14,13 @@
  *                  http://ijcte.org/papers/738-T012.pdf
  */
 
+/*>>>>>>>>>>>>>>>>>>>>>  YOUR CODE GOES IN THIS CLASS! <<<<<<<<<<<<<<<<<<<<<<<*/
+
 import java.util.Arrays;
 import java.lang.Integer;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Stack;
 import java.util.LinkedList;
@@ -72,8 +73,36 @@ public class Mouse {
     this.origin = new Point( x, y );
     this.start_position = new Point( x, y );
     this.visited = new boolean[ maze.getDimension() ][ maze.getDimension() ];
-    start();
+    start(); 
   }
+
+  /****************************************************************************/
+  /**
+   * YOUR CODE GOES HERE
+   * Example Code Below
+   * (inactive)
+   */
+  public void setup() {
+    // put your setup code here, to run once:
+    clearMazeMemory();
+    moveTo( maze.at(15, 0) );
+    rotateTo( Orientation.NORTH );
+  }
+
+  /**
+   * YOUR CODE GOES HERE
+   * Example Code Below
+   * (inactive)
+   */
+  public void loop() {
+    // put your main code here, to run repeatedly:
+    explore_stack.push( maze.at(15, 0) );
+    MazeNode cell = explore_stack.pop();
+    rotateTo( cell );
+    moveTo( cell );
+    markNeighborWalls( cell, orientation );
+  }
+  /****************************************************************************/
 
   /**
    * Flood Fill Algorithm iteration.
@@ -274,7 +303,7 @@ public class Mouse {
     String[] code_list = {"up", "right", "down", "left"};
     MazeNode[] neighbors = { cell.up, cell.right, cell.down, cell.left }; 
     Orientation point = orientation;
-    while( point != orientation.relativeLeft() ) {
+    do {
       /* mark relative wall with respect to current orientation */
       int index = (point.ordinal() - orientation.ordinal() + orientation.size()) % orientation.size();
       if( code_list[ index ].equals(code) ) {
@@ -282,8 +311,7 @@ public class Mouse {
         return;
       }
       point = point.next();
-    }
-   
+    } while( point != orientation );
   }
 
   /**
@@ -302,10 +330,11 @@ public class Mouse {
     clearMazeMemory();
     /* initial position of mouse pushed */
     start_position.setLocation( origin.x, origin.y );
+    orientation = Orientation.NORTH;
     moveTo( start_position );
+    rotateTo( orientation );
     explore_stack.clear();
     explore_stack.push( maze.at(row, column) );
-    orientation = Orientation.NORTH;
   }
 
   /**
@@ -358,10 +387,11 @@ public class Mouse {
     }
     int width  = Integer.parseInt( maze_dimensions[0] );
     int height = Integer.parseInt( maze_dimensions[1] ); 
-    if( width != maze.getDimension() || height != maze.getDimension() ) {
+    Maze tempMaze = maze;
+    if( width != tempMaze.getDimension() || height != tempMaze.getDimension() ) {
       if( width != height ) System.err.println("Not implemented: non-square dimensions in periscope protocol");
-      maze = new Maze( width );
-      maze.clearWalls();
+      tempMaze = new Maze( width );
+      tempMaze.clearWalls();
     }
 
     /* mouse location parse */
@@ -370,7 +400,7 @@ public class Mouse {
     }
     int row = Integer.parseInt( mouse_location[0] );
     int column = Integer.parseInt( mouse_location[1] );
-    if( maze.outOfBounds(row) || maze.outOfBounds(column) ) {
+    if( tempMaze.outOfBounds(row) || tempMaze.outOfBounds(column) ) {
       return;
     }
 
@@ -386,13 +416,19 @@ public class Mouse {
     }
 
     /* Successful parse. Update virtual mouse environment */
+    maze = tempMaze;
     MazeNode cell = maze.at( row, column );
     rotateTo( Orientation.valueOf(mouse_orientation) );
     moveTo( cell );
     markNeighborWall(cell, wall_detected);
-
   }
 
+  /**
+   * Periscope byte protocol handling.
+   * Preamble header: {0xBE, 0xCA}
+   * Example Protocol:  
+   * @param payload 
+   */
   private void periscopeByteProtocol( String payload ) {
     System.err.println("Not Implemented");
   }
@@ -468,6 +504,7 @@ public class Mouse {
       if( x + 1 == cell.x ) orientation = Orientation.EAST; 
       else if( x - 1 == cell.x ) orientation = Orientation.WEST;
     }
+    rotateTo( orientation );
   }
 
   /**
@@ -477,6 +514,7 @@ public class Mouse {
    */
   void rotateTo( Orientation orientation ) {
     this.orientation = orientation;
+    mouse.rotateTo( orientation );
   } 
 
   /**
@@ -542,8 +580,9 @@ public class Mouse {
     double x = unitCenterX - UNIT * PROPORTION / 2.0; 
     double y = unitCenterY - UNIT * PROPORTION / 2.0;
 
-    mouse.setLocation( (int)x, (int)y );
     mouse.setDimension( (int)width, (int)height );
+    mouse.setLocation( (int)x, (int)y );
+    mouse.rotateTo( orientation );
   }
   
   /**
@@ -648,6 +687,22 @@ public class Mouse {
   }
 
   /**
+   * Getter for row field.
+   * @return row
+   */
+  public int getRow() {
+    return row;
+  }
+
+  /**
+   * Getter for column field.
+   * @return column
+   */
+  public int getColumn() {
+    return column;
+  }
+
+  /**
    * String representation of mouse.
    * @return string that uniquely represents mouse.
    */
@@ -726,9 +781,9 @@ public class Mouse {
    * Class: MouseShape: Consitiutes the generic mouse shape.
    */
   private class MouseShape {
+    private final double HEAD_PROPORTION = 1;
     private Rectangle body;
-    private Point location;
-    private Dimension dimension;
+    private Rectangle head;
 
     /**
      * Constructor for mouse shape.
@@ -737,17 +792,66 @@ public class Mouse {
      * @param width Pixel width of mouse body.
      * @param height Pixel height of mouse body.
      */
-    public MouseShape( int x, int y, int width, int height ) {
+    public MouseShape( int x, int y, int width, int height, Orientation orientation ) {
       body = new Rectangle( x, y, width, height );
-      location = new Point( x, y );
-      dimension = new Dimension( width, height );
+      head = new Rectangle( x, y, (int)(double)(HEAD_PROPORTION*body.width), (int)(double)(HEAD_PROPORTION*body.height) );
+      this.rotateTo( orientation ); /* sets head location */
     }
 
     /**
      * Default constructor for empty mouse shape.
      */
     public MouseShape() {
-      this( 0, 0, 0, 0 );
+      this( 0, 0, 0, 0, Orientation.NORTH );
+    }
+
+    /**
+     * Draws the mouse shape on GUI.
+     * @param color Color of mouse shape.
+     * @return Nothing.
+     */
+    public void draw( Graphics g, Color color ) {
+      g.setColor( color );
+      g.fillRect( body.x, body.y, body.width, body.height );
+      g.fillOval( head.x, head.y, head.width, head.height);
+    }
+
+    /**
+     * Rotates the mouse shape on given orientation on GUI.
+     * @param orientation Compass value that the mouse head points to.
+     * @return Nothing.
+     */
+    public void rotateTo( Orientation orientation ) {
+      int dx = ( orientation.ordinal() % EVEN == 0 ) ? 0 : -1*(orientation.ordinal() - 2);
+      int dy = ( orientation.ordinal() % EVEN == 0 ) ? orientation.ordinal() - 1 : 0;
+      int head_center_x = (int)(double)( body.x +  ((1.0 - HEAD_PROPORTION) / 3.0) * body.width );
+      int head_center_y = (int)(double)( body.y +  ((1.0 - HEAD_PROPORTION) / 3.0) * body.height );
+      int head_x = (orientation.ordinal() % EVEN == 0) ? head_center_x : head_center_x + dx*(head.width/2);
+      int head_y = (orientation.ordinal() % EVEN == 0) ? head_center_y + dy*(head.height/2) : head_center_y; 
+
+      head.setLocation( head_x, head_y );
+    }
+
+    /**
+     * Sets new dimension of mouse shape.
+     * @param width width of mouse in dimensions.
+     * @param height height of mouse in dimensions.
+     * @return Nothing.
+     */
+    public void setDimension( int width, int height ) {
+      body.setSize( width, height );
+      head.setSize( (int)(double)(HEAD_PROPORTION* body.width), (int)(double)(HEAD_PROPORTION* body.height) );
+    }
+   
+    /**
+     * Sets new location for mouse.
+     * @param x x-coordinate.
+     * @param y y-coordinate.
+     * @return Nothing.
+     */
+    public void setLocation( int x, int y ) {
+      head.translate( x - body.x, y - body.y );
+      body.setLocation( x, y );
     }
 
     /**
@@ -758,38 +862,7 @@ public class Mouse {
      */
     public void translate( int dx, int dy ) {
       body.translate( dx, dy );
-      location.x +=  dx;
-      location.y += dy;
-    }
-
-    /**
-     * Draws the mouse shape on GUI.
-     * @param color Color of mouse shape.
-     * @return Nothing.
-     */
-    public void draw( Graphics g, Color color ) {
-      g.setColor( color );
-      g.fillRect( location.x, location.y, dimension.width, dimension.height );
-    }
-
-    /**
-     * Sets new dimension of mouse shape.
-     * @param width width of mouse in dimensions.
-     * @param height height of mouse in dimensions.
-     * @return Nothing.
-     */
-    public void setDimension( int width, int height ) {
-      dimension.setSize( width, height );
-    }
-   
-    /**
-     * Sets new location for mouse.
-     * @param x x-coordinate.
-     * @param y y-coordinate.
-     * @return Nothing.
-     */
-    public void setLocation( int x, int y ) {
-      location.setLocation( x, y );
+      head.translate( dx, dy );
     }
   }
 }

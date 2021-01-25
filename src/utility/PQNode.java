@@ -1,10 +1,10 @@
 /**
- *
- * Jose Jimenez
+ * Jose Jimenez-Olivas 
  * Brandon Cramer
- *
+ * Email: jjj023@ucsd.edu
+ * 
  *                 University of California, San Diego
- *                      IEEE Micromouse Team 2020
+ *                           IEEE Micromouse
  *
  * File Name:   PQNode.java
  * Description: Utility class for a priority queue node; a nodes with smaller 

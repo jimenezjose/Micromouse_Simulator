@@ -1,10 +1,10 @@
 /**
- *
- * Jose Jimenez
+ * Jose Jimenez-Olivas 
  * Brandon Cramer
- *
+ * Email: jjj023@ucsd.edu
+ * 
  *                 University of California, San Diego
- *                      IEEE Micromouse Team 2020
+ *                           IEEE Micromouse0
  *
  * File Name:   ParsingStrings.java
  * Description: Contains a list of public strings for user notifications during

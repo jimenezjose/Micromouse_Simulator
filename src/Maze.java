@@ -1,10 +1,10 @@
 /**
- *
- * Jose Jimenez
+ * Jose Jimenez-Olivas 
  * Brandon Cramer
- *
+ * Email: jjj023@ucsd.edu
+ * 
  *                 University of California, San Diego
- *                      IEEE Micromouse Team 2020
+ *                           IEEE Micromouse
  *
  * File Name:   Maze.java
  * Description: Maze data structure that will handle minimum spanning tree 
@@ -14,7 +14,11 @@
  *                 weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap
  */
 
-import java.io.*;
+import java.io.PrintStream;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.ArrayList;

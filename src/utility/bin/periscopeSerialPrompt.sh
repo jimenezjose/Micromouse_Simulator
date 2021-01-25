@@ -1,10 +1,11 @@
 ################################################################################
  # Jose Jimenez
  # Brandon Cramer
+ # Email: jjj023@ucsd.edu
  #
  #                 University of California, San Diego
  #                            IEEE Micromouse
- # File Name:   serialPrompt.sh
+ # File Name:   periscopeSerialPrompt.sh
  # Description: (Inactive) Serial Prompt UI that sends serial data to a device.
 ################################################################################
 #!/bin/bash

@@ -1,3 +1,14 @@
+################################################################################
+#
+# Jose Jimenez
+# Brandon Cramer
+# Email: jjj023@ucsd.edu
+# 
+#                 University of California, San Diego
+#                           IEEE Micromouse
+#
+# File Name: Makefile
+################################################################################
 BUILD_DIR=build
 
 JSERIALCOMM_JAR = \
@@ -20,12 +31,13 @@ src/utility/strings/ParsingStrings.java \
 src/utility/comm/SerialRoute.java \
 src/utility/comm/SerialRouteEvent.java 
 
+CLASS_FILES=$(JAVA_SOURCES:%.java=%.class)
+
+.SUFFIXES: .java .class
+
 all:
 	mkdir -p $(BUILD_DIR)
 	javac -Xlint:unchecked -cp $(JAR_SOURCES) -g $(JAVA_SOURCES) -d $(BUILD_DIR)
 
 clean:
 	rm -rf $(BUILD_DIR)
-
-#jar: $(all)
-#	jar cvf MazeGUI.jar $(BUILD_DIR)
