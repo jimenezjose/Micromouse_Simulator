@@ -9,9 +9,6 @@ $ cd Micromouse_Simulator
 $ ./runSimulator.sh
 ```
 
-Explain here how a ucsd student would interact with this product. Instead of showcasing it like this. This will all be updated soon and removed!! This is awesome!
-
-
 ## Maze Generation In Progress Snippet:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/MazeGUI_InProgress.gif)
 
