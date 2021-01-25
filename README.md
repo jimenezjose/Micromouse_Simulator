@@ -2,7 +2,7 @@
 
 ## [Wiki](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
 
-## How to Run Micromouse Simulator:
+## How to Run The Micromouse Simulator:
 ```
 $ git clone https://github.com/jimenezjose/Micromouse_Simulator.git
 $ cd Micromouse_Simulator
@@ -14,6 +14,9 @@ $ ./runSimulator.sh
 
 ## Simulator Snippet on a 16x16 Random Generated Maze:
 [![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/gif/MazeGUI_Final.gif)](https://youtu.be/-W2w2-MaSOE)
+
+## Periscope - A Bidirectional Serial Animation Stream
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/gif/Periscope-Demo.gif)
 
 ## Program Flow Diagram:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Simulator_Program_Flow_Diagram_.png)
