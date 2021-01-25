@@ -1,6 +1,6 @@
 # Micromouse Simulator
 
-## [__________Wiki__________](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
+## [Wiki](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
 
 ## How to Run The Micromouse Simulator:
 ```
@@ -25,7 +25,7 @@ $ ./runSimulator.sh
 <img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20%20Text-Based%20Protocol.png" width="50%">
 
 ## Program Flow Diagram:
-<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Simulator_Program_Flow_Diagram_.png" width="50%">
+<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Simulator_Program_Flow_Diagram_.png" width="75%">
 
 - [MazeGUI.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeGUI.java)
 - [Mouse.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Mouse.java)
@@ -35,11 +35,9 @@ $ ./runSimulator.sh
 ## Maze Graph Visualization:
 <img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png" width="50%">
 
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png)
-
 ## Autonomous Maze Solving Robot
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/AllLayersVisible.PNG)
-![Alt Teaxt](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Hardware.jpg)
+<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/AllLayersVisible.PNG" width="50%">
+<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Hardware.jpg" width="50%">
 
 ## UCSD Micromouse Team 2020:
   * Jose Jimenez (Team & Software Design Lead)
