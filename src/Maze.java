@@ -41,11 +41,6 @@ class Maze implements Iterable<MazeNode> {
   private LinkedList<MazeNode> dijkstraPath = new LinkedList<MazeNode>();
   private LinkedList<MazeNode> dfsPath = new LinkedList<MazeNode>();
 
-  /*
-  private final int width;
-  private final int height;
-  */
-
   /**
    * Creates a Maze object as a 2d array of MazeNodes.
    * @param dimension Side units for square maze.
