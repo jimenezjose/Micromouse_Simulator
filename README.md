@@ -29,6 +29,9 @@ $ ./runSimulator.sh
 ## Periscope Architecture
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20Architecture.png)
 
+## Periscope Packet
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20Byte-Based%20Protocol.png)
+
 ## Maze Graph Visualization:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png)
 
