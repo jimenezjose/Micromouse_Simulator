@@ -25,7 +25,7 @@ $ ./runSimulator.sh
 <img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20%20Text-Based%20Protocol.png" width="50%">
 
 ## Program Flow Diagram:
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Simulator_Program_Flow_Diagram_.png)
+<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Simulator_Program_Flow_Diagram_.png" width="50%">
 
 - [MazeGUI.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeGUI.java)
 - [Mouse.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Mouse.java)
@@ -34,6 +34,7 @@ $ ./runSimulator.sh
 
 ## Maze Graph Visualization:
 <img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png" width="50%">
+
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png)
 
 ## Autonomous Maze Solving Robot
