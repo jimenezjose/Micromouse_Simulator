@@ -18,6 +18,12 @@ $ ./runSimulator.sh
 ## Periscope - A Bidirectional Serial Animation Stream
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/gif/Periscope-Demo.gif)
 
+## Periscope Architecture
+![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20Architecture.png)
+
+## Periscope Packet
+<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20%20Text-Based%20Protocol.png" width="50%">
+
 ## Program Flow Diagram:
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/Micromouse_Simulator_Program_Flow_Diagram_.png)
 
@@ -26,13 +32,8 @@ $ ./runSimulator.sh
 - [Maze.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/Maze.java)
 - [MazeNode.java](https://github.com/jimenezjose/Micromouse_Simulator/blob/master/src/MazeNode.java)
 
-## Periscope Architecture
-![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20Architecture.png)
-
-## Periscope Packet
-<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/wiki/Periscope/Periscope%20%20Text-Based%20Protocol.png" width="50%">
-
 ## Maze Graph Visualization:
+<img src="https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png" width="50%">
 ![Alt Text](https://github.com/jimenezjose/Micromouse_Simulator/blob/assets/images/readme/maze-graph.png)
 
 ## Autonomous Maze Solving Robot
