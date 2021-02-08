@@ -369,10 +369,15 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
   public void keyTyped( KeyEvent evt ) {} 
 
 
+  /**
+   * Asynchronous update serial port list in combo box upon user interaction.
+   * @return Nothing.
+   */
   @Override
   public void popupMenuWillBecomeVisible​( PopupMenuEvent evt ) {
     updatePortComboBox();
   }
+  /* required override for PopupMenuListener interface inheritance */
   @Override
   public void popupMenuWillBecomeInvisible​( PopupMenuEvent evt ) {}
   @Override
