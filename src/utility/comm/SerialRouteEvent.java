@@ -44,4 +44,6 @@ public class SerialRouteEvent extends ActionEvent {
   public String getReceivedMessage() {
     return data;
   }
+
+  
 }

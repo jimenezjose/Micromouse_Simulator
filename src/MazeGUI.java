@@ -36,22 +36,25 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.event.PopupMenuEvent;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Image;
 import java.awt.GridLayout;
 import java.awt.Dimension;
+import java.lang.ProcessBuilder;
 
 /**
  * MazeGUI will create maze exploring interface.
  */
-public class MazeGUI implements ActionListener, KeyListener {
+public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
   public static final double MAZE_DEFAULT_PROPORTION = 0.50;
   public static final double MAZE_PERISCOPE_PROPORTION = 0.75;
   private static final File DATAFILE = new File("../datafile");
-  private static final File PERISCOPE_LOG = new File("/tmp/session.log");
-  private static final File DEVICES_CONNECTED = new File("/tmp/device.connected");
+  private static final File PERISCOPE_LOG = new File("/tmp/periscope.log");
+  private static final File DEVICE_CONNECTED_LOG = new File("/tmp/device_connected.log");
   private static final File PERISCOPE_HOME_DIR = new File("../src/utility/bin");
   private static final PrintStream stdoutStream = System.out;
   private static final int DELAY = 250;
@@ -91,7 +94,7 @@ public class MazeGUI implements ActionListener, KeyListener {
   private JButton sendButton;
   private JTextField periscopePrompt;
   private JComboBox<String> portComboBox; 
-  private SerialRoute serialComm;
+  private SerialRoute serialComm = SerialRoute.getInstance();
 
   private boolean runDijkstra = false;
   private boolean runDFS      = false;
@@ -135,12 +138,12 @@ public class MazeGUI implements ActionListener, KeyListener {
 
     /* main sections of layout, north, south, center */
     northPanel  = new JPanel();
-    southPanel = new JPanel();
+    southPanel  = new JPanel();
     renderPanel = new RenderPanel();
     /* sub-panels for cosmetic needs */ 
     northButtonPanel = new JPanel();
-    periscopePanel = new JPanel();
-    southButtonPanel  = new JPanel();
+    periscopePanel   = new JPanel();
+    southButtonPanel = new JPanel();
 
     /* set layout for button panels */
     northButtonPanel.setLayout( new BoxLayout(northButtonPanel, BoxLayout.LINE_AXIS) );
@@ -152,16 +155,16 @@ public class MazeGUI implements ActionListener, KeyListener {
     mazeButton      = new JButton( "New Maze" );
     nextButton      = new JButton( "Next" );
     periscopeButton = new JButton( "Periscope" );
-    sendButton = new JButton( "Send" );
+    sendButton      = new JButton( "Send" );
     periscopePrompt = new JTextField( 25 );
 
     /* Create port combo box */
-    serialComm = SerialRoute.getInstance();
+    //serialComm = SerialRoute.getInstance();
     Vector<String> portList = serialComm.getPortList();
     portList.add( 0, "Disconnected" );
     portComboBox = new JComboBox<String>( portList );
     portComboBox.setMaximumSize( portComboBox.getPreferredSize() );
-    portComboBox.setSelectedItem( 0 );
+    portComboBox.setSelectedIndex( 0 );
     portComboBox.setVisible( false );
 
     /* Activates button/comboBox to register state change */
@@ -175,6 +178,8 @@ public class MazeGUI implements ActionListener, KeyListener {
     periscopePrompt.addKeyListener( this );
     /* Activates multithreaded serial communication on a specified port */
     serialComm.addActionListener( this );
+    /* popup menu listener */
+    portComboBox.addPopupMenuListener( this );
 
     /* add button to panels */
     northButtonPanel.add( animateButton );
@@ -226,6 +231,7 @@ public class MazeGUI implements ActionListener, KeyListener {
    *            object" is a JButton.
    * @return Nothing.
    */
+  @Override
   public void actionPerformed( ActionEvent evt ) {
     if( evt.getSource() == serialComm ) {
       /* data received from serial port */
@@ -339,72 +345,39 @@ public class MazeGUI implements ActionListener, KeyListener {
     // send button should be disabled when slected port is disconnected
     String selectedPort = portComboBox.getSelectedItem().toString();
     String noPort = portComboBox.getItemAt(0).toString();
-    if( selectedPort.equals(noPort) || serialComm == null) return;
+    if( selectedPort.equals(noPort) || serialComm == null ) return;
     String message = periscopePrompt.getText();
     serialComm.sendMessage( message );
     periscopePrompt.setText("");
   }
 
-  private String payload = "";
   /**
    * Triggers when a key is pressed on the machine's keyboard.
    * @param evt Key Event fired.
    * @return Nothing
    */
+  @Override
   public void keyPressed( KeyEvent evt ) {
     if( evt.getKeyCode() == KeyEvent.VK_ENTER ) {
       handleSendButtonEvent( null );
     }
-
-    String preamble = "Periscope: (" + mouse_maze.getDimension() + "x" + mouse_maze.getDimension() + ")";
-    String wallDetected = "";
-    boolean hotkey = false;
-    switch( evt.getKeyCode() ) {
-      case KeyEvent.VK_UP:
-        payload = "(" + (mouse.getRow()-1) + "," + mouse.getColumn() + ")(north)";
-        hotkey = true;
-        break;
-      case KeyEvent.VK_RIGHT:
-        payload = "(" + mouse.getRow() + "," + (mouse.getColumn()+1) + ")(east)";
-        hotkey = true;
-        break;
-      case KeyEvent.VK_DOWN: 
-        payload = "(" + (mouse.getRow()+1) + "," + mouse.getColumn() + ")(south)";
-        hotkey = true;
-        break;
-      case KeyEvent.VK_LEFT:
-        payload = "(" + mouse.getRow() + "," + (mouse.getColumn()-1) + ")(west)";
-        hotkey = true;
-        break;
-      case KeyEvent.VK_W:
-        wallDetected = "up";
-        hotkey = true;
-        break;
-      case KeyEvent.VK_D:
-        wallDetected = "right";
-        hotkey = true;
-        break;
-      case KeyEvent.VK_X: 
-        wallDetected = "down";
-        hotkey = true;
-        break;
-      case KeyEvent.VK_A:
-        wallDetected = "left";
-        hotkey = true;
-        break;
-      case KeyEvent.VK_Y:
-        payload = "(" + mouse.getRow() + "," + mouse.getColumn() + ")(north)";
-        hotkey = true;
-    }
-    if( hotkey ) {
-      periscopePrompt.setText(preamble + payload + "(" + wallDetected + ")");
-      handleSendButtonEvent( null );
-      hotkey = false;
-    }
   }
-  /* required override for KeyListener inheritcance of interface */
+  /* required override for KeyListener inheritance of interface */
+  @Override
   public void keyReleased( KeyEvent evt ) {}
+  @Override
   public void keyTyped( KeyEvent evt ) {} 
+
+
+  @Override
+  public void popupMenuWillBecomeVisible​( PopupMenuEvent evt ) {
+    updatePortComboBox();
+  }
+  @Override
+  public void popupMenuWillBecomeInvisible​( PopupMenuEvent evt ) {}
+  @Override
+  public void popupMenuCanceled​( PopupMenuEvent evt ) {}
+
 
   /**
    * Handles a logic associated with the JComboBox.
@@ -415,29 +388,55 @@ public class MazeGUI implements ActionListener, KeyListener {
     String selectedPort = portComboBox.getSelectedItem().toString();
     String noPort = portComboBox.getItemAt(0).toString();
 
-    if( serialComm.connectTo(selectedPort) ) {
-      /* serial communication is binded to the new selected port */
-      System.out.println( "Connected: " + selectedPort );
-      /* spawn micromouse serial monitors */
-      spawnPeriscopeMonitor( selectedPort );
-
-    }
-    else if( selectedPort.equals(noPort) ) {
+    if( selectedPort.equals(noPort) ) {
       /* Manual disconnection option */
-      if( System.out != stdoutStream ) System.setOut( stdoutStream );
-      System.out.println("Disconnected.");
-      serialComm.disconnect();
-    }
-    else {
-      /* unsuccessful port connection */
-      if( System.out != stdoutStream ) System.setOut( stdoutStream );
-      System.out.println( "Failed Connection: " + selectedPort );
-      portComboBox.setSelectedItem( 0 );
+      killPeriscopeMonitor();
+    } 
+    else if( !spawnPeriscopeMonitor(selectedPort) ) {
+      /* unsuccessful port connection - clean up and report disconnection in front end */
+      portComboBox.setSelectedIndex( 0 );
+      killPeriscopeMonitor();
     }
 
-    if( portComboBox.getItemCount() - 1 != serialComm.getAvailablePortCount() ) {
-      /* new available port detected. update portComboBox */
-      System.out.println("Not implementd: new port detected but not updated in JComboBox");
+    // if( portComboBox.getItemCount() - 1 != serialComm.getAvailablePortCount() ) {
+    //   /* new available port detected. update portComboBox */
+    //   System.out.println("Not implementd: new port detected but not updated in JComboBox");
+    //   updatePortComboBox();
+    // }
+  }
+
+  /**
+   * Updates the available port list in combo box.
+   * @return Nothing.
+   */
+  private void updatePortComboBox() {
+    /* current available ports */
+    Vector<String> portList = serialComm.getPortList();
+    portList.insertElementAt(portComboBox.getItemAt(0), 0); /* diconnected port */
+
+    /* remove items */
+    for( int index = 0; index < portComboBox.getItemCount(); index++ ) {
+      String item = portComboBox.getItemAt(index);
+      if( !portList.contains(item) ) {
+        portComboBox.removeItemAt(index);
+        index--; /* new item will shift into current position */
+      }
+    }
+
+    /* list is up to date */
+    if( portComboBox.getItemCount() ==  portList.size() ) return;
+
+    /* add items */
+    for( int index = 0; index < portList.size(); index++ ) {
+      /* utilizing strict item order */
+      String port = portList.elementAt( index );
+      String item = portComboBox.getItemAt( index );
+      if( item == null ) {
+        portComboBox.addItem( port );
+      }
+      else if( !item.equals(port) ) {
+        portComboBox.insertItemAt( port, index );
+      }
     }
   }
 
@@ -466,6 +465,9 @@ public class MazeGUI implements ActionListener, KeyListener {
 
     if( !periscopeMode ) {
       killPeriscopeMonitor();
+      /* port disconnection */
+      portComboBox.setSelectedIndex( 0 );
+      System.out.println("Disconnected.");
     }
 
     renderPanel.setPeriscopeMode( periscopeMode );
@@ -476,21 +478,34 @@ public class MazeGUI implements ActionListener, KeyListener {
    * Creates a serial monitor on the selected device port to ouput the data
    * being broadcasted from the device.
    * @param devicePort File path of device file that is being listened to.
-   * @return Nothing
+   * @return True on success connecting to device port and spawning serial monitors, 
+   *         otherwise false on failure.
    */
-  private void spawnPeriscopeMonitor( String devicePort ) {
+  private boolean spawnPeriscopeMonitor( String devicePort ) {
     String periscope_home = PERISCOPE_HOME_DIR.getAbsolutePath();
     String monitorScript = periscope_home + "/periscopeSerialMonitor.sh";
     String monitorCmd = String.format("open -a Terminal %s", monitorScript);
 
+    /* device connection */
+     if( serialComm.connectTo(devicePort) ) {
+       /* successfully connected to device */
+       System.out.println( "Connected: " + devicePort );
+     }
+    else {
+      /* unsuccessful port connection */
+      System.out.println( "Failed Connection: " + devicePort );
+      return false;
+    }
+
     /* notify periscope of new device to connect to */
     FileOutputStream device_connected = null;
     try {
-      device_connected = new FileOutputStream( DEVICES_CONNECTED );
+      device_connected = new FileOutputStream( DEVICE_CONNECTED_LOG );
       device_connected.write( devicePort.getBytes() );
     }
     catch( IOException e ) {
       e.printStackTrace();
+      return false;
     }
     finally {
       try {
@@ -502,7 +517,6 @@ public class MazeGUI implements ActionListener, KeyListener {
         e.printStackTrace();
       }
     }
-
     /* open periscope communication channel */
     if( periscopeStream == stdoutStream ) {
       try {
@@ -510,11 +524,11 @@ public class MazeGUI implements ActionListener, KeyListener {
       }
       catch( Exception e ) {
         System.err.println( "Periscope stream failed to open" );
+        return false;
       }
     }
     /* setting output stream to point to periscope monitors */
     System.setOut( periscopeStream );
-
     /* open periscope monitors */
     try {
       if( periscopeMonitor == null ) {
@@ -523,17 +537,53 @@ public class MazeGUI implements ActionListener, KeyListener {
     }
     catch( IOException e ) {
       e.printStackTrace();
+      return false;
     }
+    return true;
   }
 
   /**
    * Closes serial monitor and disconnects the currently connected device.
-   * @return Nothing.
+   * @return True for a successful clean up of periscope, false otherwise.
    */
-  private void killPeriscopeMonitor() {
-    serialComm.disconnect();
-    /* reset output stream to standard out */
-    System.setOut( stdoutStream );
+  private boolean killPeriscopeMonitor() {
+    if( serialComm != null ) {
+      /* close port connection */
+      serialComm.disconnect();
+    }
+    if( System.out != stdoutStream ) {
+      /* redirect output from periscope to stdout */
+      System.setOut( stdoutStream );
+    }
+    if( periscopeMonitor == null ) {
+      /* no existing serial monitor to kill */
+      return true;
+    }
+
+    /* notify periscope of disconnected device event */
+    FileOutputStream device_connected = null;
+    String nullDevice = "null";
+    try {
+      device_connected = new FileOutputStream( DEVICE_CONNECTED_LOG );
+      device_connected.write( nullDevice.getBytes() );
+    }
+    catch( IOException e ) {
+      e.printStackTrace();
+      return false;
+    }
+    finally {
+      try {
+        if( device_connected != null ) {
+          device_connected.close();
+        }
+      }
+      catch( IOException e ) {
+        e.printStackTrace();
+      }
+    }
+    /* periscope serial monitor should now be closed */
+    periscopeMonitor = null;
+    return true;
   }
 
   /**
@@ -553,7 +603,7 @@ public class MazeGUI implements ActionListener, KeyListener {
    * Handles a double buffered image screen for smooth animations.
    */
   private class RenderPanel extends JPanel {
-    private Point leftMazePoint  = new Point();
+    private Point leftMazePoint = new Point();
     private Point rightMazePoint = new Point();
     private Point currentPoint   = new Point();
     private Point rightPoint     = new Point();
@@ -607,16 +657,13 @@ public class MazeGUI implements ActionListener, KeyListener {
     private void renderPeriscope( Graphics g) {
       center.setLocation( getWidth() / 2, getHeight() / 2 );
       mouse_maze = mouse.getMaze();
-      int num_of_walls  = mouse_maze.getDimension() - 1;
       int maze_diameter = (int)(double)( MAZE_PERISCOPE_PROPORTION * Math.min(getHeight(), getWidth()) );
       int maze_radius   = (int)(double)( 0.5 * maze_diameter );
       int maze_offset   = (int)(double)( 0.5 * (getWidth() - maze_diameter) );
-      double cell_unit  = (1.0 / mouse_maze.getDimension()) * maze_diameter;
 
       /* draws the UCSD Logo - upper left corner */
       int image_diameter = (int)(double)(0.25 * maze_diameter);
       if( image_diameter == 0 ) image_diameter = 1; 
-      int image_radius = (int)(double)( 0.5 * image_diameter );
       drawImage( g, image, 0, 0, image_diameter, image_diameter );
 
       /* draw singular centered maze */
@@ -637,7 +684,6 @@ public class MazeGUI implements ActionListener, KeyListener {
     private void renderDefault( Graphics g ) {
       center.setLocation( getWidth() / 2, getHeight() / 2 );
       mouse_maze = mouse.getMaze();
-      int num_of_walls  = ref_maze.getDimension() - 1;
       int maze_diameter = (int)(double)( MAZE_DEFAULT_PROPORTION * Math.min(getHeight(), getWidth()) );
       int maze_radius   = (int)(double)( 0.5 * maze_diameter );
       int maze_offset   = (int)(double)( 0.25 * (getWidth() - 2 * maze_diameter) );
@@ -923,7 +969,6 @@ public class MazeGUI implements ActionListener, KeyListener {
       }
 
       double width_offset  = g.getFontMetrics().stringWidth( message ) / 2.0;
-      int charHeight = (int)(0.05 * maze_diameter);
       g.drawString( message, (int)(center.x - width_offset), mazePoint.y + maze_diameter + (int)((getHeight() - maze_diameter) / 4.0) );
     }
 

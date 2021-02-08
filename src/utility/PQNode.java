@@ -18,7 +18,7 @@ import java.lang.Comparable;
 /**
  * Generic PQNode object for a min priority queue.
  */
-class PQNode<T> implements Comparable<PQNode<T>> {
+public class PQNode<T> implements Comparable<PQNode<T>> {
   public final int weight;
   public final T data;
 
@@ -27,7 +27,7 @@ class PQNode<T> implements Comparable<PQNode<T>> {
    * @param weight or priority of node.
    * @param data the generic data that is associated with its priority.
    */
-  PQNode( int weight, T data ) {
+  public PQNode( int weight, T data ) {
     this.weight = weight;
     this.data = data;
   }

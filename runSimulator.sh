@@ -6,7 +6,7 @@
 #                 University of California, San Diego
 #                           IEEE Micromouse
 #
-# File Name: runMicromouseSimulator.sh
+# File Name: runSimulator.sh
 # Description: Execute Micromouse Simulator.
 ################################################################################
 #!/bin/bash

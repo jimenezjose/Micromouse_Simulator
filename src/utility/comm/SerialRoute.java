@@ -13,12 +13,9 @@
  *        github.com/Fazecast/jSerialComm/wiki/Event-Based-Reading-Usage-Example
  */
 
-import java.io.PrintStream;
-import java.lang.Thread;
 import com.fazecast.jSerialComm.*;
 import java.util.ArrayList;
 import java.util.Vector;
-import java.util.EventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.charset.StandardCharsets;
@@ -225,4 +222,13 @@ public class SerialRoute implements SerialPortMessageListener {
   public int getAvailablePortCount() {
     return getPortList().size();
   }
+
+  /**
+   * Gets system name of connected port.
+   * @return System port name if port is connected, otherwise null.
+   */
+  public String getConnectedPortName() {
+    return (port == null) ? null : port.getSystemPortName();
+  }
+  
 }

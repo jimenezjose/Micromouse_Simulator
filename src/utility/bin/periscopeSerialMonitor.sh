@@ -13,8 +13,8 @@
 
 GREEN="\e[32m"
 DEFAULT="\e[39m"
-LOGFILE="/tmp/session.log"
-DEVICE_FILE="/tmp/device.connected"
+LOGFILE="/tmp/periscope.log"
+DEVICE_FILE="/tmp/device_connected.log"
 DEVICE_DIR="/dev"
 DIR=$(dirname "${0}")
 
@@ -33,6 +33,9 @@ if [[ ! -c $DEVICE ]] || [[ "$DEVICE" == "" ]]; then
 	printf "Device \"$DEVICE\" not found.\n"
         exit 0
 fi
+
+# terminates process once device is disconnected
+./grimReaper.sh $$ &
 
 # clear log file
 echo -n > $LOGFILE

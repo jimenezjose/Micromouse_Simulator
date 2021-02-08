@@ -13,7 +13,7 @@
 /**
  * Generic pair object that hold two objects together.
  */
-class Pair<T,K> {
+public class Pair<T,K> {
   public final T first;
   public final K second;
 
