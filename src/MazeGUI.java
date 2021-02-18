@@ -104,7 +104,6 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
   private PrintStream periscopeStream = System.out;
   private PrintStream deviceHistoryStream = System.out;
   private Process periscopeMonitor = null;
-  private Timer periscopeCLK;
 
   /**
    * Constructor: Creates and sets up MazeGUI 
@@ -223,7 +222,6 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
 
     main_frame.setVisible( true );
     animationCLK = new Timer( ANIMATION_DELAY, this );
-    periscopeCLK = new Timer( PERISCOPE_DELAY, this );
   }
 
   /**
@@ -267,9 +265,6 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
     else if( evt.getSource() == nextButton || evt.getSource() == animationCLK ) {
       /* animation clk signal */
       handleNextButtonEvent( evt );
-    }
-    else if( evt.getSource() == periscopeCLK ) {
-      handlePeriscopeCLKEvent( evt );
     }
   }
 
@@ -411,31 +406,6 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
   }
 
   /**
-   * Waits for a hardware device disconnect to immediately reflect disconnection 
-   * in the periscope front end.
-   * @param evt clk event that fired to check for a hardware disconnection.
-   * @return Nothing.
-   */
-  private void handlePeriscopeCLKEvent( ActionEvent evt ) {
-    String selectedPort = portComboBox.getSelectedItem().toString();
-    String noPort = portComboBox.getItemAt(0).toString(); /* diconnected port */
-    /* no port activity to worry about - currently not connected to a device */
-    if( selectedPort.equals(noPort) ) return;
-
-    /* current available ports */
-    Vector<String> portList = serialComm.getPortList();
-    portList.insertElementAt(noPort, 0); 
-
-    /* currently connected device got disconnected */
-    if( !portList.contains(selectedPort) ) {
-      /* reflect disconnection in front end */
-      killPeriscopeMonitor();
-      portComboBox.setSelectedIndex( 0 );
-      System.out.println("Disconnected.");
-    }
-  }
-
-  /**
    * Realtime event streaming communication from hardware micromouse.
    * @param evt Event that triggered a periscope button toggle.
    * @return Nothing.
@@ -458,19 +428,11 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
     mazeButton.setVisible( !periscopeMode );
     clearButton.setVisible( !periscopeMode );
 
-    if( periscopeMode ) {
-      /* clk signal for hardware maintenance at posedge */
-      periscopeCLK.start();
-    }
-    else {
+    if(!periscopeMode && portComboBox.getSelectedIndex() != 0 ) {
       /* periscope close and clean up */
-      periscopeCLK.stop();
-      if( portComboBox.getSelectedIndex() != 0 ) {
-        /* forcefully kill perisope monitor and disconnect device */
-        killPeriscopeMonitor();
-        portComboBox.setSelectedIndex( 0 );
-        System.out.println("Disconnected.");
-      }
+      killPeriscopeMonitor();
+      portComboBox.setSelectedIndex( 0 );
+      System.out.println("Disconnected.");
     }
 
     renderPanel.setPeriscopeMode( periscopeMode );
@@ -485,6 +447,15 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
     /* current available ports */
     Vector<String> portList = serialComm.getPortList();
     portList.insertElementAt(portComboBox.getItemAt(0), 0); /* diconnected port */
+
+    /* currently connected device got disconnected */
+    String selectedPort = portComboBox.getSelectedItem().toString();
+    if( !portList.contains(selectedPort) ) {
+      /* reflect disconnection in front end */
+      killPeriscopeMonitor();
+      portComboBox.setSelectedIndex( 0 );
+      System.out.println("Disconnected.");
+    }
 
     /* remove items */
     for( int index = 0; index < portComboBox.getItemCount(); index++ ) {
