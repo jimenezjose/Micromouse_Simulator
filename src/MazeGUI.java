@@ -57,7 +57,8 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
   private static final File DEVICE_CONNECTED_LOG = new File("/tmp/device_connected.log");
   private static final File PERISCOPE_HOME_DIR = new File("../src/utility/bin");
   private static final PrintStream stdoutStream = System.out;
-  private static final int DELAY = 250;
+  private static final int ANIMATION_DELAY = 250;
+  private static final int PERISCOPE_DELAY = 1000;
   private static final int EVEN = 2;
 
   private static final Color LIGHT_BLACK           = new Color( 32, 32, 32 );
@@ -78,7 +79,7 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
   private Maze mouse_maze;
   private Mouse mouse;
 
-  private Timer timer;
+  private Timer animationCLK;
   private JPanel northPanel;
   private JPanel southPanel;
   private RenderPanel renderPanel;
@@ -103,6 +104,7 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
   private PrintStream periscopeStream = System.out;
   private PrintStream deviceHistoryStream = System.out;
   private Process periscopeMonitor = null;
+  private Timer periscopeCLK;
 
   /**
    * Constructor: Creates and sets up MazeGUI 
@@ -220,7 +222,8 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
     contentPane.validate();
 
     main_frame.setVisible( true );
-    timer = new Timer( DELAY, this );
+    animationCLK = new Timer( ANIMATION_DELAY, this );
+    periscopeCLK = new Timer( PERISCOPE_DELAY, this );
   }
 
   /**
@@ -261,9 +264,12 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
       /* send user input out of device port */
       handleSendButtonEvent( evt );
     }
-    else if( evt.getSource() == nextButton || evt.getSource() == timer ) {
-      /* animation timer */
+    else if( evt.getSource() == nextButton || evt.getSource() == animationCLK ) {
+      /* animation clk signal */
       handleNextButtonEvent( evt );
+    }
+    else if( evt.getSource() == periscopeCLK ) {
+      handlePeriscopeCLKEvent( evt );
     }
   }
 
@@ -284,15 +290,15 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
    * @return Nothing.
    */
   private void handleAnimateButtonEvent( ActionEvent evt ) {
-    if( timer.isRunning() == false ) {
+    if( animationCLK.isRunning() == false ) {
       /* start animation */
-      timer.start();
+      animationCLK.start();
       animateButton.setText( "Stop" );
       nextButton.setEnabled( false );
     }
     else {
       /* stop animation */
-      timer.stop();
+      animationCLK.stop();
       animateButton.setText( "Animate" );
       nextButton.setEnabled( true );
     }
@@ -307,7 +313,7 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
   private void handleMazeButtonEvent( ActionEvent evt ) {
     System.err.println( "\nnew maze" );
     animateButton.setText( "Animate" );
-    if( timer.isRunning() == true ) timer.stop();
+    if( animationCLK.isRunning() == true ) animationCLK.stop();
     nextButton.setEnabled( true );
     ref_maze.clear();
     ref_maze.createRandomMaze( DATAFILE );
@@ -329,7 +335,7 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
     else if( mouse.isDone() ) {
       /* mouse is done running. */
       System.err.println("Mouse is done running.");
-      if( timer.isRunning() ) timer.stop();
+      if( animationCLK.isRunning() ) animationCLK.stop();
       animateButton.setText( "Animate" );
       animateButton.setEnabled( true );
       nextButton.setEnabled( true );
@@ -391,7 +397,7 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
    */
   private void handlePortComboBoxEvent( ActionEvent evt ) {
     String selectedPort = portComboBox.getSelectedItem().toString();
-    String noPort = portComboBox.getItemAt(0).toString();
+    String noPort = portComboBox.getItemAt(0).toString(); /* diconnected port */
 
     if( selectedPort.equals(noPort) ) {
       /* Manual disconnection option */
@@ -399,15 +405,74 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
     } 
     else if( !spawnPeriscopeMonitor(selectedPort) ) {
       /* unsuccessful port connection - clean up and report disconnection in front end */
-      portComboBox.setSelectedIndex( 0 );
       killPeriscopeMonitor();
+      portComboBox.setSelectedIndex( 0 );
+    }
+  }
+
+  /**
+   * Waits for a hardware device disconnect to immediately reflect disconnection 
+   * in the periscope front end.
+   * @param evt clk event that fired to check for a hardware disconnection.
+   * @return Nothing.
+   */
+  private void handlePeriscopeCLKEvent( ActionEvent evt ) {
+    String selectedPort = portComboBox.getSelectedItem().toString();
+    String noPort = portComboBox.getItemAt(0).toString(); /* diconnected port */
+    /* no port activity to worry about - currently not connected to a device */
+    if( selectedPort.equals(noPort) ) return;
+
+    /* current available ports */
+    Vector<String> portList = serialComm.getPortList();
+    portList.insertElementAt(noPort, 0); 
+
+    /* currently connected device got disconnected */
+    if( !portList.contains(selectedPort) ) {
+      /* reflect disconnection in front end */
+      killPeriscopeMonitor();
+      portComboBox.setSelectedIndex( 0 );
+      System.out.println("Disconnected.");
+    }
+  }
+
+  /**
+   * Realtime event streaming communication from hardware micromouse.
+   * @param evt Event that triggered a periscope button toggle.
+   * @return Nothing.
+   */
+  private void handlePeriscopeButtonEvent( ActionEvent evt ) {
+    boolean periscopeMode = !portComboBox.isVisible();
+    String buttonText = (periscopeMode) ? "Exit" : "Periscope";
+    periscopeButton.setText( buttonText );
+    portComboBox.setVisible( periscopeMode );
+    periscopePanel.setVisible( periscopeMode );
+    /* reset mouse and environment */
+    handleClearButtonEvent( evt );
+    /* disable animation buttons when in Periscope Mode */
+    animateButton.setVisible( !periscopeMode );
+    nextButton.setVisible( !periscopeMode );
+    mazeButton.setVisible( !periscopeMode );
+    clearButton.setVisible( !periscopeMode );
+    if( animationCLK.isRunning() ) {
+      animationCLK.stop();
+      animateButton.setText( "Animate" );
     }
 
-    // if( portComboBox.getItemCount() - 1 != serialComm.getAvailablePortCount() ) {
-    //   /* new available port detected. update portComboBox */
-    //   System.out.println("Not implementd: new port detected but not updated in JComboBox");
-    //   updatePortComboBox();
-    // }
+    if( periscopeMode ) {
+      /* clk signal for hardware maintenance at posedge */
+      periscopeCLK.start();
+    }
+    else {
+      /* close and clean up */
+      periscopeCLK.stop();
+      killPeriscopeMonitor();
+      /* port disconnection */
+      portComboBox.setSelectedIndex( 0 );
+      System.out.println("Disconnected.");
+    }
+
+    renderPanel.setPeriscopeMode( periscopeMode );
+    renderPanel.repaint();
   }
 
   /**
@@ -443,40 +508,6 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
         portComboBox.insertItemAt( port, index );
       }
     }
-  }
-
-  /**
-   * Realtime event streaming communication from hardware micromouse.
-   * @param evt Event that triggered a periscope button toggle.
-   * @return Nothing.
-   */
-  private void handlePeriscopeButtonEvent( ActionEvent evt ) {
-    boolean periscopeMode = !portComboBox.isVisible();
-    String buttonText = (periscopeMode) ? "Exit" : "Periscope";
-    periscopeButton.setText( buttonText );
-    portComboBox.setVisible( periscopeMode );
-    periscopePanel.setVisible( periscopeMode );
-    /* reset mouse and environment */
-    handleClearButtonEvent( evt );
-    /* disable animation buttons when in Periscope Mode */
-    animateButton.setVisible( !periscopeMode );
-    nextButton.setVisible( !periscopeMode );
-    mazeButton.setVisible( !periscopeMode );
-    clearButton.setVisible( !periscopeMode );
-    if( timer.isRunning() ) {
-      timer.stop();
-      animateButton.setText( "Animate" );
-    }
-
-    if( !periscopeMode ) {
-      killPeriscopeMonitor();
-      /* port disconnection */
-      portComboBox.setSelectedIndex( 0 );
-      System.out.println("Disconnected.");
-    }
-
-    renderPanel.setPeriscopeMode( periscopeMode );
-    renderPanel.repaint();
   }
 
   /**
