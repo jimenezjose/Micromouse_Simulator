@@ -447,28 +447,30 @@ public class MazeGUI implements ActionListener, KeyListener, PopupMenuListener {
     portComboBox.setVisible( periscopeMode );
     periscopePanel.setVisible( periscopeMode );
     /* reset mouse and environment */
+    if( animationCLK.isRunning() ) {
+      /* stop current running animation */
+      handleAnimateButtonEvent( evt );
+    }
     handleClearButtonEvent( evt );
     /* disable animation buttons when in Periscope Mode */
     animateButton.setVisible( !periscopeMode );
     nextButton.setVisible( !periscopeMode );
     mazeButton.setVisible( !periscopeMode );
     clearButton.setVisible( !periscopeMode );
-    if( animationCLK.isRunning() ) {
-      animationCLK.stop();
-      animateButton.setText( "Animate" );
-    }
 
     if( periscopeMode ) {
       /* clk signal for hardware maintenance at posedge */
       periscopeCLK.start();
     }
     else {
-      /* close and clean up */
+      /* periscope close and clean up */
       periscopeCLK.stop();
-      killPeriscopeMonitor();
-      /* port disconnection */
-      portComboBox.setSelectedIndex( 0 );
-      System.out.println("Disconnected.");
+      if( portComboBox.getSelectedIndex() != 0 ) {
+        /* forcefully kill perisope monitor and disconnect device */
+        killPeriscopeMonitor();
+        portComboBox.setSelectedIndex( 0 );
+        System.out.println("Disconnected.");
+      }
     }
 
     renderPanel.setPeriscopeMode( periscopeMode );
