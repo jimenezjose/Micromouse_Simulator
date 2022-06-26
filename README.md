@@ -1,6 +1,6 @@
 # Micromouse Simulator
 
-## [Wiki](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
+> Documentation: [Wiki](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
 
 ## How to Run The Micromouse Simulator:
 ```
