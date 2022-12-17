@@ -1,6 +1,6 @@
 # Micromouse Simulator
 
-> Documentation: [Wiki](https://github.com/jimenezjose/Micromouse_Simulator/wiki)
+> Documentation: [Wiki](https://github.com/jimenezjose/Micromouse_Simulator/wiki/Maze-Generation)
 
 ## How to Run The Micromouse Simulator:
 ```
